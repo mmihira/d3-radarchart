@@ -92,9 +92,35 @@ var mycfg = {
   ExtraWidthX: 300
 }
 
+var cfg = {
+ radius: 5,
+ w: 600,
+ h: 600,
+ factor: 1,
+ factorLegend: .85,
+ levels: 3,
+ maxValue: 0,
+ radians: 2 * Math.PI,
+ opacityArea: 0.5,
+ ToRight: 5,
+ TranslateX: 80,
+ TranslateY: 30,
+ ExtraWidthX: 100,
+ ExtraWidthY: 100,
+ color: d3.scaleOrdinal(d3.schemeAccent)
+};
+
+
+for(var i in mycfg){
+  if('undefined' !== typeof mycfg[i]){
+     cfg[i] = mycfg[i];
+  }
+}
+
 //Call function to draw the Radar chart
 //Will expect that data is in %'s
-RadarChart.draw("#chart", d, mycfg);
+const z = new RadarChartT(cfg, axiss, d, document.getElementById('chart'));
+z.render();
 
 ////////////////////////////////////////////
 /////////// Initiate legend ////////////////

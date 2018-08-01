@@ -1,317 +1,173 @@
-//Practically all this code comes from https://github.com/alangrafu/radar-chart-d3
-//I only made some additions and aesthetic adjustments to make the chart look better
-//(of course, that is only my point of view)
-//Such as a better placement of the titles at each line end,
-//adding numbers that reflect what each circular level stands for
-//Not placing the last level and slight differences in color
-//
-//For a bit of extra information check the blog about it:
-//http://nbremer.blogspot.nl/2013/09/making-d3-radar-chart-look-bit-better.html
-//
-//
-//
-//
-//
-var axiss = [
-  {axisId:"Email", value:0.59},
-  {axisId:"Social Networks", value:0.56},
-  {axisId:"Internet Banking", value:0.42},
-  {axisId:"News Sportsites", value:0.34},
-  {axisId:"Search Engine", value:0.48},
-  {axisId:"View Shopping sites", value:0.14},
-  {axisId:"Paying Online", value:0.11},
-  {axisId:"Buy Online", value:0.05},
-  {axisId:"Stream Music", value:0.07},
-  {axisId:"Online Gaming", value:0.12},
-  {axisId:"Navigation", value:0.27},
-  {axisId:"App connected to TV program", value:0.03},
-  {axisId:"Offline Gaming", value:0.12},
-  {axisId:"Photo Video", value:0.4},
-  {axisId:"Reading", value:0.03},
-  {axisId:"Listen Music", value:0.22},
-  {axisId:"Watch TV", value:0.03},
-  {axisId:"TV Movies Streaming", value:0.03},
-  {axisId:"Listen Radio", value:0.07},
-  {axisId:"Sending Money", value:0.18},
-  {axisId:"Other", value:0.07},
-  {axisId:"Use less Once week", value:0.08}
-];
+/**
+ * Hugely based of https://github.com/alangrafu/radar-chart-d3
+ */
+class RadarChartT {
+  /**
+   * @param config {Object}
+   * @param axisConfig {Array}
+   * @param data {Array}
+   * @param rootElement {Object} Root element to attach svg - should be a raw DOM element
+   */
+  constructor(config, axisConfig, data, rootElement) {
+    this.areas = [];
 
-var RadarChart = {
-  draw: function(id, d, options){
+    // We should be constructing some of these items in this class
+    this.config = JSON.parse(JSON.stringify(config));
+    this.config.color = config.color;
 
-  var cfg = {
-	 radius: 5,
-	 w: 600,
-	 h: 600,
-	 factor: 1,
-	 factorLegend: .85,
-	 levels: 3,
-	 maxValue: 0,
-	 radians: 2 * Math.PI,
-	 opacityArea: 0.5,
-	 ToRight: 5,
-	 TranslateX: 80,
-	 TranslateY: 30,
-	 ExtraWidthX: 100,
-	 ExtraWidthY: 100,
-	 color: d3.scaleOrdinal(d3.schemeAccent)
-	};
+    this.data = JSON.parse(JSON.stringify(data));
+    this.axisConfig = JSON.parse(JSON.stringify(axisConfig));
+    this.rootElement = d3.select(rootElement);
 
+    this.config.maxAxisNo = axisConfig.length;
+	  this.config.levelRadius = this.config.factor * Math.min(this.config.w / 2, this.config.h / 2);
 
-	if('undefined' !== typeof options){
-	  for(var i in options){
-		if('undefined' !== typeof options[i]){
-		  cfg[i] = options[i];
-		}
-	  }
-	}
+    // Calculate the maximum value for the chart
+    const maxFromData = d3.max(this.data, (dataSet) => d3.max(dataSet.map(o => o.value)));
+	  this.config.maxValue = Math.max(this.config.maxValue, maxFromData);
 
-  const z = new RadarChartT(cfg, axiss, d, document.getElementById('chart'));
+    // Calculate parameters describing the axis
+	  this.axisParameters = axisConfig.map((axis, inx) => {
+      const {config: cfg} = this;
+      const {maxAxisNo: axisNo} = this.config;
 
-	cfg.maxValue = Math.max(cfg.maxValue, d3.max(d, function(i){return d3.max(i.map(function(o){return o.value;}))}));
+      const x1 = cfg.w / 2;
+      const y1 = cfg.h / 2;
+      const x2 = cfg.w / 2 * (1 - cfg.factor*Math.sin(inx * cfg.radians / axisNo));
+      const y2 = cfg.h / 2 * (1 - cfg.factor*Math.cos(inx * cfg.radians / axisNo));
+      const label_x = cfg.w/2*(1-cfg.factorLegend*Math.sin(inx*cfg.radians/axisNo))-60*Math.sin(inx*cfg.radians/axisNo);
+      const label_y = cfg.h/2*(1-Math.cos(inx*cfg.radians/axisNo))-20*Math.cos(inx*cfg.radians/axisNo);
+      const gradient = Math.abs(x2 - x1) < 0.000000001 ? Infinity : (y2 - y1) / (x2 - x1);
+      const b = gradient === Infinity ? 0 : y2 - gradient * x2;
+      const projectCordToAxis = function(x, y) {
+        if (gradient === Infinity) {
+          return {x: x1, y: y};
+        } else {
+          return {x: x, y: gradient * x + b};
+        }
+      };
 
-  axisNo = d[0].length;
-
-	var allAxis = d[0].map(function(i, inx) {
-    const x1 = cfg.w / 2;
-    const y1 = cfg.h / 2;
-    const x2 = cfg.w / 2 * (1 - cfg.factor*Math.sin(inx * cfg.radians / axisNo));
-    const y2 = cfg.h / 2 * (1 - cfg.factor*Math.cos(inx * cfg.radians / axisNo));
-    const label_x = cfg.w/2*(1-cfg.factorLegend*Math.sin(inx*cfg.radians/axisNo))-60*Math.sin(inx*cfg.radians/axisNo);
-    const label_y = cfg.h/2*(1-Math.cos(inx*cfg.radians/axisNo))-20*Math.cos(inx*cfg.radians/axisNo);
-    const gradient = Math.abs(x2 - x1) < 0.000000001 ? Infinity : (y2 - y1) / (x2 - x1);
-    const b = gradient === Infinity ? 0 : y2 - gradient * x2;
-    const projectCordToAxis = function(x, y) {
-      if (gradient === Infinity) {
-        return {x: x1, y: y};
-      } else {
-        return {x: x, y: gradient * x + b};
-      }
-    };
-    return {
-      axis: i.axis,
-      label: i.axis,
-      x1: x1,
-		  y1: y1,
-		  x2: x2,
-		  y2: y2,
-      label_x: label_x,
-      label_y: label_y,
-      projectCordToAxis: projectCordToAxis,
-      projectValueOnAxis: function(value) {
-        return {x: 0, y: 0};
-      }
-    };
-  });
-
-  console.log(cfg);
-  console.log(allAxis[0]);
-
-  var axisMap = allAxis.reduce(function(map, ix) {
-    map[ix.axis] = ix;
-    return map;
-  }, {});
-
-  z.render();
-
-  if (false) {
-
-	 var total = allAxis.length;
-	 var radius = cfg.factor*Math.min(cfg.w/2, cfg.h/2);
-	 var Format = d3.format('%');
-	 d3.select(id).select("svg").remove();
-
-	 var g = d3.select(id)
-	 		.append("svg")
-	 		.attr("width", cfg.w+cfg.ExtraWidthX)
-	 		.attr("height", cfg.h+cfg.ExtraWidthY)
-	 		.append("g")
-	 		.attr("transform", "translate(" + cfg.TranslateX + "," + cfg.TranslateY + ")");
-	 		;
-
-	 var tooltip;
-
-	for(var j=0; j<cfg.levels-1; j++){
-	  var levelFactor = cfg.factor*radius*((j+1)/cfg.levels);
-	  g.selectAll(".levels")
-	   .data(allAxis)
-	   .enter()
-	   .append("svg:line")
-	   .attr("x1", function(d, i){return levelFactor*(1-cfg.factor*Math.sin(i*cfg.radians/total));})
-	   .attr("y1", function(d, i){return levelFactor*(1-cfg.factor*Math.cos(i*cfg.radians/total));})
-	   .attr("x2", function(d, i){return levelFactor*(1-cfg.factor*Math.sin((i+1)*cfg.radians/total));})
-	   .attr("y2", function(d, i){return levelFactor*(1-cfg.factor*Math.cos((i+1)*cfg.radians/total));})
-	   .attr("class", "line")
-	   .style("stroke", "grey")
-	   .style("stroke-opacity", "0.75")
-	   .style("stroke-width", "0.3px")
-	   .attr("transform", "translate(" + (cfg.w/2-levelFactor) + ", " + (cfg.h/2-levelFactor) + ")");
-	}
-
-	//Text indicating at what % each level is
-	for(var j=0; j<cfg.levels; j++){
-	  var levelFactor = cfg.factor*radius*((j+1)/cfg.levels);
-	  g.selectAll(".levels")
-	   .data([1]) //dummy data
-	   .enter()
-	   .append("svg:text")
-	   .attr("x", function(d){return levelFactor*(1-cfg.factor*Math.sin(0));})
-	   .attr("y", function(d){return levelFactor*(1-cfg.factor*Math.cos(0));})
-	   .attr("class", "legend")
-	   .style("font-family", "sans-serif")
-	   .style("font-size", "10px")
-	   .attr("transform", "translate(" + (cfg.w/2-levelFactor + cfg.ToRight) + ", " + (cfg.h/2-levelFactor) + ")")
-	   .attr("fill", "#737373")
-	   .text(Format((j+1)*cfg.maxValue/cfg.levels));
-	}
-
-	series = 0;
-
-	var axis = g.selectAll(".axis")
-			.data(allAxis)
-			.enter()
-			.append("g")
-      .attr('pointer-events', 'none')
-			.attr("class", "axis");
-
-	axis.append("line")
-		.attr("x1", cfg.w/2)
-		.attr("y1", cfg.h/2)
-		.attr("x2", function(d, i) {return d.x2;})
-		.attr("y2", function(d, i) {return d.y2;})
-		.attr("class", "line")
-    .attr('pointer-events', 'none')
-		.style("stroke", "grey")
-		.style("stroke-width", "1px");
-
-	axis.append("text")
-		.attr("class", "legend")
-		.text(function(d) { return d.label; })
-		.style("font-family", "sans-serif")
-		.style("font-size", "11px")
-		.attr("text-anchor", "middle")
-		.attr("dy", "1.5em")
-		.attr("transform", function(d, i){return "translate(0, -10)"})
-		.attr("x", function(d, i){
-      var axis = axisMap[d.axis];
-      return axis.label_x;
-    })
-		.attr("y", function(d, i){
-      var axis = axisMap[d.axis];
-      return axis.label_y;
+      return {
+        axis: axis.axisId,
+        label: axis.label ? axis.label : axis.axisId,
+        x1: x1,
+        y1: y1,
+        x2: x2,
+        y2: y2,
+        label_x: label_x,
+        label_y: label_y,
+        projectCordToAxis: projectCordToAxis,
+        projectValueOnAxis: function(value) {
+          return {
+            x: cfg.w / 2 * (1 - (parseFloat(Math.max(value, 0)) / cfg.maxValue) * cfg.factor * Math.sin(inx * cfg.radians / axisNo)),
+            y: cfg.h / 2 * (1 - (parseFloat(Math.max(value, 0)) / cfg.maxValue) * cfg.factor * Math.cos(inx * cfg.radians / axisNo)),
+          };
+        }
+      };
     });
 
-
-	d.forEach(function(y, x){
-	  dataValues = [];
-	  g.selectAll(".nodes")
-		.data(y, function(j, i){
-		  dataValues.push([
-			cfg.w/2*(1-(parseFloat(Math.max(j.value, 0))/cfg.maxValue)*cfg.factor*Math.sin(i*cfg.radians/total)),
-			cfg.h/2*(1-(parseFloat(Math.max(j.value, 0))/cfg.maxValue)*cfg.factor*Math.cos(i*cfg.radians/total))
-		  ]);
-		});
-	  dataValues.push(dataValues[0]);
-	  g.selectAll(".area")
-     .data([dataValues])
-     .enter()
-     .append("polygon")
-     .attr("class", "radar-chart-serie"+series)
-     .style("stroke-width", "2px")
-     .style("stroke", cfg.color(series))
-     .attr("points",function(d) {
-       var str="";
-       for(var pti=0;pti<d.length;pti++){
-         str=str+d[pti][0]+","+d[pti][1]+" ";
-       }
-       return str;
-      })
-     .style("fill", function(j, i){return cfg.color(series)})
-     .style("fill-opacity", cfg.opacityArea)
-     .on('mouseover', function (d){
-        z = "polygon."+d3.select(this).attr("class");
-        g.selectAll("polygon")
-         .transition(200)
-         .style("fill-opacity", 0.1);
-        g.selectAll(z)
-         .transition(200)
-         .style("fill-opacity", .7);
-        })
-     .on('mouseout', function(){
-        g.selectAll("polygon")
-         .transition(200)
-         .style("fill-opacity", cfg.opacityArea);
-     });
-	  series++;
-	});
-	series=0;
-
-
-	d.forEach(function(y, x){
-	  g.selectAll(".nodes")
-		.data(y)
-    .enter()
-		.append("svg:circle")
-    .call(d3.drag()
-      .subject(function(d) { return this; })
-      .on('drag', function(d) {
-        var axis = axisMap[d.axis];
-        var {x, y} = d3.event;
-        d3.select(d3.event.subject)
-          .attr("cx", axis.projectCordToAxis(x, y).x)
-          .attr("cy", axis.projectCordToAxis(x, y).y)
-      })
-    )
-		.attr("class", "radar-chart-serie"+series)
-		.attr('r', cfg.radius)
-		.attr("alt", function(j){return Math.max(j.value, 0)})
-		.attr("cx", function(j, i) {
-		  return cfg.w/2*(1-(Math.max(j.value, 0)/cfg.maxValue)*cfg.factor*Math.sin(i*cfg.radians/total));
-		})
-		.attr("cy", function(j, i) {
-		  return cfg.h/2*(1-(Math.max(j.value, 0)/cfg.maxValue)*cfg.factor*Math.cos(i*cfg.radians/total));
-		})
-		.attr("data-id", function(j) {return j.axis})
-		.style("fill", cfg.color(series)).style("fill-opacity", .9)
-		.on('mouseover', function (d){
-        newX =  parseFloat(d3.select(this).attr('cx')) - 10;
-        newY =  parseFloat(d3.select(this).attr('cy')) - 5;
-
-        tooltip
-          .attr('x', newX)
-          .attr('y', newY)
-          .text(Format(d.value))
-          .transition(200)
-          .style('opacity', 1);
-
-        z = "polygon."+d3.select(this).attr("class");
-        g.selectAll("polygon")
-          .transition(200)
-          .style("fill-opacity", 0.1);
-        g.selectAll(z)
-          .transition(200)
-          .style("fill-opacity", .7);
-        })
-		.on('mouseout', function(){
-					tooltip
-						.transition(200)
-						.style('opacity', 0);
-					g.selectAll("polygon")
-						.transition(200)
-						.style("fill-opacity", cfg.opacityArea);
-				  })
-		.append("svg:title")
-		.text(function(j){return Math.max(j.value, 0)})
-
-	  series++;
-	});
+    this.axisMap = this.axisParameters
+      .reduce((map, ix) => {
+        map[ix.axis] = ix;
+        return map;
+      }, {});
   }
 
-	////Tooltip
-	//tooltip = g.append('text')
-	//		   .style('opacity', 0)
-	//		   .style('font-family', 'sans-serif')
-	//		   .style('font-size', '13px');
+  render() {
+    this.renderAxis();
+    this.renderArea();
   }
-};
+
+  renderAxis() {
+    const {config: cfg} = this;
+    const {maxAxisNo } = cfg;
+
+    this.rootSvg = this.rootElement
+        .append("svg")
+        .attr("width", cfg.w+cfg.ExtraWidthX)
+        .attr("height", cfg.h+cfg.ExtraWidthY)
+
+    this.drawingContext = this.rootSvg
+      .append("g")
+      .attr("transform", "translate(" + this.config.TranslateX + "," + this.config.TranslateY + ")");
+
+    // Circular segments
+    for(var j = 0; j < cfg.levels - 1; j ++){
+      var levelFactor = cfg.factor * cfg.levelRadius * ((j + 1) / cfg.levels);
+      this.drawingContext.selectAll(".levels")
+       .data(this.axisParameters)
+       .enter()
+       .append("svg:line")
+       .attr("x1", function(d, i){return levelFactor*(1 - cfg.factor*Math.sin(i*cfg.radians/maxAxisNo));})
+       .attr("y1", function(d, i){return levelFactor*(1 - cfg.factor*Math.cos(i*cfg.radians/maxAxisNo));})
+       .attr("x2", function(d, i){return levelFactor*(1 - cfg.factor*Math.sin((i+1)*cfg.radians/maxAxisNo));})
+       .attr("y2", function(d, i){return levelFactor*(1 - cfg.factor*Math.cos((i+1)*cfg.radians/maxAxisNo));})
+       .attr("class", "line")
+       .style("stroke", "grey")
+       .style("stroke-opacity", "0.75")
+       .style("stroke-width", "0.3px")
+       .attr("transform", "translate(" + (cfg.w/2-levelFactor) + ", " + (cfg.h/2-levelFactor) + ")");
+    }
+
+	  var Format = d3.format('.2%');
+
+    // Text indicating at what % each level is
+    for(var j=0; j<cfg.levels; j++){
+      var levelFactor = cfg.factor*cfg.levelRadius*((j+1)/cfg.levels);
+      var z = this.drawingContext
+       .selectAll(".levels")
+       .data([1]) //dummy data
+       .enter()
+       .append("svg:text")
+       .attr("x", function(d){return levelFactor*(1-cfg.factor*Math.sin(0));})
+       .attr("y", function(d){return levelFactor*(1-cfg.factor*Math.cos(0));})
+       .attr("class", "legend")
+       .style("font-family", "sans-serif")
+       .style("font-size", "10px")
+       .attr("transform", "translate(" + (cfg.w/2-levelFactor + cfg.ToRight) + ", " + (cfg.h/2-levelFactor) + ")")
+       .attr("fill", "#737373")
+       .text(Format((j+1)*cfg.maxValue/cfg.levels));
+    }
+
+    this.axisG = this.drawingContext
+      .selectAll(".axis")
+      .data(this.axisParameters)
+      .enter()
+      .append("g")
+
+    this.axisLines = this.axisG
+      .attr('pointer-events', 'none')
+      .attr("class", "axis")
+      .append("line")
+      .attr("x1", d => d.x1)
+      .attr("y1", d => d.y1)
+      .attr("x2", d => d.x2)
+      .attr("y2", d => d.y2)
+      .attr("class", "line")
+      .attr('pointer-events', 'none')
+      .style("stroke", "grey")
+      .style("stroke-width", "1px");
+
+    this.axisText = this.axisG
+      .append("text")
+      .attr("class", "legend")
+      .text(d => d.label)
+      .style("font-family", "sans-serif")
+      .style("font-size", "11px")
+      .attr("text-anchor", "middle")
+      .attr("dy", "1.5em")
+      .attr("transform", () => "translate(0, -10)")
+      .attr("x", d  => d.label_x)
+      .attr("y", d  => d.label_y)
+  }
+
+  renderArea() {
+    let series = 0;
+    const {config: cfg} = this;
+    const {maxAxisNo} = cfg;
+
+    this.areas = this.data.map((series, inx) => new Area(this.axisMap, series, this.drawingContext, inx));
+    this.areas.forEach(area => area.render());
+  }
+}
+
