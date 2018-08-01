@@ -75,8 +75,11 @@ class Area {
       .style("fill", this.color(series)).style("fill-opacity", .9)
       .on('mouseover', this.createOnMouseOverCircle())
       .on('mouseout', this.createMouseOutCirlce())
+      .each(function(d) { d.ref = this; })
+
+    this.circles
       .append("svg:title")
-      .text(d => d.datum.value)
+      .text(d => d.datum.value);
   }
 
   createOnMouseOverCircle() {
@@ -133,7 +136,15 @@ class Area {
   remove() {
     this.area
      .on('mouseover', null)
-     .on('mouseout', null)
+     .on('mouseout', null);
+
+    this.circles.each(function(d) {
+      d3.select(d.ref)
+        .on('mouseover', null)
+        .on('mouseout', null)
+        .remove();
+    });
+
     this.area.remove();
   }
 }
