@@ -19,10 +19,10 @@ class RadarChart {
 
     this.areas = [];
 
-    // We should be constructing some of these items in this class
-
     this.data = this.opts.data;
     this.axisConfig = this.opts.axis.config;
+
+    this.levelFactor =
 
     this.opts.axis.maxAxisNo = this.opts.axis.config.length;
 	  this.opts.levels.levelRadius = this.opts.factor * Math.min(this.opts.dims.width / 2, this.opts.dims.height / 2);
@@ -31,47 +31,7 @@ class RadarChart {
     const maxFromData = d3.max(this.data, (dataSet) => d3.max(dataSet.map(o => o.value)));
 	  this.opts.maxValue = Math.max(this.opts.maxValue, maxFromData);
 
-	  this.axisParameters = this.axisConfig.map((axis, inx) => {
-      const opts = this.opts;
-      const {width, height} = this.opts.dims;
-      const {maxAxisNo: axisNo} = this.opts.axis;
-      const {RADIANS} = RadarChart;
-
-      const x1 = width / 2;
-      const y1 = height / 2;
-      const x2 = width / 2 * (1 - opts.factor * Math.sin(inx * RADIANS / axisNo));
-      const y2 = height / 2 * (1 - opts.factor * Math.cos(inx * RADIANS / axisNo));
-      const label_x = ( width / 2) * (1 - opts.factorLegend * Math.sin(inx * RADIANS / axisNo)) - 60 * Math.sin(inx * RADIANS / axisNo);
-      const label_y = ( height / 2) * (1 - Math.cos(inx * RADIANS / axisNo)) - 20 * Math.cos(inx * RADIANS/axisNo);
-      const gradient = Math.abs(x2 - x1) < 0.000000001 ? Infinity : (y2 - y1) / (x2 - x1);
-      const b = gradient === Infinity ? 0 : y2 - gradient * x2;
-      const projectCordToAxis = function(x, y) {
-        if (gradient === Infinity) {
-          return {x: x1, y: y};
-        } else {
-          return {x: x, y: gradient * x + b};
-        }
-      };
-
-      return {
-        axis: axis.axisId,
-        label: axis.label ? axis.label : axis.axisId,
-        x1: x1,
-        y1: y1,
-        x2: x2,
-        y2: y2,
-        label_x: label_x,
-        label_y: label_y,
-        projectCordToAxis: projectCordToAxis,
-        projectValueOnAxis: function(value) {
-          return {
-            x: width / 2 * (1 - (parseFloat(Math.max(value, 0)) / opts.maxValue) * opts.factor * Math.sin(inx * RADIANS / axisNo)),
-            y: height / 2 * (1 - (parseFloat(Math.max(value, 0)) / opts.maxValue) * opts.factor * Math.cos(inx * RADIANS / axisNo)),
-          };
-        }
-      };
-    });
-
+	  this.axisParameters = this.axisConfig.map((axis, inx) => new Axis(this.opts, axis, inx));
     this.axisMap = this.axisParameters
       .reduce((map, ix) => {
         map[ix.axis] = ix;
@@ -128,21 +88,24 @@ class RadarChart {
 	  var Format = d3.format('.2%');
 
     // Text indicating at what % each level is
-    for(var j = 0; j < opts.levels.levelsNo; j++){
-      var levelFactor = opts.factor * opts.levels.levelRadius * ((j + 1) / opts.levels.levelsNo);
+    for(var lvlInx = 0; lvlInx < opts.levels.levelsNo; lvlInx++) {
+      var levelFactor = opts.factor * opts.levels.levelRadius * ((lvlInx + 1) / opts.levels.levelsNo);
+
       var z = this.drawingContext
        .selectAll(".levels")
-       .data([1]) //dummy data
+       .data(this.axisParameters)
        .enter()
        .append("svg:text")
-       .attr("x", function(d) {return levelFactor * (1 - opts.factor * Math.sin(0));})
-       .attr("y", function(d) {return levelFactor * (1 - opts.factor * Math.cos(0));})
+       .attr("x", function(d, i) {return levelFactor * (1 - opts.factor * Math.sin(i * RADIANS/maxAxisNo));})
+       .attr("y", function(d, i) {return levelFactor * (1 - opts.factor * Math.cos(i * RADIANS/maxAxisNo));})
        .attr("class", "legend")
        .style("font-family", "sans-serif")
        .style("font-size", "10px")
+       .style("opacity", 0.0)
        .attr("transform", "translate(" + (width / 2 - levelFactor + opts.ToRight) + ", " + (height / 2 - levelFactor) + ")")
        .attr("fill", "#737373")
-       .text(Format((j+1) * opts.maxValue / opts.levels.levelsNo));
+       .text(function(d) { return Format((lvlInx + 1) * d.maxValue / opts.levels.levelsNo); })
+       .each(function(d) { d.tickTexts.push(this); })
     }
 
     this.axisG = this.drawingContext
@@ -152,7 +115,6 @@ class RadarChart {
       .append("g")
 
     this.axisLines = this.axisG
-      .attr('pointer-events', 'none')
       .attr("class", "axis")
       .append("line")
       .attr("x1", d => d.x1)
@@ -162,7 +124,20 @@ class RadarChart {
       .attr("class", "line")
       .attr('pointer-events', 'none')
       .style("stroke", "grey")
-      .style("stroke-width", "1px");
+      .style("stroke-width", "1px")
+
+    this.rects =  this.axisG
+       .append('rect')
+       .attr('class', 'overlay')
+       .attr("x", d => d.x1)
+       .attr("y", d => d.y1)
+       .attr("transform", (d, i) => "rotate(" + d.angleFromNorth + "," + d.x1 + "," + d.y1 +")")
+       .attr('width', d => d.axisLength)
+       .attr('height', 10)
+       .attr('fill-opacity', 0.0)
+       .on('mouseover', d => d.onRectMouseOver())
+       .on('mouseout', d => d.onRectMouseOut())
+       .each(function(datum) { datum.axisRect = this; })
 
     this.axisText = this.axisG
       .append("text")
