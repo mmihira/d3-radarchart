@@ -5,16 +5,18 @@
 class Area {
   /**
    * @param axisMap {Object} A map of axisId to axis Objects
-   * @param data {Array} Array of axis to value for this series
+   * @param series {Array} Number of areas
    * @param drawingContext {Object} A svg g-element for drawing on
+   * @param seriesIdent {String} The identity of the series must be unique
+   * @param areaOptions {Object} Options for this area
    */
-  constructor(axisMap, data, drawingContext, seriesIdent) {
-    this.axisMap = axisMap;
-    this.data = JSON.parse(JSON.stringify(data));
-    this.drawingContext = drawingContext;
+  constructor(args) {
+    this.axisMap = args.axisMap;
+    this.data = _.cloneDeep(args.series);
+    this.drawingContext = args.drawingContext;
 	  this.color = d3.scaleOrdinal(d3.schemeAccent);
-    this.seriesIdent = seriesIdent;
-    this.opacityArea = 0.5;
+    this.seriesIdent = args.seriesIdent;
+    this.opts = _.cloneDeep(args.areaOptions);
     this.circleRadius = 5;
 
     // For each axisId calculate the apex points for this area
@@ -48,7 +50,7 @@ class Area {
      .style("stroke", this.color(series))
      .attr("points",d => d.svgStringRep)
      .style("fill", () => this.color(series))
-     .style("fill-opacity", this.opacityArea)
+     .style("fill-opacity", this.opts.defaultAreaOpacity)
      .on('mouseover', this.createOnMouseOverPolygon())
      .on('mouseout', this.createOnMouseOutPolygon())
 
@@ -58,21 +60,16 @@ class Area {
       .append("svg:circle")
       .call(d3.drag()
         .subject(function(d) { return this; })
-        .on('drag', d => {
-          var axis = this.axisMap[d.datum.axis];
-          var {x, y} = d3.event;
-          d3.select(d3.event.subject)
-            .attr("cx", axis.projectCordToAxis(x, y).x)
-            .attr("cy", axis.projectCordToAxis(x, y).y)
-        })
+        .on('drag', this.createOnDraggingCircle())
+        .on('end', this.createOnDragEndCircle())
       )
-      .attr("class", "radar-chart-serie"+ this.seriesIdent)
+      .attr("class", "radar-chart-serie" + this.seriesIdent)
       .attr('r', this.circleRadius)
       .attr("alt", function(j){return Math.max(j.value, 0)})
       .attr("cx", d => d.cords.x)
       .attr("cy", d => d.cords.y)
-      // .attr("data-id", function(j) {return j.axis})
-      .style("fill", this.color(series)).style("fill-opacity", .9)
+      .style("fill", this.color(series))
+      .style("fill-opacity", this.opts.defaultCircleOpacity)
       .on('mouseover', this.createOnMouseOverCircle())
       .on('mouseout', this.createMouseOutCirlce())
       .each(function(d) { d.ref = this; })
@@ -85,23 +82,49 @@ class Area {
   createOnMouseOverCircle() {
     const self = this;
 
-    return function(el) {
-      const z = "polygon."+d3.select(this).attr("class");
+    return function(d) {
+      const thisPolygon = "polygon." + d3.select(this).attr("class");
+      d3.select(this)
+        .style('fill-opacity', self.opts.hoverCircleOpacity);
       self.drawingContext.selectAll("polygon")
         .transition(200)
-        .style("fill-opacity", 0.1);
-      self.drawingContext.selectAll(z)
+        .style("fill-opacity", self.opts.hiddenAreaOpacity);
+      self.drawingContext.selectAll(thisPolygon)
         .transition(200)
-        .style("fill-opacity", .7);
+        .style("fill-opacity", self.opts.highlightedAreaOpacity);
     }
   }
 
   createMouseOutCirlce() {
     const self = this;
-    return function(el) {
+    return function(d) {
+      d3.select(this)
+        .style('fill-opacity', self.opts.defaultCircleOpacity);
       self.drawingContext.selectAll("polygon")
         .transition(200)
-        .style("fill-opacity", self.opacityArea);
+        .style("fill-opacity", self.opts.defaultAreaOpacity);
+    }
+  }
+
+  createOnDragEndCircle() {
+    var self = this;
+    return function(d) {
+      var axis = self.axisMap[d.datum.axis];
+      self.axisMap[d.datum.axis].dragActive = false;
+      self.axisMap[d.datum.axis].onRectMouseOut();
+    }
+  }
+
+  createOnDraggingCircle() {
+    var self = this;
+    return function(d) {
+      var axis = self.axisMap[d.datum.axis];
+      self.axisMap[d.datum.axis].onRectMouseOver();
+      self.axisMap[d.datum.axis].dragActive = true;
+      var {x, y} = d3.event;
+      d3.select(d3.event.subject)
+        .attr("cx", axis.projectCordToAxis(x, y).x)
+        .attr("cy", axis.projectCordToAxis(x, y).y)
     }
   }
 
@@ -109,15 +132,14 @@ class Area {
     const self = this;
 
     return function(el) {
-      const z = "polygon." + d3.select(this).attr("class");
-
+      const thisPoly = "polygon." + d3.select(this).attr("class");
       self.drawingContext.selectAll("polygon")
        .transition(200)
-       .style("fill-opacity", 0.1);
+       .style("fill-opacity", self.opts.hiddenAreaOpacity);
 
-      self.drawingContext.selectAll(z)
+      self.drawingContext.selectAll(thisPoly)
        .transition(200)
-       .style("fill-opacity", .7);
+       .style("fill-opacity", self.opts.highlightedAreaOpacity);
     }
   }
 
@@ -126,7 +148,7 @@ class Area {
     return function(el) {
       d3.select(this)
        .transition(200)
-       .style("fill-opacity", self.opacityArea);
+       .style("fill-opacity", self.opts.defaultAreaOpacity);
     }
   }
 

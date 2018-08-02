@@ -5,27 +5,18 @@
  */
 class RadarChart {
   /**
-   * @param config {Object}
-   * @param axisConfig {Array}
-   * @param data {Array}
-   * @param rootElement {Object} Root element to attach svg - should be a raw DOM element
+   * @param args {Object}
    */
-  // constructor(config, axisConfig, data, rootElement) {
   constructor(args) {
     this.rootElement = d3.select(args.rootElement);
     this.opts = _.omit(args, ['rootElement']);
     this.opts = _.cloneDeep(this.opts);
-    this.data = this.opts.data;
-
-    this.areas = [];
-
-    this.data = this.opts.data;
-    this.axisConfig = this.opts.axis.config;
-
-    this.levelFactor =
 
     this.opts.axis.maxAxisNo = this.opts.axis.config.length;
 	  this.opts.levels.levelRadius = this.opts.factor * Math.min(this.opts.dims.width / 2, this.opts.dims.height / 2);
+
+    this.data = this.opts.data;
+    this.axisConfig = this.opts.axis.config;
 
     // Calculate the maximum value for the chart
     const maxFromData = d3.max(this.data, (dataSet) => d3.max(dataSet.map(o => o.value)));
@@ -37,6 +28,9 @@ class RadarChart {
         map[ix.axis] = ix;
         return map;
       }, {});
+
+    // To store the area components
+    this.areas = [];
   }
 
   render() {
@@ -68,8 +62,9 @@ class RadarChart {
       .attr("transform", "translate(" + translateX + "," + translateY + ")");
 
     // Circular segments
-    for(var j = 0; j < opts.levels.levelsNo - 1; j ++){
-      var levelFactor = opts.factor * opts.levels.levelRadius * ((j + 1) / opts.levels.levelsNo);
+    for(var lvlInx = 0; lvlInx < opts.levels.levelsNo - 1; lvlInx++) {
+      var levelFactor = opts.factor * opts.levels.levelRadius * ((lvlInx + 1) / opts.levels.levelsNo);
+
       this.drawingContext.selectAll(".levels")
        .data(this.axisParameters)
        .enter()
@@ -86,7 +81,6 @@ class RadarChart {
     }
 
 	  var Format = d3.format('.2%');
-
     // Text indicating at what % each level is
     for(var lvlInx = 0; lvlInx < opts.levels.levelsNo; lvlInx++) {
       var levelFactor = opts.factor * opts.levels.levelRadius * ((lvlInx + 1) / opts.levels.levelsNo);
@@ -105,7 +99,7 @@ class RadarChart {
        .attr("transform", "translate(" + (width / 2 - levelFactor + opts.ToRight) + ", " + (height / 2 - levelFactor) + ")")
        .attr("fill", "#737373")
        .text(function(d) { return Format((lvlInx + 1) * d.maxValue / opts.levels.levelsNo); })
-       .each(function(d) { d.tickTexts.push(this); })
+       .each(function(d) { d.axisTickTextElements.push(this); })
     }
 
     this.axisG = this.drawingContext
@@ -154,7 +148,13 @@ class RadarChart {
 
   renderArea() {
     let series = 0;
-    this.areas = this.data.map((series, inx) => new Area(this.axisMap, series, this.drawingContext, inx));
+    this.areas = this.data.map((series, inx) => new Area({
+      axisMap: this.axisMap,
+      series: series,
+      drawingContext: this.drawingContext,
+      seriesIdent: inx,
+      areaOptions: this.opts.area
+      }));
     this.areas.forEach(area => area.render());
   }
 

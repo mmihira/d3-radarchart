@@ -103,20 +103,22 @@ var options = {
   factorLegend: 0.85,
   color: d3.scaleOrdinal(d3.schemeAccent), // modify
   area: {
-    defaultAreaOpacity: 0.5,
+    defaultAreaOpacity: 0.4,
     highlightedAreaOpacity: 0.7,
-    hiddenAreaOpacity: 0.1
+    hiddenAreaOpacity: 0.1,
+    defaultCircleOpacity: 0.3,
+    hoverCircleOpacity: 1.0
   },
   rootElement: document.getElementById('chart'),
   axis: {
     config: axisConfig,
-    colorScale: null,        // If specified then color the axis using different colors,
-    useGlobalMax: true,    // U
-    maxValue: 0.6, // modify,
+    colorScale: null,       // If specified then color the axis using different colors,
+    useGlobalMax: true,     // U
+    maxValue: 0.6,          // modify,
   }
 }
 
 const radarChart = new RadarChart(options);
 radarChart.render();
 
-setTimeout(() => radarChart.remove(), 3000);
+// setTimeout(() => radarChart.remove(), 3000);
