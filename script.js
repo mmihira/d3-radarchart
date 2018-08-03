@@ -73,6 +73,10 @@ var d = [
 	]
 ];
 
+
+// For color options see
+// https://github.com/d3/d3-scale-chromatic/
+
 var options = {
   data: d,
   dims: {
@@ -98,8 +102,8 @@ var options = {
   point: {
     radius: 5,
   },
-  ToRight: 5, // WTF is this ?
-  factor: 1, // modify
+  ToRight: 5,       // WTF is this ?
+  factor: 1,        // modify
   factorLegend: 0.85,
   color: d3.scaleOrdinal(d3.schemeAccent), // modify
   area: {
@@ -107,7 +111,10 @@ var options = {
     highlightedAreaOpacity: 0.7,
     hiddenAreaOpacity: 0.1,
     defaultCircleOpacity: 0.3,
-    hoverCircleOpacity: 1.0
+    hoverCircleOpacity: 1.0,
+    useColorScale: true,
+    areaColorScale: d3.scaleOrdinal(d3.schemeAccent),
+    lineColorSCale: d3.scaleOrdinal(d3.schemeAccent)
   },
   rootElement: document.getElementById('chart'),
   axis: {

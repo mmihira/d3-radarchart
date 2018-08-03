@@ -18,6 +18,7 @@ class Area {
     this.seriesIdent = args.seriesIdent;
     this.seriesIndex = args.seriesIndex;
     this.opts = _.cloneDeep(args.areaOptions);
+    this.opts.colorScale = args.areaOptions.colorScale;
     this.circleRadius = 5;
 
     // For each axisId calculate the apex points for this area
@@ -41,31 +42,7 @@ class Area {
    */
   render() {
     this.renderArea();
-
-    this.circles = this.drawingContext.selectAll(".nodes")
-      .data(this.points)
-      .enter()
-      .append("svg:circle")
-      .call(d3.drag()
-        .subject(function(d) { return this; })
-        .on('drag', this.createOnDraggingCircle())
-        .on('end', this.createOnDragEndCircle())
-      )
-      .attr("class", "radar-chart-serie" + this.seriesIdent)
-      .attr('r', this.circleRadius)
-      .attr("alt", function(j){return Math.max(j.value, 0)})
-      .attr("cx", d => d.cords.x)
-      .attr("cy", d => d.cords.y)
-      .style("fill", this.color(this.seriesIndex))
-      .style("fill-opacity", this.opts.defaultCircleOpacity)
-      .on('mouseover', this.createOnMouseOverCircle())
-      .on('mouseout', this.createMouseOutCirlce())
-      .attr('z-index', 10)
-      .each(function(d) { d.ref = this; })
-
-    this.circles
-      .append("svg:title")
-      .text(d => d.datum.value);
+    this.renderCircles();
   }
 
   updatePositions() {
@@ -177,11 +154,51 @@ class Area {
      .attr("class", "radar-chart-serie"+ this.seriesIdent)
      .style("stroke-width", "2px")
      .style("stroke", this.color(this.seriesIndex))
+     .style("stroke", () => {
+       if(this.opts.useColorScale) {
+         return this.opts.lineColorSCale(this.seriesIndex);
+       }
+      })
      .attr("points",d => d.svgStringRep)
-     .style("fill", () => this.color(this.seriesIndex))
+     .style("fill", () => {
+       if(this.opts.useColorScale) {
+         return this.opts.areaColorScale(this.seriesIndex);
+       }
+      })
      .style("fill-opacity", this.opts.defaultAreaOpacity)
      .on('mouseover', this.createOnMouseOverPolygon())
      .on('mouseout', this.createOnMouseOutPolygon())
+  }
+
+  renderCircles() {
+    this.circles = this.drawingContext.selectAll(".nodes")
+      .data(this.points)
+      .enter()
+      .append("svg:circle")
+      .call(d3.drag()
+        .subject(function(d) { return this; })
+        .on('drag', this.createOnDraggingCircle())
+        .on('end', this.createOnDragEndCircle())
+      )
+      .attr("class", "radar-chart-serie" + this.seriesIdent)
+      .attr('r', this.circleRadius)
+      .attr("alt", function(j){return Math.max(j.value, 0)})
+      .attr("cx", d => d.cords.x)
+      .attr("cy", d => d.cords.y)
+      .style("fill", () => {
+        if(this.opts.useColorScale) {
+          return this.opts.lineColorSCale(this.seriesIndex);
+        }
+      })
+      .style("fill-opacity", this.opts.defaultCircleOpacity)
+      .on('mouseover', this.createOnMouseOverCircle())
+      .on('mouseout', this.createMouseOutCirlce())
+      .attr('z-index', 10)
+      .each(function(d) { d.ref = this; })
+
+    this.circles
+      .append("svg:title")
+      .text(d => d.datum.value);
   }
 
   /**
