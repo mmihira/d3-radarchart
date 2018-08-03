@@ -156,7 +156,7 @@ class Area {
      .style("stroke", this.color(this.seriesIndex))
      .style("stroke", () => {
        if(this.opts.useColorScale) {
-         return this.opts.lineColorSCale(this.seriesIndex);
+         return this.opts.lineColorScale(this.seriesIndex);
        }
       })
      .attr("points",d => d.svgStringRep)
@@ -187,7 +187,7 @@ class Area {
       .attr("cy", d => d.cords.y)
       .style("fill", () => {
         if(this.opts.useColorScale) {
-          return this.opts.lineColorSCale(this.seriesIndex);
+          return this.opts.lineColorScale(this.seriesIndex);
         }
       })
       .style("fill-opacity", this.opts.defaultCircleOpacity)

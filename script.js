@@ -114,13 +114,13 @@ var options = {
     hoverCircleOpacity: 1.0,
     useColorScale: true,
     areaColorScale: d3.scaleOrdinal(d3.schemeAccent),
-    lineColorSCale: d3.scaleOrdinal(d3.schemeAccent)
+    lineColorScale: d3.scaleOrdinal(d3.schemeAccent)
   },
   rootElement: document.getElementById('chart'),
   axis: {
     config: axisConfig,
     colorScale: null,       // If specified then color the axis using different colors,
-    useGlobalMax: false,     // U
+    useGlobalMax: false,    // U
     maxValue: 0.6,          // modify,
   }
 }
