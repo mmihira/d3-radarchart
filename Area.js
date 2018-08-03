@@ -148,26 +148,26 @@ class Area {
 
   renderArea() {
     this.area = this.drawingContext.selectAll(".area")
-     .data([this.polygonWrapper])
-     .enter()
-     .append("polygon")
-     .attr("class", "radar-chart-serie"+ this.seriesIdent)
-     .style("stroke-width", "2px")
-     .style("stroke", this.color(this.seriesIndex))
-     .style("stroke", () => {
-       if(this.opts.useColorScale) {
-         return this.opts.lineColorScale(this.seriesIndex);
-       }
+      .data([this.polygonWrapper])
+      .enter()
+      .append("polygon")
+      .attr("class", "radar-chart-serie"+ this.seriesIdent)
+      .style("stroke-width", "2px")
+      .style("stroke", () => {
+        if(this.opts.useColorScale) {
+          return this.opts.lineColorScale(this.seriesIndex);
+        }
       })
-     .attr("points",d => d.svgStringRep)
-     .style("fill", () => {
-       if(this.opts.useColorScale) {
-         return this.opts.areaColorScale(this.seriesIndex);
-       }
+      .attr("points",d => d.svgStringRep)
+      .attr('z-index', -1)
+      .style("fill", () => {
+        if(this.opts.useColorScale) {
+          return this.opts.areaColorScale(this.seriesIndex);
+        }
       })
-     .style("fill-opacity", this.opts.defaultAreaOpacity)
-     .on('mouseover', this.createOnMouseOverPolygon())
-     .on('mouseout', this.createOnMouseOutPolygon())
+      .style("fill-opacity", this.opts.defaultAreaOpacity)
+      .on('mouseover', this.createOnMouseOverPolygon())
+      .on('mouseout', this.createOnMouseOutPolygon())
   }
 
   renderCircles() {
