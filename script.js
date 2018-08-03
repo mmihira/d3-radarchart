@@ -1,26 +1,26 @@
 var axisConfig = [
-  {axisId:"Email", axisColor: null, axisValueMax: null, axisValueMin: null, axisLabelColor: null, axisLabelParser: null, axisTickParser: null, axisTickColor:null},
-  {axisId:"Social Networks", axisColor: null, axisValueMax: null, axisValueMin: null, axisLabelColor: null, axisLabelParser: null, axisTickParser: null, axisTickColor:null},
-  {axisId:"Internet Banking", axisColor: null, axisValueMax: null, axisValueMin: null, axisLabelColor: null, axisLabelParser: null, axisTickParser: null, axisTickColor:null},
-  {axisId:"News Sportsites", axisColor: null, axisValueMax: null, axisValueMin: null, axisLabelColor: null, axisLabelParser: null, axisTickParser: null, axisTickColor:null},
-  {axisId:"Search Engine", axisColor: null, axisValueMax: null, axisValueMin: null, axisLabelColor: null, axisLabelParser: null, axisTickParser: null, axisTickColor:null},
-  {axisId:"View Shopping sites", axisColor: null, axisValueMax: null, axisValueMin: null, axisLabelColor: null, axisLabelParser: null, axisTickParser: null, axisTickColor:null},
-  {axisId:"Paying Online", axisColor: null, axisValueMax: null, axisValueMin: null, axisLabelColor: null, axisLabelParser: null, axisTickParser: null, axisTickColor:null},
-  {axisId:"Buy Online", axisColor: null, axisValueMax: null, axisValueMin: null, axisLabelColor: null, axisLabelParser: null, axisTickParser: null, axisTickColor:null},
-  {axisId:"Stream Music", axisColor: null, axisValueMax: null, axisValueMin: null, axisLabelColor: null, axisLabelParser: null, axisTickParser: null, axisTickColor:null},
-  {axisId:"Online Gaming", axisColor: null, axisValueMax: null, axisValueMin: null, axisLabelColor: null, axisLabelParser: null, axisTickParser: null, axisTickColor:null},
-  {axisId:"Navigation", axisColor: null, axisValueMax: null, axisValueMin: null, axisLabelColor: null, axisLabelParser: null, axisTickParser: null, axisTickColor:null},
-  {axisId:"App connected to TV program", axisColor: null, axisValueMax: null, axisValueMin: null, axisLabelColor: null, axisLabelParser: null, axisTickParser: null, axisTickColor:null},
-  {axisId:"Offline Gaming", axisColor: null, axisValueMax: null, axisValueMin: null, axisLabelColor: null, axisLabelParser: null, axisTickParser: null, axisTickColor:null},
-  {axisId:"Photo Video", axisColor: null, axisValueMax: null, axisValueMin: null, axisLabelColor: null, axisLabelParser: null, axisTickParser: null, axisTickColor:null},
-  {axisId:"Reading", axisColor: null, axisValueMax: null, axisValueMin: null, axisLabelColor: null, axisLabelParser: null, axisTickParser: null, axisTickColor:null},
-  {axisId:"Listen Music", axisColor: null, axisValueMax: null, axisValueMin: null, axisLabelColor: null, axisLabelParser: null, axisTickParser: null, axisTickColor:null},
-  {axisId:"Watch TV", axisColor: null, axisValueMax: null, axisValueMin: null, axisLabelColor: null, axisLabelParser: null, axisTickParser: null, axisTickColor:null},
-  {axisId:"TV Movies Streaming", axisColor: null, axisValueMax: null, axisValueMin: null, axisLabelColor: null, axisLabelParser: null, axisTickParser: null, axisTickColor:null},
-  {axisId:"Listen Radio", axisColor: null, axisValueMax: null, axisValueMin: null, axisLabelColor: null, axisLabelParser: null, axisTickParser: null, axisTickColor:null},
-  {axisId:"Sending Money", axisColor: null, axisValueMax: null, axisValueMin: null, axisLabelColor: null, axisLabelParser: null, axisTickParser: null, axisTickColor:null},
-  {axisId:"Other", axisColor: null, axisValueMax: null, axisValueMin: null, axisLabelColor: null, axisLabelParser: null, axisTickParser: null, axisTickColor:null},
-  {axisId:"Use less Once week", axisColor: null, axisValueMax: null, axisValueMin: null, axisLabelColor: null, axisLabelParser: null, axisTickParser: null, axisTickColor:null}
+  {axisId:"Email", axisColor: null, axisValueMax: 0.6, axisValueMin: null, axisLabelColor: null, axisLabelParser: null, axisTickParser: null, axisTickColor:null},
+  {axisId:"Social Networks", axisColor: null, axisValueMax: 0.6, axisValueMin: null, axisLabelColor: null, axisLabelParser: null, axisTickParser: null, axisTickColor:null},
+  {axisId:"Internet Banking", axisColor: null, axisValueMax: 0.6, axisValueMin: null, axisLabelColor: null, axisLabelParser: null, axisTickParser: null, axisTickColor:null},
+  {axisId:"News Sportsites", axisColor: null, axisValueMax: 0.6, axisValueMin: null, axisLabelColor: null, axisLabelParser: null, axisTickParser: null, axisTickColor:null},
+  {axisId:"Search Engine", axisColor: null, axisValueMax: 0.6, axisValueMin: null, axisLabelColor: null, axisLabelParser: null, axisTickParser: null, axisTickColor:null},
+  {axisId:"View Shopping sites", axisColor: null, axisValueMax: 0.6, axisValueMin: null, axisLabelColor: null, axisLabelParser: null, axisTickParser: null, axisTickColor:null},
+  {axisId:"Paying Online", axisColor: null, axisValueMax: 0.6, axisValueMin: null, axisLabelColor: null, axisLabelParser: null, axisTickParser: null, axisTickColor:null},
+  {axisId:"Buy Online", axisColor: null, axisValueMax: 0.6, axisValueMin: null, axisLabelColor: null, axisLabelParser: null, axisTickParser: null, axisTickColor:null},
+  {axisId:"Stream Music", axisColor: null, axisValueMax: 0.6, axisValueMin: null, axisLabelColor: null, axisLabelParser: null, axisTickParser: null, axisTickColor:null},
+  {axisId:"Online Gaming", axisColor: null, axisValueMax: 0.9, axisValueMin: null, axisLabelColor: null, axisLabelParser: null, axisTickParser: null, axisTickColor:null},
+  {axisId:"Navigation", axisColor: null, axisValueMax: 0.9, axisValueMin: null, axisLabelColor: null, axisLabelParser: null, axisTickParser: null, axisTickColor:null},
+  {axisId:"App connected to TV program", axisColor: null, axisValueMax: 0.6, axisValueMin: null, axisLabelColor: null, axisLabelParser: null, axisTickParser: null, axisTickColor:null},
+  {axisId:"Offline Gaming", axisColor: null, axisValueMax: 0.9, axisValueMin: null, axisLabelColor: null, axisLabelParser: null, axisTickParser: null, axisTickColor:null},
+  {axisId:"Photo Video", axisColor: null, axisValueMax: 0.9, axisValueMin: null, axisLabelColor: null, axisLabelParser: null, axisTickParser: null, axisTickColor:null},
+  {axisId:"Reading", axisColor: null, axisValueMax: 0.6, axisValueMin: null, axisLabelColor: null, axisLabelParser: null, axisTickParser: null, axisTickColor:null},
+  {axisId:"Listen Music", axisColor: null, axisValueMax: 0.6, axisValueMin: null, axisLabelColor: null, axisLabelParser: null, axisTickParser: null, axisTickColor:null},
+  {axisId:"Watch TV", axisColor: null, axisValueMax: 0.6, axisValueMin: null, axisLabelColor: null, axisLabelParser: null, axisTickParser: null, axisTickColor:null},
+  {axisId:"TV Movies Streaming", axisColor: null, axisValueMax: 0.6, axisValueMin: null, axisLabelColor: null, axisLabelParser: null, axisTickParser: null, axisTickColor:null},
+  {axisId:"Listen Radio", axisColor: null, axisValueMax: 0.6, axisValueMin: null, axisLabelColor: null, axisLabelParser: null, axisTickParser: null, axisTickColor:null},
+  {axisId:"Sending Money", axisColor: null, axisValueMax: 0.6, axisValueMin: null, axisLabelColor: null, axisLabelParser: null, axisTickParser: null, axisTickColor:null},
+  {axisId:"Other", axisColor: null, axisValueMax: 0.6, axisValueMin: null, axisLabelColor: null, axisLabelParser: null, axisTickParser: null, axisTickColor:null},
+  {axisId:"Use less Once week", axisColor: null, axisValueMax: 0.6, axisValueMin: null, axisLabelColor: null, axisLabelParser: null, axisTickParser: null, axisTickColor:null}
 ];
 
 var d = [
@@ -113,7 +113,7 @@ var options = {
   axis: {
     config: axisConfig,
     colorScale: null,       // If specified then color the axis using different colors,
-    useGlobalMax: true,     // U
+    useGlobalMax: false,     // U
     maxValue: 0.6,          // modify,
   }
 }

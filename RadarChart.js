@@ -18,7 +18,8 @@ class RadarChart {
     this.data = this.opts.data;
     this.axisConfig = this.opts.axis.config;
 
-    // Calculate the maximum value for the chart
+    // Calculate the maximum value for the chart only used if
+    // opts.axis.useGlobalMax is true
     const maxFromData = d3.max(this.data, (dataSet) => d3.max(dataSet.map(o => o.value)));
 	  this.opts.maxValue = Math.max(this.opts.maxValue, maxFromData);
 
@@ -98,6 +99,7 @@ class RadarChart {
        .style("opacity", 0.0)
        .attr("transform", "translate(" + (width / 2 - levelFactor + opts.ToRight) + ", " + (height / 2 - levelFactor) + ")")
        .attr("fill", "#737373")
+       .attr('pointer-events', 'none')
        .text(function(d) { return Format((lvlInx + 1) * d.maxValue / opts.levels.levelsNo); })
        .each(function(d) { d.axisTickTextElements.push(this); })
     }
@@ -144,6 +146,7 @@ class RadarChart {
       .attr("transform", () => "translate(0, -10)")
       .attr("x", d  => d.label_x)
       .attr("y", d  => d.label_y)
+      .attr('pointer-events', 'none')
   }
 
   renderArea() {
@@ -153,6 +156,7 @@ class RadarChart {
       series: series,
       drawingContext: this.drawingContext,
       seriesIdent: inx,
+      seriesIndex: inx,
       areaOptions: this.opts.area
       }));
     this.areas.forEach(area => area.render());

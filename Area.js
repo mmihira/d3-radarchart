@@ -16,6 +16,7 @@ class Area {
     this.drawingContext = args.drawingContext;
 	  this.color = d3.scaleOrdinal(d3.schemeAccent);
     this.seriesIdent = args.seriesIdent;
+    this.seriesIndex = args.seriesIndex;
     this.opts = _.cloneDeep(args.areaOptions);
     this.circleRadius = 5;
 
@@ -23,11 +24,11 @@ class Area {
     this.points =  this.data.map(spoke => {
       return {
         cords: this.axisMap[spoke.axis].projectValueOnAxis(spoke.value),
-        datum: spoke
+        datum: _.cloneDeep(spoke)
       }
     });
 
-    this.dataWrapper = {
+    this.polygonWrapper = {
       points: this.points,
       svgStringRep: this.points.reduce((acc, p) => {
         return acc + p.cords.x + "," + p.cords.y + " ";
@@ -39,20 +40,7 @@ class Area {
    * Render the nodes and the area
    */
   render() {
-    let series = 0;
-
-    this.area = this.drawingContext.selectAll(".area")
-     .data([this.dataWrapper])
-     .enter()
-     .append("polygon")
-     .attr("class", "radar-chart-serie"+ this.seriesIdent)
-     .style("stroke-width", "2px")
-     .style("stroke", this.color(series))
-     .attr("points",d => d.svgStringRep)
-     .style("fill", () => this.color(series))
-     .style("fill-opacity", this.opts.defaultAreaOpacity)
-     .on('mouseover', this.createOnMouseOverPolygon())
-     .on('mouseout', this.createOnMouseOutPolygon())
+    this.renderArea();
 
     this.circles = this.drawingContext.selectAll(".nodes")
       .data(this.points)
@@ -68,15 +56,25 @@ class Area {
       .attr("alt", function(j){return Math.max(j.value, 0)})
       .attr("cx", d => d.cords.x)
       .attr("cy", d => d.cords.y)
-      .style("fill", this.color(series))
+      .style("fill", this.color(this.seriesIndex))
       .style("fill-opacity", this.opts.defaultCircleOpacity)
       .on('mouseover', this.createOnMouseOverCircle())
       .on('mouseout', this.createMouseOutCirlce())
+      .attr('z-index', 10)
       .each(function(d) { d.ref = this; })
 
     this.circles
       .append("svg:title")
       .text(d => d.datum.value);
+  }
+
+  updatePositions() {
+    this.polygonWrapper.svgStringRep = this.points.reduce((acc, p) => {
+        return acc + p.cords.x + "," + p.cords.y + " ";
+      }, "");
+
+    this.area.remove();
+    this.renderArea();
   }
 
   createOnMouseOverCircle() {
@@ -121,10 +119,29 @@ class Area {
       var axis = self.axisMap[d.datum.axis];
       self.axisMap[d.datum.axis].onRectMouseOver();
       self.axisMap[d.datum.axis].dragActive = true;
-      var {x, y} = d3.event;
+
+      let {x: mouseX, y: mouseY} = d3.event;
+
+      var newX = axis.projectCordToAxis(mouseX, mouseY).x;
+      var newY = axis.projectCordToAxis(mouseX, mouseY).y;
+
+
+      if (axis.quad === Axis.QUAD_1 || axis.quad === Axis.QUAD_2) {
+        if (newY < axis.y2 || newY > axis.y1 ) return;
+      } else {
+        if (newY < axis.y1 || newY > axis.y2 ) return;
+      }
+
+      var newValue = axis.cordOnAxisToValue(newX, newY);
+
+      d.datum.value = newValue;
+      d.cords = self.axisMap[d.datum.axis].projectValueOnAxis(newValue)
+
       d3.select(d3.event.subject)
-        .attr("cx", axis.projectCordToAxis(x, y).x)
-        .attr("cy", axis.projectCordToAxis(x, y).y)
+        .attr("cx", newX)
+        .attr("cy", newY)
+
+      self.updatePositions();
     }
   }
 
@@ -150,6 +167,21 @@ class Area {
        .transition(200)
        .style("fill-opacity", self.opts.defaultAreaOpacity);
     }
+  }
+
+  renderArea() {
+    this.area = this.drawingContext.selectAll(".area")
+     .data([this.polygonWrapper])
+     .enter()
+     .append("polygon")
+     .attr("class", "radar-chart-serie"+ this.seriesIdent)
+     .style("stroke-width", "2px")
+     .style("stroke", this.color(this.seriesIndex))
+     .attr("points",d => d.svgStringRep)
+     .style("fill", () => this.color(this.seriesIndex))
+     .style("fill-opacity", this.opts.defaultAreaOpacity)
+     .on('mouseover', this.createOnMouseOverPolygon())
+     .on('mouseout', this.createOnMouseOutPolygon())
   }
 
   /**
