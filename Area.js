@@ -67,6 +67,10 @@ class Area {
       self.drawingContext.selectAll(thisPolygon)
         .transition(200)
         .style("fill-opacity", self.opts.highlightedAreaOpacity);
+
+      d3.select(d.circleRef)
+        .transition(100)
+        .attr('r', self.circleRadius * self.opts.circleOverlayRadiusMult)
     }
   }
 
@@ -78,6 +82,10 @@ class Area {
       self.drawingContext.selectAll("polygon")
         .transition(200)
         .style("fill-opacity", self.opts.defaultAreaOpacity);
+
+      d3.select(d.circleRef)
+        .transition(100)
+        .attr('r', self.circleRadius)
     }
   }
 
@@ -102,7 +110,6 @@ class Area {
       var newX = axis.projectCordToAxis(mouseX, mouseY).x;
       var newY = axis.projectCordToAxis(mouseX, mouseY).y;
 
-
       if (axis.quad === Axis.QUAD_1 || axis.quad === Axis.QUAD_2) {
         if (newY < axis.y2 || newY > axis.y1 ) return;
       } else {
@@ -114,7 +121,11 @@ class Area {
       d.datum.value = newValue;
       d.cords = self.axisMap[d.datum.axis].projectValueOnAxis(newValue)
 
-      d3.select(d3.event.subject)
+      d3.select(d.circleRef)
+        .attr("cx", newX)
+        .attr("cy", newY)
+
+      d3.select(d.overlayRef)
         .attr("cx", newX)
         .attr("cy", newY)
 
@@ -175,12 +186,7 @@ class Area {
       .data(this.points)
       .enter()
       .append("svg:circle")
-      .call(d3.drag()
-        .subject(function(d) { return this; })
-        .on('drag', this.createOnDraggingCircle())
-        .on('end', this.createOnDragEndCircle())
-      )
-      .attr("class", "radar-chart-serie" + this.seriesIdent)
+      .attr("class", "radar-chart-series" + this.seriesIdent)
       .attr('r', this.circleRadius)
       .attr("alt", function(j){return Math.max(j.value, 0)})
       .attr("cx", d => d.cords.x)
@@ -191,10 +197,25 @@ class Area {
         }
       })
       .style("fill-opacity", this.opts.defaultCircleOpacity)
+      .each(function(d) { d.circleRef = this; })
+
+    this.circleOverylays = this.drawingContext
+      .selectAll('.nodes-overlay')
+      .data(this.points)
+      .enter()
+      .append("svg:circle")
+      .call(d3.drag()
+        .subject(function(d) { return this; })
+        .on('drag', this.createOnDraggingCircle())
+        .on('end', this.createOnDragEndCircle())
+      )
+      .attr('r', this.circleRadius * this.opts.circleOverlayRadiusMult)
+      .attr("cx", d => d.cords.x)
+      .attr("cy", d => d.cords.y)
+      .attr('opacity', 0.0)
       .on('mouseover', this.createOnMouseOverCircle())
       .on('mouseout', this.createMouseOutCirlce())
-      .attr('z-index', 10)
-      .each(function(d) { d.ref = this; })
+      .each(function(d) { d.overlayRef = this; })
 
     this.circles
       .append("svg:title")
@@ -210,7 +231,14 @@ class Area {
      .on('mouseout', null);
 
     this.circles.each(function(d) {
-      d3.select(d.ref)
+      d3.select(d.circleRef)
+        .on('mouseover', null)
+        .on('mouseout', null)
+        .remove();
+    });
+
+    this.circleOverylays.each(function(d) {
+      d3.select(d.circleRef)
         .on('mouseover', null)
         .on('mouseout', null)
         .remove();

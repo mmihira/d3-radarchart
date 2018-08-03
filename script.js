@@ -112,6 +112,7 @@ var options = {
     hiddenAreaOpacity: 0.1,
     defaultCircleOpacity: 0.3,
     hoverCircleOpacity: 1.0,
+    circleOverlayRadiusMult: 1.2,
     useColorScale: true,
     areaColorScale: d3.scaleOrdinal(d3.schemeAccent),
     lineColorScale: d3.scaleOrdinal(d3.schemeAccent)

@@ -99,7 +99,6 @@ class RadarChart {
        .style("opacity", 0.0)
        .attr("transform", "translate(" + (width / 2 - levelFactor + opts.ToRight) + ", " + (height / 2 - levelFactor) + ")")
        .attr("fill", "#737373")
-       .attr('pointer-events', 'none')
        .text(function(d) { return Format((lvlInx + 1) * d.maxValue / opts.levels.levelsNo); })
        .each(function(d) { d.axisTickTextElements.push(this); })
     }
