@@ -2,7 +2,7 @@
 typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('d3'), require('lodash')) :
 typeof define === 'function' && define.amd ? define(['d3', 'lodash'], factory) :
 (global.RadarChart = factory(global.d3,global.lodash));
-}(this, (function (d3$1,_$1) { 'use strict';
+}(this, (function (d3,_$1) { 'use strict';
 
 var RADIANS = 2 * Math.PI;
 
@@ -30,9 +30,6 @@ var createClass = function () {
   };
 }();
 
-/**
- * Represents the axis, labels and circles
- */
 var QUAD_1 = 'QUAD_1';
 var QUAD_2 = 'QUAD_2';
 var QUAD_3 = 'QUAD_3';
@@ -205,13 +202,13 @@ var Area = function () {
 
 
   createClass(Area, [{
-    key: "render",
+    key: 'render',
     value: function render() {
       this.renderArea();
       this.renderCircles();
     }
   }, {
-    key: "updatePositions",
+    key: 'updatePositions',
     value: function updatePositions() {
       this.polygonWrapper.svgStringRep = this.points.reduce(function (acc, p) {
         return acc + p.cords.x + "," + p.cords.y + " ";
@@ -221,7 +218,7 @@ var Area = function () {
       this.renderArea();
     }
   }, {
-    key: "createOnMouseOverCircle",
+    key: 'createOnMouseOverCircle',
     value: function createOnMouseOverCircle() {
       var self = this;
 
@@ -235,7 +232,7 @@ var Area = function () {
       };
     }
   }, {
-    key: "createMouseOutCirlce",
+    key: 'createMouseOutCirlce',
     value: function createMouseOutCirlce() {
       var self = this;
       return function (d) {
@@ -246,7 +243,7 @@ var Area = function () {
       };
     }
   }, {
-    key: "createOnDragEndCircle",
+    key: 'createOnDragEndCircle',
     value: function createOnDragEndCircle() {
       var self = this;
       return function (d) {
@@ -256,7 +253,7 @@ var Area = function () {
       };
     }
   }, {
-    key: "createOnDraggingCircle",
+    key: 'createOnDraggingCircle',
     value: function createOnDraggingCircle() {
       var self = this;
       return function (d) {
@@ -291,7 +288,7 @@ var Area = function () {
       };
     }
   }, {
-    key: "createOnMouseOverPolygon",
+    key: 'createOnMouseOverPolygon',
     value: function createOnMouseOverPolygon() {
       var self = this;
 
@@ -303,7 +300,7 @@ var Area = function () {
       };
     }
   }, {
-    key: "createOnMouseOutPolygon",
+    key: 'createOnMouseOutPolygon',
     value: function createOnMouseOutPolygon() {
       var self = this;
       return function (el) {
@@ -311,7 +308,7 @@ var Area = function () {
       };
     }
   }, {
-    key: "renderArea",
+    key: 'renderArea',
     value: function renderArea() {
       var _this2 = this;
 
@@ -328,7 +325,7 @@ var Area = function () {
       }).style("fill-opacity", this.opts.defaultAreaOpacity).on('mouseover', this.createOnMouseOverPolygon()).on('mouseout', this.createOnMouseOutPolygon());
     }
   }, {
-    key: "renderCircles",
+    key: 'renderCircles',
     value: function renderCircles() {
       var _this3 = this;
 
@@ -366,7 +363,7 @@ var Area = function () {
      */
 
   }, {
-    key: "remove",
+    key: 'remove',
     value: function remove() {
       this.area.on('mouseover', null).on('mouseout', null);
 
@@ -399,7 +396,7 @@ var RadarChart = function () {
 
     classCallCheck(this, RadarChart);
 
-    this.rootElement = d3$1.select(args.rootElement);
+    this.rootElement = d3.select(args.rootElement);
     this.opts = _$1.omit(args, ['rootElement']);
     this.opts = _$1.cloneDeep(this.opts);
 
@@ -411,8 +408,8 @@ var RadarChart = function () {
 
     // Calculate the maximum value for the chart only used if
     // opts.axis.useGlobalMax is true
-    var maxFromData = d3$1.max(this.data, function (dataSet) {
-      return d3$1.max(dataSet.map(function (o) {
+    var maxFromData = d3.max(this.data, function (dataSet) {
+      return d3.max(dataSet.map(function (o) {
         return o.value;
       }));
     });
@@ -470,7 +467,7 @@ var RadarChart = function () {
         }).attr("class", "line").style("stroke", "grey").style("stroke-opacity", "0.75").style("stroke-width", "0.3px").attr("transform", "translate(" + (width / 2 - levelFactor) + ", " + (height / 2 - levelFactor) + ")");
       }
 
-      var Format = d3$1.format('.2%');
+      var Format = d3.format('.2%');
       // Text indicating at what % each level is
       for (var lvlInx = 0; lvlInx < opts.levels.levelsNo; lvlInx++) {
         var levelFactor = opts.factor * opts.levels.levelRadius * ((lvlInx + 1) / opts.levels.levelsNo);
@@ -560,7 +557,7 @@ var RadarChart = function () {
 
 
       var LegendOptions = ['Smartphone', 'Tablet'];
-      var colorscale = d3$1.scaleOrdinal(d3$1.schemeAccent);
+      var colorscale = d3.scaleOrdinal(d3.schemeAccent);
 
       var svg = this.rootSvg.append('svg').attr("width", width + extraWidthX).attr("height", height);
 
