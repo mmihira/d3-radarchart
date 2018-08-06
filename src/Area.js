@@ -1,4 +1,3 @@
-import d3 from 'd3';
 import {
   QUAD_1,
   QUAD_2

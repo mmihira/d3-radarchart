@@ -1,6 +1,6 @@
+import * as d3 from 'd3';
 import Area from './Area.js';
 import Axis from './Axis.js';
-import d3 from 'd3';
 
 /**
  * Based of
