@@ -13,7 +13,8 @@ export default {
       format: 'umd',
       globals: {
         d3: 'd3'
-      }
+      },
+      externa: ['d3']
   },
   plugins: [
     babel({

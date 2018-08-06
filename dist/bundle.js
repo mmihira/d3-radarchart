@@ -4,6 +4,8 @@ typeof define === 'function' && define.amd ? define(['d3'], factory) :
 (global.RadarChart = factory(global.d3));
 }(this, (function (d3$1) { 'use strict';
 
+var RADIANS = 2 * Math.PI;
+
 var classCallCheck = function (instance, Constructor) {
   if (!(instance instanceof Constructor)) {
     throw new TypeError("Cannot call a class as a function");
@@ -31,7 +33,6 @@ var createClass = function () {
 /**
  * Represents the axis, labels and circles
  */
-
 var QUAD_1 = 'QUAD_1';
 var QUAD_2 = 'QUAD_2';
 var QUAD_3 = 'QUAD_3';
@@ -60,8 +61,6 @@ var Axis = function () {
           width = _opts$dims.width,
           height = _opts$dims.height;
       var maxAxisNo = this.opts.axis.maxAxisNo;
-      var _RadarChart = RadarChart,
-          RADIANS = _RadarChart.RADIANS;
 
 
       var x1 = width / 2;
@@ -141,7 +140,7 @@ var Axis = function () {
     value: function onRectMouseOver() {
       if (this.dragActive) return false;
       this.axisTickTextElements.forEach(function (d) {
-        d3$1.select(d).style('opacity', 0.9);
+        d3.select(d).style('opacity', 0.9);
       });
     }
   }, {
@@ -149,7 +148,7 @@ var Axis = function () {
     value: function onRectMouseOut() {
       if (this.dragActive) return false;
       this.axisTickTextElements.forEach(function (d) {
-        d3$1.select(d).transition(200).style('opacity', 0.0);
+        d3.select(d).transition(200).style('opacity', 0.0);
       });
     }
   }]);
@@ -391,7 +390,7 @@ var Area = function () {
  *  - http://bl.ocks.org/nbremer/21746a9668ffdf6d8242
  */
 
-var RadarChart$1 = function () {
+var RadarChart = function () {
   /**
    * @param args {Object}
    */
@@ -450,7 +449,6 @@ var RadarChart$1 = function () {
           extraWidthY = _opts$dims.extraWidthY,
           translateX = _opts$dims.translateX,
           translateY = _opts$dims.translateY;
-      var RADIANS = RadarChart.RADIANS;
 
 
       this.rootSvg = this.rootElement.append("svg").attr("width", width + extraWidthX).attr("height", height + extraWidthY);
@@ -604,8 +602,6 @@ var RadarChart$1 = function () {
   return RadarChart;
 }();
 
-RadarChart$1.RADIANS = 2 * Math.PI;
-
-return RadarChart$1;
+return RadarChart;
 
 })));

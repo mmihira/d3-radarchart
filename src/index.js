@@ -1,6 +1,7 @@
 import * as d3 from 'd3';
 import Area from './Area.js';
 import Axis from './Axis.js';
+import {RADIANS} from './const.js';
 
 /**
  * Based of
@@ -55,7 +56,6 @@ class RadarChart {
       translateX,
       translateY
     } = this.opts.dims;
-    const {RADIANS} = RadarChart;
 
     this.rootSvg = this.rootElement
         .append("svg")
@@ -243,6 +243,5 @@ class RadarChart {
   }
 }
 
-RadarChart.RADIANS = 2 * Math.PI;
 
 export default RadarChart;

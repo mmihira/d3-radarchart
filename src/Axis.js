@@ -1,9 +1,8 @@
-import * as d3 from 'd3';
-
 /**
  * Represents the axis, labels and circles
  */
 
+import {RADIANS} from './const.js';
 const QUAD_1 = 'QUAD_1';
 const QUAD_2 = 'QUAD_2';
 const QUAD_3 = 'QUAD_3';
@@ -24,7 +23,6 @@ class Axis {
     const {opts, axisIndex, axisOptions} = this;
     const {width, height} = this.opts.dims;
     const {maxAxisNo} = this.opts.axis;
-    const {RADIANS} = RadarChart;
 
     const x1 = width / 2;
     const y1 = height / 2;
