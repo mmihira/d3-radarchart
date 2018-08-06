@@ -12,9 +12,10 @@ export default {
       sourceMap: 'inline',
       format: 'umd',
       globals: {
-        d3: 'd3'
+        d3: 'd3',
+        lodash: 'lodash'
       },
-      externa: ['d3']
+      external: ['d3', 'lodash']
   },
   plugins: [
     babel({

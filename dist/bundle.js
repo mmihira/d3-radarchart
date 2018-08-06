@@ -1,8 +1,8 @@
 (function (global, factory) {
-typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('d3')) :
-typeof define === 'function' && define.amd ? define(['d3'], factory) :
-(global.RadarChart = factory(global.d3));
-}(this, (function (d3$1) { 'use strict';
+typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('d3'), require('lodash')) :
+typeof define === 'function' && define.amd ? define(['d3', 'lodash'], factory) :
+(global.RadarChart = factory(global.d3,global.lodash));
+}(this, (function (d3$1,_$1) { 'use strict';
 
 var RADIANS = 2 * Math.PI;
 
@@ -400,8 +400,8 @@ var RadarChart = function () {
     classCallCheck(this, RadarChart);
 
     this.rootElement = d3$1.select(args.rootElement);
-    this.opts = _.omit(args, ['rootElement']);
-    this.opts = _.cloneDeep(this.opts);
+    this.opts = _$1.omit(args, ['rootElement']);
+    this.opts = _$1.cloneDeep(this.opts);
 
     this.opts.axis.maxAxisNo = this.opts.axis.config.length;
     this.opts.levels.levelRadius = this.opts.factor * Math.min(this.opts.dims.width / 2, this.opts.dims.height / 2);

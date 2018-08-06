@@ -1,4 +1,5 @@
 import * as d3 from 'd3';
+import * as _ from 'lodash';
 import Area from './Area.js';
 import Axis from './Axis.js';
 import {RADIANS} from './const.js';
