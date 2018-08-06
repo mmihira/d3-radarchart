@@ -1,3 +1,9 @@
+import d3 from 'd3';
+import {
+  QUAD_1,
+  QUAD_2
+} from './Axis.js';
+
 /**
  * The area represents the radar chat area for a particular series.
  * It includes the polygon and circles on the apex.
@@ -110,7 +116,7 @@ class Area {
       var newX = axis.projectCordToAxis(mouseX, mouseY).x;
       var newY = axis.projectCordToAxis(mouseX, mouseY).y;
 
-      if (axis.quad === Axis.QUAD_1 || axis.quad === Axis.QUAD_2) {
+      if (axis.quad === QUAD_1 || axis.quad === QUAD_2) {
         if (newY < axis.y2 || newY > axis.y1 ) return;
       } else {
         if (newY < axis.y1 || newY > axis.y2 ) return;
@@ -247,3 +253,5 @@ class Area {
     this.area.remove();
   }
 }
+
+export default Area;

@@ -1,6 +1,14 @@
+import d3 from 'd3';
+
 /**
  * Represents the axis, labels and circles
  */
+
+const QUAD_1 = 'QUAD_1';
+const QUAD_2 = 'QUAD_2';
+const QUAD_3 = 'QUAD_3';
+const QUAD_4 = 'QUAD_4';
+
 class Axis {
   constructor(opts, axisOptions, axisIndex) {
     this.opts = opts;
@@ -24,13 +32,13 @@ class Axis {
     const y2 = height / 2 * (1 - opts.factor * Math.cos(axisIndex * RADIANS / maxAxisNo));
 
     if (x2 < x1 && y2 <= y1) {
-      this.quad = Axis.QUAD_1;
+      this.quad = QUAD_1;
     } else if (x2 >= x2 && y2 <= y1) {
-      this.quad = Axis.QUAD_2;
+      this.quad = QUAD_2;
     } else if (x2 <= x2 && y2 >= y1) {
-      this.quad = Axis.QUAD_3;
+      this.quad = QUAD_3;
     } else if (x2 >= x2 && y2 >= y1) {
-      this.quad = Axis.QUAD_4;
+      this.quad = QUAD_4;
     }
 
     const label_x = (width / 2) * (1 - opts.factorLegend * Math.sin(axisIndex * RADIANS / maxAxisNo)) - 60 * Math.sin(axisIndex * RADIANS/maxAxisNo);
@@ -110,7 +118,10 @@ class Axis {
   }
 }
 
-Axis.QUAD_1 = 'QUAD_1';
-Axis.QUAD_2 = 'QUAD_2';
-Axis.QUAD_3 = 'QUAD_3';
-Axis.QUAD_4 = 'QUAD_4';
+export {
+  Axis as default,
+  QUAD_1,
+  QUAD_2,
+  QUAD_3,
+  QUAD_4
+}

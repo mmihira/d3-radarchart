@@ -1,3 +1,7 @@
+import Area from './Area.js';
+import Axis from './Axis.js';
+import d3 from 'd3';
+
 /**
  * Based of
  *  - https://github.com/alangrafu/radar-chart-d3
@@ -240,3 +244,5 @@ class RadarChart {
 }
 
 RadarChart.RADIANS = 2 * Math.PI;
+
+export default RadarChart;
