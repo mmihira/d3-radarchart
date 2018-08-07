@@ -25,7 +25,7 @@ var axisConfig = [
 
 var d = [
   [
-	  {axis:"Email",value:0.59},
+	  {axis:"Email",value:0.4},
     {axis:"Social Networks",value:0.56},
     {axis:"Internet Banking",value:0.42},
     {axis:"News Sportsites",value:0.34},
@@ -82,46 +82,19 @@ var options = {
   dims: {
     width: 500,
     height: 500,
-    extraWidthX: 300,
-    extraWidthY: 100,
-    translateX: 80,
-    translateY: 30,
-    outerHeight:600,
-    xbuffer: 80, // to adjust space for
-    ybuffer: 30
+    extraWidthP: 0.6,
+    extraHeightP: 0.25
   },
-  legend: {
-    height: 100,
-    width: 200,
-    marginTop: 10
-  },
-  levels: {
-    levelsNo: 3,
-    levelsColor: null
-  },
-  point: {
-    radius: 5,
-  },
-  ToRight: 5,       // WTF is this ?
-  factor: 1,        // modify
-  factorLegend: 0.85,
-  color: d3.scaleOrdinal(d3.schemeAccent), // modify
-  area: {
-    defaultAreaOpacity: 0.4,
-    highlightedAreaOpacity: 0.7,
-    hiddenAreaOpacity: 0.1,
-    defaultCircleOpacity: 0.3,
-    hoverCircleOpacity: 1.0,
-    circleOverlayRadiusMult: 1.2,
-    useColorScale: true,
-    areaColorScale: d3.scaleOrdinal(d3.schemeAccent),
-    lineColorScale: d3.scaleOrdinal(d3.schemeAccent)
-  },
+  ToRight: 20,
+  showLegend: true,
   rootElement: document.getElementById('chart'),
+  levels: {
+    levelsNo: 3
+  },
   axis: {
     config: axisConfig,
     colorScale: null,       // If specified then color the axis using different colors,
-    useGlobalMax: false,    // U
+    useGlobalMax: false,
     maxValue: 0.6,          // modify,
   }
 }

@@ -27,8 +27,8 @@ class Axis {
 
     const x1 = width / 2;
     const y1 = height / 2;
-    const x2 = width / 2 * (1 - opts.factor * Math.sin(axisIndex * RADIANS / maxAxisNo));
-    const y2 = height / 2 * (1 - opts.factor * Math.cos(axisIndex * RADIANS / maxAxisNo));
+    const x2 = width / 2 * (1 - Math.sin(axisIndex * RADIANS / maxAxisNo));
+    const y2 = height / 2 * (1 - Math.cos(axisIndex * RADIANS / maxAxisNo));
 
     if (x2 < x1 && y2 <= y1) {
       this.quad = QUAD_1;
@@ -40,7 +40,7 @@ class Axis {
       this.quad = QUAD_4;
     }
 
-    const label_x = (width / 2) * (1 - opts.factorLegend * Math.sin(axisIndex * RADIANS / maxAxisNo)) - 60 * Math.sin(axisIndex * RADIANS/maxAxisNo);
+    const label_x = (width / 2) * (1 - opts.legend.factor * Math.sin(axisIndex * RADIANS / maxAxisNo)) - 60 * Math.sin(axisIndex * RADIANS/maxAxisNo);
     const label_y = (height / 2) * (1 - Math.cos(axisIndex * RADIANS / maxAxisNo)) - 20 * Math.cos(axisIndex * RADIANS / maxAxisNo);
 
     // Note the gradients are inversed because of the SVG co-ordinate system.
@@ -75,8 +75,8 @@ class Axis {
     this.label_x = label_x;
     this.label_y = label_y;
 
-    const projectValueOnAxisXMultTerm = opts.factor * Math.sin(axisIndex * RADIANS / maxAxisNo);
-    const projectValueOnAxisYMultTerm = opts.factor * Math.cos(axisIndex * RADIANS / maxAxisNo);
+    const projectValueOnAxisXMultTerm = Math.sin(axisIndex * RADIANS / maxAxisNo);
+    const projectValueOnAxisYMultTerm = Math.cos(axisIndex * RADIANS / maxAxisNo);
 
     this.projectCordToAxis = projectCordToAxis;
     this.projectValueOnAxis = function(value) {

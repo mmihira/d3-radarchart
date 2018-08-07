@@ -3,31 +3,100 @@ import * as _ from 'lodash';
 import Area from './Area.js';
 import Axis from './Axis.js';
 import {RADIANS} from './const.js';
-
 /**
  * Based of
  *  - https://github.com/alangrafu/radar-chart-d3
  *  - http://bl.ocks.org/nbremer/21746a9668ffdf6d8242
  */
+
+/**
+ * Default options
+ */
+const DEFAULTS_OPTS = {
+  data: [],
+  dims: {
+    width: 500,
+    height: 500,
+    extraWidthP: 0.6,
+    extraHeightP: 0.25,
+    translateXp: 0.1,
+    translateYp: 0.05
+  },
+  showLegend: true,
+  legend: {
+    height: 100,
+    width: 200,
+    factor: 0.85,
+    translateX: -75,
+    translateY: 10,
+    textTranslateX: -52,
+    textSpacing: 20,
+    textYOffset: 9,
+    colorScale: d3.scaleOrdinal(d3.schemeAccent),
+    iconHeight: 10,
+    iconWidth: 10,
+    iconSpacing: 20,
+    title: "Test title"
+    titleProperties: {
+      'font-size': '12px',
+      'fill': '#404040'
+    },
+    labelTextProperties: {
+      'font-size': '11px',
+      'fill': '#737373'
+    }
+  },
+  levels: {
+    levelsNo: 2,
+    noTicks: 3,
+    levelsColor: null,
+    ticks: {
+      fill: '#737373',
+      'font-size': '10px',
+      'font-family': 'sans-serif'
+    }
+  },
+  point: {
+    radius: 5,
+  },
+  axis: {
+    config: [],
+    colorScale: null,       // If specified then color the axis using different colors,
+    useGlobalMax: false,    // U
+    maxValue: 0.6,          // modify,
+  },
+  area: {
+    defaultAreaOpacity: 0.4,
+    highlightedAreaOpacity: 0.7,
+    hiddenAreaOpacity: 0.1,
+    defaultCircleOpacity: 0.3,
+    hoverCircleOpacity: 1.0,
+    circleOverlayRadiusMult: 1.2,
+    useColorScale: true,
+    areaColorScale: d3.scaleOrdinal(d3.schemeAccent),
+    lineColorScale: d3.scaleOrdinal(d3.schemeAccent)
+  },
+  rootElement: null,
+}
+
 class RadarChart {
   /**
    * @param args {Object}
    */
-  constructor(args) {
-    this.rootElement = d3.select(args.rootElement);
-    this.opts = _.omit(args, ['rootElement']);
-    this.opts = _.cloneDeep(this.opts);
+  constructor(opts) {
+    this.rootElement = d3.select(opts.rootElement);
+    this.opts = _.merge(DEFAULTS_OPTS, opts);
 
     this.opts.axis.maxAxisNo = this.opts.axis.config.length;
-	  this.opts.levels.levelRadius = this.opts.factor * Math.min(this.opts.dims.width / 2, this.opts.dims.height / 2);
+
+    this.opts.dims.extraWidth = this.opts.dims.width * (1 + this.opts.dims.extraWidthP);
+    this.opts.dims.extraHeight = this.opts.dims.height * (1 + this.opts.dims.extraHeightP);
+
+    this.opts.dims.translateX = (this.opts.dims.width + this.opts.dims.extraWidth) * this.opts.dims.translateXp;
+    this.opts.dims.translateY = (this.opts.dims.height + this.opts.dims.extraHeight) * this.opts.dims.translateYp;
 
     this.data = this.opts.data;
     this.axisConfig = this.opts.axis.config;
-
-    // Calculate the maximum value for the chart only used if
-    // opts.axis.useGlobalMax is true
-    const maxFromData = d3.max(this.data, (dataSet) => d3.max(dataSet.map(o => o.value)));
-	  this.opts.maxValue = Math.max(this.opts.maxValue, maxFromData);
 
 	  this.axisParameters = this.axisConfig.map((axis, inx) => new Axis(this.opts, axis, inx));
     this.axisMap = this.axisParameters
@@ -43,7 +112,9 @@ class RadarChart {
   render() {
     this.renderAxis();
     this.renderArea();
-    this.renderLegend();
+    if (this.opts.showLegend) {
+      this.renderLegend();
+    }
   }
 
   renderAxis() {
@@ -52,16 +123,16 @@ class RadarChart {
     const {
       width,
       height,
-      extraWidthX,
-      extraWidthY,
+      extraWidth,
+      extraHeight,
       translateX,
       translateY
     } = this.opts.dims;
 
     this.rootSvg = this.rootElement
         .append("svg")
-        .attr("width", width + extraWidthX)
-        .attr("height", height + extraWidthY);
+        .attr("width", width + extraWidth)
+        .attr("height", height + extraHeight);
 
     this.drawingContext = this.rootSvg
       .append("g")
@@ -69,43 +140,72 @@ class RadarChart {
 
     // Circular segments
     for(var lvlInx = 0; lvlInx < opts.levels.levelsNo - 1; lvlInx++) {
-      var levelFactor = opts.factor * opts.levels.levelRadius * ((lvlInx + 1) / opts.levels.levelsNo);
+      let tickNos = opts.levels.levelsNo;
 
       this.drawingContext.selectAll(".levels")
-       .data(this.axisParameters)
-       .enter()
-       .append("svg:line")
-       .attr("x1", function(d, i){return levelFactor*(1 - opts.factor*Math.sin(i*RADIANS/maxAxisNo));})
-       .attr("y1", function(d, i){return levelFactor*(1 - opts.factor*Math.cos(i*RADIANS/maxAxisNo));})
-       .attr("x2", function(d, i){return levelFactor*(1 - opts.factor*Math.sin((i+1)*RADIANS/maxAxisNo));})
-       .attr("y2", function(d, i){return levelFactor*(1 - opts.factor*Math.cos((i+1)*RADIANS/maxAxisNo));})
+        .data(this.axisParameters)
+        .enter()
+        .append("svg:line")
+        .attr("x1", (d, i) => {
+          let tickValue = (d.maxValue / tickNos) * (lvlInx + 1);
+          let cordsOnAxis = d.projectValueOnAxis(tickValue);
+          return cordsOnAxis.x;
+        })
+        .attr("y1", (d, i) => {
+          let tickValue = (d.maxValue / tickNos) * (lvlInx + 1);
+          let cordsOnAxis = d.projectValueOnAxis(tickValue);
+          return cordsOnAxis.y;
+        })
+        .attr("x2", (d, i) => {
+          let nxtInx = i + 1 === this.axisParameters.length ?  0 : (i + 1);
+          let nAxis = this.axisParameters[nxtInx];
+          let nValue = (nAxis.maxValue / tickNos) * (lvlInx + 1);
+          let nCordAxis = nAxis.projectValueOnAxis(nValue);
+          return nCordAxis.x;
+       })
+       .attr("y2", (d, i) => {
+          let nxtInx = i + 1 === this.axisParameters.length ?  0 : (i + 1);
+          let nAxis = this.axisParameters[nxtInx];
+          let nValue = (nAxis.maxValue / tickNos) * (lvlInx + 1);
+          let nCordAxis = nAxis.projectValueOnAxis(nValue);
+          return nCordAxis.y;
+       })
        .attr("class", "line")
        .style("stroke", "grey")
        .style("stroke-opacity", "0.75")
        .style("stroke-width", "0.3px")
-       .attr("transform", "translate(" + (width / 2 - levelFactor) + ", " + (height / 2 - levelFactor) + ")");
     }
 
 	  var Format = d3.format('.2%');
+
+    const ticksAttr = opts.levels.ticks;
+
     // Text indicating at what % each level is
     for(var lvlInx = 0; lvlInx < opts.levels.levelsNo; lvlInx++) {
-      var levelFactor = opts.factor * opts.levels.levelRadius * ((lvlInx + 1) / opts.levels.levelsNo);
+      let tickNos = opts.levels.levelsNo;
 
       var z = this.drawingContext
-       .selectAll(".levels")
-       .data(this.axisParameters)
-       .enter()
-       .append("svg:text")
-       .attr("x", function(d, i) {return levelFactor * (1 - opts.factor * Math.sin(i * RADIANS/maxAxisNo));})
-       .attr("y", function(d, i) {return levelFactor * (1 - opts.factor * Math.cos(i * RADIANS/maxAxisNo));})
-       .attr("class", "legend")
-       .style("font-family", "sans-serif")
-       .style("font-size", "10px")
-       .style("opacity", 0.0)
-       .attr("transform", "translate(" + (width / 2 - levelFactor + opts.ToRight) + ", " + (height / 2 - levelFactor) + ")")
-       .attr("fill", "#737373")
-       .text(function(d) { return Format((lvlInx + 1) * d.maxValue / opts.levels.levelsNo); })
-       .each(function(d) { d.axisTickTextElements.push(this); })
+        .selectAll(".levels")
+        .data(this.axisParameters)
+        .enter()
+        .append("svg:text")
+        .attr("x", (d) => {
+          let tickValue = (d.maxValue / tickNos) * (lvlInx + 1);
+          let cordsOnAxis = d.projectValueOnAxis(tickValue);
+          return cordsOnAxis.x;
+         })
+        .attr("y", (d) => {
+          let tickValue = (d.maxValue / tickNos) * (lvlInx + 1);
+          let cordsOnAxis = d.projectValueOnAxis(tickValue);
+          return cordsOnAxis.y;
+        })
+        .attr("class", "legend")
+        .style("font-family", ticksAttr['font-family'])
+        .style("font-size", ticksAttr['font-size'])
+        .style("opacity", 0.0)
+        .attr("fill", ticksAttr['fill'])
+        .text(function(d) { return Format((d.maxValue / tickNos) * (lvlInx + 1) / d.maxValue); })
+        .each(function(d) { d.axisTickTextElements.push(this); })
     }
 
     this.axisG = this.drawingContext
@@ -170,70 +270,56 @@ class RadarChart {
     const {
       width,
       height,
-      extraWidthX,
-      extraWidthY,
-      translateX,
-      translateY
+      extraWidth,
+      extraHeight,
     } = this.opts.dims;
-    const {
-      width: legendWidth,
-      height: legendHeight,
-      marginTop
-    } = this.opts.dims;
-    const {opts} = this;
+    const legendOpts = this.opts.legend;
 
     var LegendOptions = ['Smartphone','Tablet'];
-    var colorscale = d3.scaleOrdinal(d3.schemeAccent);
 
-    var svg =
-      this.rootSvg
+    var svg = this.rootSvg
       .append('svg')
-      .attr("width", width + extraWidthX)
+      .attr("width", width + extraWidth)
       .attr("height", height)
-
-    // MAKE THESE CONFIGURABLE !!
 
     //Create the title for the legend
     var text = svg.append("text")
       .attr("class", "title")
       .attr('transform', 'translate(90,0)')
-      .attr("x", width  - 70)
-      .attr("y", 10)
-      .attr("font-size", "12px")
-      .attr("fill", "#404040")
-      .text("What % of owners use a specific service in a week");
+      .attr("x", width + legendOpts.translateX)
+      .attr("y", legendOpts.translateY)
+      .text(legendOpts.title)
+      .attr("font-size", legendOpts.titleProperties['font-size'])
+      .attr("fill", legendOpts.titleProperties['fill'])
 
     //Initiate Legend
     var legend = svg.append("g")
       .attr("class", "legend")
-      .attr("height", legendHeight)
-      .attr("width", legendWidth)
-      .attr('transform', 'translate(90,20)')
-      ;
+      .attr("height", legendOpts.height)
+      .attr("width", legendOpts.width)
+      .attr('transform', 'translate(90,20)');
 
     //Create colour squares
     legend.selectAll('rect')
       .data(LegendOptions)
       .enter()
       .append("rect")
-      .attr("x", width  - 65)
-      .attr("y", function(d, i){ return i * 20;})
-      .attr("width", 10)
-      .attr("height", 10)
-      .style("fill", function(d, i){ return colorscale(i);})
-      ;
+      .attr("x", width + legendOpts.translateX)
+      .attr("y", (d, i) => i * legendOpts.iconSpacing)
+      .attr("width", legendOpts.iconWidth)
+      .attr("height", legendOpts.iconHeight)
+      .style("fill",(d, i) => legendOpts.colorScale(i));
 
     //Create text next to squares
     legend.selectAll('text')
       .data(LegendOptions)
       .enter()
       .append("text")
-      .attr("x", width - 52)
-      .attr("y", function(d, i){ return i * 20 + 9;})
-      .attr("font-size", "11px")
-      .attr("fill", "#737373")
-      .text(function(d) { return d; })
-      ;
+      .attr("x", width + legendOpts.textTranslateX)
+      .attr("y",(d, i) => i * legendOpts.textSpacing + legendOpts.textYOffset)
+      .attr("font-size", legendOpts.labelTextProperties['font-size'])
+      .attr("fill", legendOpts.labelTextProperties['fill'])
+      .text(function(d) { return d; });
   }
 
   /**
