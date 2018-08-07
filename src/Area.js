@@ -1,4 +1,5 @@
 import * as d3 from 'd3';
+import * as _ from 'lodash';
 import {
   QUAD_1,
   QUAD_2
@@ -16,11 +17,11 @@ class Area {
    * @param seriesIdent {String} The identity of the series must be unique
    * @param areaOptions {Object} Options for this area
    */
-  constructor(args) {
+  constructor (args) {
     this.axisMap = args.axisMap;
     this.data = _.cloneDeep(args.series);
     this.drawingContext = args.drawingContext;
-	  this.color = d3.scaleOrdinal(d3.schemeAccent);
+    this.color = d3.scaleOrdinal(d3.schemeAccent);
     this.seriesIdent = args.seriesIdent;
     this.seriesIndex = args.seriesIndex;
     this.opts = _.cloneDeep(args.areaOptions);
@@ -28,85 +29,84 @@ class Area {
     this.circleRadius = 5;
 
     // For each axisId calculate the apex points for this area
-    this.points =  this.data.map(spoke => {
+    this.points = this.data.map(spoke => {
       return {
         cords: this.axisMap[spoke.axis].projectValueOnAxis(spoke.value),
         datum: _.cloneDeep(spoke)
-      }
+      };
     });
 
     this.polygonWrapper = {
       points: this.points,
       svgStringRep: this.points.reduce((acc, p) => {
-        return acc + p.cords.x + "," + p.cords.y + " ";
-      }, "")
-    }
+        return acc + p.cords.x + ',' + p.cords.y + ' ';
+      }, '')
+    };
   }
 
   /**
    * Render the nodes and the area
    */
-  render() {
+  render () {
     this.renderArea();
     this.renderCircles();
   }
 
-  updatePositions() {
+  updatePositions () {
     this.polygonWrapper.svgStringRep = this.points.reduce((acc, p) => {
-        return acc + p.cords.x + "," + p.cords.y + " ";
-      }, "");
+      return acc + p.cords.x + ',' + p.cords.y + ' ';
+    }, '');
 
     this.area.remove();
     this.renderArea();
   }
 
-  createOnMouseOverCircle() {
+  createOnMouseOverCircle () {
     const self = this;
 
-    return function(d) {
-      const thisPolygon = "polygon." + d3.select(this).attr("class");
+    return function (d) {
+      const thisPolygon = 'polygon.' + d3.select(this).attr('class');
       d3.select(this)
         .style('fill-opacity', self.opts.hoverCircleOpacity);
-      self.drawingContext.selectAll("polygon")
+      self.drawingContext.selectAll('polygon')
         .transition(200)
-        .style("fill-opacity", self.opts.hiddenAreaOpacity);
+        .style('fill-opacity', self.opts.hiddenAreaOpacity);
       self.drawingContext.selectAll(thisPolygon)
         .transition(200)
-        .style("fill-opacity", self.opts.highlightedAreaOpacity);
+        .style('fill-opacity', self.opts.highlightedAreaOpacity);
 
       d3.select(d.circleRef)
         .transition(100)
-        .attr('r', self.circleRadius * self.opts.circleOverlayRadiusMult)
-    }
+        .attr('r', self.circleRadius * self.opts.circleOverlayRadiusMult);
+    };
   }
 
-  createMouseOutCirlce() {
+  createMouseOutCirlce () {
     const self = this;
-    return function(d) {
+    return function (d) {
       d3.select(this)
         .style('fill-opacity', self.opts.defaultCircleOpacity);
-      self.drawingContext.selectAll("polygon")
+      self.drawingContext.selectAll('polygon')
         .transition(200)
-        .style("fill-opacity", self.opts.defaultAreaOpacity);
+        .style('fill-opacity', self.opts.defaultAreaOpacity);
 
       d3.select(d.circleRef)
         .transition(100)
-        .attr('r', self.circleRadius)
-    }
+        .attr('r', self.circleRadius);
+    };
   }
 
-  createOnDragEndCircle() {
+  createOnDragEndCircle () {
     var self = this;
-    return function(d) {
-      var axis = self.axisMap[d.datum.axis];
+    return function (d) {
       self.axisMap[d.datum.axis].dragActive = false;
       self.axisMap[d.datum.axis].onRectMouseOut();
-    }
+    };
   }
 
-  createOnDraggingCircle() {
+  createOnDraggingCircle () {
     var self = this;
-    return function(d) {
+    return function (d) {
       var axis = self.axisMap[d.datum.axis];
       self.axisMap[d.datum.axis].onRectMouseOver();
       self.axisMap[d.datum.axis].dragActive = true;
@@ -117,133 +117,133 @@ class Area {
       var newY = axis.projectCordToAxis(mouseX, mouseY).y;
 
       if (axis.quad === QUAD_1 || axis.quad === QUAD_2) {
-        if (newY < axis.y2 || newY > axis.y1 ) return;
+        if (newY < axis.y2 || newY > axis.y1) return;
       } else {
-        if (newY < axis.y1 || newY > axis.y2 ) return;
+        if (newY < axis.y1 || newY > axis.y2) return;
       }
 
       var newValue = axis.cordOnAxisToValue(newX, newY);
 
       d.datum.value = newValue;
-      d.cords = self.axisMap[d.datum.axis].projectValueOnAxis(newValue)
+      d.cords = self.axisMap[d.datum.axis].projectValueOnAxis(newValue);
 
       d3.select(d.circleRef)
-        .attr("cx", newX)
-        .attr("cy", newY)
+        .attr('cx', newX)
+        .attr('cy', newY);
 
       d3.select(d.overlayRef)
-        .attr("cx", newX)
-        .attr("cy", newY)
+        .attr('cx', newX)
+        .attr('cy', newY);
 
       self.updatePositions();
-    }
+    };
   }
 
-  createOnMouseOverPolygon() {
+  createOnMouseOverPolygon () {
     const self = this;
 
-    return function(el) {
-      const thisPoly = "polygon." + d3.select(this).attr("class");
-      self.drawingContext.selectAll("polygon")
-       .transition(200)
-       .style("fill-opacity", self.opts.hiddenAreaOpacity);
+    return function (el) {
+      const thisPoly = 'polygon.' + d3.select(this).attr('class');
+      self.drawingContext.selectAll('polygon')
+        .transition(200)
+        .style('fill-opacity', self.opts.hiddenAreaOpacity);
 
       self.drawingContext.selectAll(thisPoly)
-       .transition(200)
-       .style("fill-opacity", self.opts.highlightedAreaOpacity);
-    }
+        .transition(200)
+        .style('fill-opacity', self.opts.highlightedAreaOpacity);
+    };
   }
 
-  createOnMouseOutPolygon() {
+  createOnMouseOutPolygon () {
     const self = this;
-    return function(el) {
+    return function (el) {
       d3.select(this)
-       .transition(200)
-       .style("fill-opacity", self.opts.defaultAreaOpacity);
-    }
+        .transition(200)
+        .style('fill-opacity', self.opts.defaultAreaOpacity);
+    };
   }
 
-  renderArea() {
-    this.area = this.drawingContext.selectAll(".area")
+  renderArea () {
+    this.area = this.drawingContext.selectAll('.area')
       .data([this.polygonWrapper])
       .enter()
-      .append("polygon")
-      .attr("class", "radar-chart-serie"+ this.seriesIdent)
-      .style("stroke-width", "2px")
-      .style("stroke", () => {
-        if(this.opts.useColorScale) {
+      .append('polygon')
+      .attr('class', 'radar-chart-serie' + this.seriesIdent)
+      .style('stroke-width', '2px')
+      .style('stroke', () => {
+        if (this.opts.useColorScale) {
           return this.opts.lineColorScale(this.seriesIndex);
         }
       })
-      .attr("points",d => d.svgStringRep)
+      .attr('points', d => d.svgStringRep)
       .attr('z-index', -1)
-      .style("fill", () => {
-        if(this.opts.useColorScale) {
+      .style('fill', () => {
+        if (this.opts.useColorScale) {
           return this.opts.areaColorScale(this.seriesIndex);
         }
       })
-      .style("fill-opacity", this.opts.defaultAreaOpacity)
+      .style('fill-opacity', this.opts.defaultAreaOpacity)
       .on('mouseover', this.createOnMouseOverPolygon())
-      .on('mouseout', this.createOnMouseOutPolygon())
+      .on('mouseout', this.createOnMouseOutPolygon());
   }
 
-  renderCircles() {
-    this.circles = this.drawingContext.selectAll(".nodes")
+  renderCircles () {
+    this.circles = this.drawingContext.selectAll('.nodes')
       .data(this.points)
       .enter()
-      .append("svg:circle")
-      .attr("class", "radar-chart-series" + this.seriesIdent)
+      .append('svg:circle')
+      .attr('class', 'radar-chart-series' + this.seriesIdent)
       .attr('r', this.circleRadius)
-      .attr("alt", function(j){return Math.max(j.value, 0)})
-      .attr("cx", d => d.cords.x)
-      .attr("cy", d => d.cords.y)
-      .style("fill", () => {
-        if(this.opts.useColorScale) {
+      .attr('alt', function (j) { return Math.max(j.value, 0); })
+      .attr('cx', d => d.cords.x)
+      .attr('cy', d => d.cords.y)
+      .style('fill', () => {
+        if (this.opts.useColorScale) {
           return this.opts.lineColorScale(this.seriesIndex);
         }
       })
-      .style("fill-opacity", this.opts.defaultCircleOpacity)
-      .each(function(d) { d.circleRef = this; })
+      .style('fill-opacity', this.opts.defaultCircleOpacity)
+      .each(function (d) { d.circleRef = this; });
 
     this.circleOverylays = this.drawingContext
       .selectAll('.nodes-overlay')
       .data(this.points)
       .enter()
-      .append("svg:circle")
+      .append('svg:circle')
       .call(d3.drag()
-        .subject(function(d) { return this; })
+        .subject(function (d) { return this; })
         .on('drag', this.createOnDraggingCircle())
         .on('end', this.createOnDragEndCircle())
       )
       .attr('r', this.circleRadius * this.opts.circleOverlayRadiusMult)
-      .attr("cx", d => d.cords.x)
-      .attr("cy", d => d.cords.y)
+      .attr('cx', d => d.cords.x)
+      .attr('cy', d => d.cords.y)
       .attr('opacity', 0.0)
       .on('mouseover', this.createOnMouseOverCircle())
       .on('mouseout', this.createMouseOutCirlce())
-      .each(function(d) { d.overlayRef = this; })
+      .each(function (d) { d.overlayRef = this; });
 
     this.circles
-      .append("svg:title")
+      .append('svg:title')
       .text(d => d.datum.value);
   }
 
   /**
    * Remove this area. Also handles removing any event handlers.
    */
-  remove() {
+  remove () {
     this.area
-     .on('mouseover', null)
-     .on('mouseout', null);
+      .on('mouseover', null)
+      .on('mouseout', null);
 
-    this.circles.each(function(d) {
+    this.circles.each(function (d) {
       d3.select(d.circleRef)
         .on('mouseover', null)
         .on('mouseout', null)
         .remove();
     });
 
-    this.circleOverylays.each(function(d) {
+    this.circleOverylays.each(function (d) {
       d3.select(d.circleRef)
         .on('mouseover', null)
         .on('mouseout', null)

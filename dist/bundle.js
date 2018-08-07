@@ -2,7 +2,7 @@
 typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('d3'), require('lodash')) :
 typeof define === 'function' && define.amd ? define(['d3', 'lodash'], factory) :
 (global.RadarChart = factory(global.d3,global._));
-}(this, (function (d3,_$1) { 'use strict';
+}(this, (function (d3,_) { 'use strict';
 
 var RADIANS = 2 * Math.PI;
 
@@ -67,16 +67,16 @@ var Axis = function () {
 
       if (x2 < x1 && y2 <= y1) {
         this.quad = QUAD_1;
-      } else if (x2 >= x2 && y2 <= y1) {
+      } else if (x2 >= x1 && y2 <= y1) {
         this.quad = QUAD_2;
-      } else if (x2 <= x2 && y2 >= y1) {
+      } else if (x2 <= x1 && y2 >= y1) {
         this.quad = QUAD_3;
-      } else if (x2 >= x2 && y2 >= y1) {
+      } else if (x2 >= x1 && y2 >= y1) {
         this.quad = QUAD_4;
       }
 
-      var label_x = width / 2 * (1 - opts.legend.factor * Math.sin(axisIndex * RADIANS / maxAxisNo)) - 60 * Math.sin(axisIndex * RADIANS / maxAxisNo);
-      var label_y = height / 2 * (1 - Math.cos(axisIndex * RADIANS / maxAxisNo)) - 20 * Math.cos(axisIndex * RADIANS / maxAxisNo);
+      var labelX = width / 2 * (1 - opts.legend.factor * Math.sin(axisIndex * RADIANS / maxAxisNo)) - 60 * Math.sin(axisIndex * RADIANS / maxAxisNo);
+      var labelY = height / 2 * (1 - Math.cos(axisIndex * RADIANS / maxAxisNo)) - 20 * Math.cos(axisIndex * RADIANS / maxAxisNo);
 
       // Note the gradients are inversed because of the SVG co-ordinate system.
       var gradient = Math.abs(x2 - x1) < 0.000000001 ? Infinity : (y2 - y1) / (x2 - x1);
@@ -99,15 +99,16 @@ var Axis = function () {
       this.axisLength = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
       this.angleFromNorth = 180 / Math.PI * (1 - axisIndex * RADIANS / maxAxisNo) - 180 / Math.PI - 90 - 180 / Math.PI * 10 / this.axisLength / 2;
 
-      this.axis = axisOptions.axisId, this.label = axisOptions.label ? axisOptions.label : axisOptions.axisId;
+      this.axis = axisOptions.axisId;
+      this.label = axisOptions.label ? axisOptions.label : axisOptions.axisId;
 
       this.x1 = x1;
       this.y1 = y1;
       this.x2 = x2;
       this.y2 = y2;
 
-      this.label_x = label_x;
-      this.label_y = label_y;
+      this.labelX = labelX;
+      this.labelY = labelY;
 
       var projectValueOnAxisXMultTerm = Math.sin(axisIndex * RADIANS / maxAxisNo);
       var projectValueOnAxisYMultTerm = Math.cos(axisIndex * RADIANS / maxAxisNo);
@@ -191,8 +192,8 @@ var Area = function () {
     this.polygonWrapper = {
       points: this.points,
       svgStringRep: this.points.reduce(function (acc, p) {
-        return acc + p.cords.x + "," + p.cords.y + " ";
-      }, "")
+        return acc + p.cords.x + ',' + p.cords.y + ' ';
+      }, '')
     };
   }
 
@@ -211,8 +212,8 @@ var Area = function () {
     key: 'updatePositions',
     value: function updatePositions() {
       this.polygonWrapper.svgStringRep = this.points.reduce(function (acc, p) {
-        return acc + p.cords.x + "," + p.cords.y + " ";
-      }, "");
+        return acc + p.cords.x + ',' + p.cords.y + ' ';
+      }, '');
 
       this.area.remove();
       this.renderArea();
@@ -223,10 +224,10 @@ var Area = function () {
       var self = this;
 
       return function (d) {
-        var thisPolygon = "polygon." + d3.select(this).attr("class");
+        var thisPolygon = 'polygon.' + d3.select(this).attr('class');
         d3.select(this).style('fill-opacity', self.opts.hoverCircleOpacity);
-        self.drawingContext.selectAll("polygon").transition(200).style("fill-opacity", self.opts.hiddenAreaOpacity);
-        self.drawingContext.selectAll(thisPolygon).transition(200).style("fill-opacity", self.opts.highlightedAreaOpacity);
+        self.drawingContext.selectAll('polygon').transition(200).style('fill-opacity', self.opts.hiddenAreaOpacity);
+        self.drawingContext.selectAll(thisPolygon).transition(200).style('fill-opacity', self.opts.highlightedAreaOpacity);
 
         d3.select(d.circleRef).transition(100).attr('r', self.circleRadius * self.opts.circleOverlayRadiusMult);
       };
@@ -237,7 +238,7 @@ var Area = function () {
       var self = this;
       return function (d) {
         d3.select(this).style('fill-opacity', self.opts.defaultCircleOpacity);
-        self.drawingContext.selectAll("polygon").transition(200).style("fill-opacity", self.opts.defaultAreaOpacity);
+        self.drawingContext.selectAll('polygon').transition(200).style('fill-opacity', self.opts.defaultAreaOpacity);
 
         d3.select(d.circleRef).transition(100).attr('r', self.circleRadius);
       };
@@ -247,7 +248,6 @@ var Area = function () {
     value: function createOnDragEndCircle() {
       var self = this;
       return function (d) {
-        var axis = self.axisMap[d.datum.axis];
         self.axisMap[d.datum.axis].dragActive = false;
         self.axisMap[d.datum.axis].onRectMouseOut();
       };
@@ -280,9 +280,9 @@ var Area = function () {
         d.datum.value = newValue;
         d.cords = self.axisMap[d.datum.axis].projectValueOnAxis(newValue);
 
-        d3.select(d.circleRef).attr("cx", newX).attr("cy", newY);
+        d3.select(d.circleRef).attr('cx', newX).attr('cy', newY);
 
-        d3.select(d.overlayRef).attr("cx", newX).attr("cy", newY);
+        d3.select(d.overlayRef).attr('cx', newX).attr('cy', newY);
 
         self.updatePositions();
       };
@@ -293,10 +293,10 @@ var Area = function () {
       var self = this;
 
       return function (el) {
-        var thisPoly = "polygon." + d3.select(this).attr("class");
-        self.drawingContext.selectAll("polygon").transition(200).style("fill-opacity", self.opts.hiddenAreaOpacity);
+        var thisPoly = 'polygon.' + d3.select(this).attr('class');
+        self.drawingContext.selectAll('polygon').transition(200).style('fill-opacity', self.opts.hiddenAreaOpacity);
 
-        self.drawingContext.selectAll(thisPoly).transition(200).style("fill-opacity", self.opts.highlightedAreaOpacity);
+        self.drawingContext.selectAll(thisPoly).transition(200).style('fill-opacity', self.opts.highlightedAreaOpacity);
       };
     }
   }, {
@@ -304,7 +304,7 @@ var Area = function () {
     value: function createOnMouseOutPolygon() {
       var self = this;
       return function (el) {
-        d3.select(this).transition(200).style("fill-opacity", self.opts.defaultAreaOpacity);
+        d3.select(this).transition(200).style('fill-opacity', self.opts.defaultAreaOpacity);
       };
     }
   }, {
@@ -312,48 +312,48 @@ var Area = function () {
     value: function renderArea() {
       var _this2 = this;
 
-      this.area = this.drawingContext.selectAll(".area").data([this.polygonWrapper]).enter().append("polygon").attr("class", "radar-chart-serie" + this.seriesIdent).style("stroke-width", "2px").style("stroke", function () {
+      this.area = this.drawingContext.selectAll('.area').data([this.polygonWrapper]).enter().append('polygon').attr('class', 'radar-chart-serie' + this.seriesIdent).style('stroke-width', '2px').style('stroke', function () {
         if (_this2.opts.useColorScale) {
           return _this2.opts.lineColorScale(_this2.seriesIndex);
         }
-      }).attr("points", function (d) {
+      }).attr('points', function (d) {
         return d.svgStringRep;
-      }).attr('z-index', -1).style("fill", function () {
+      }).attr('z-index', -1).style('fill', function () {
         if (_this2.opts.useColorScale) {
           return _this2.opts.areaColorScale(_this2.seriesIndex);
         }
-      }).style("fill-opacity", this.opts.defaultAreaOpacity).on('mouseover', this.createOnMouseOverPolygon()).on('mouseout', this.createOnMouseOutPolygon());
+      }).style('fill-opacity', this.opts.defaultAreaOpacity).on('mouseover', this.createOnMouseOverPolygon()).on('mouseout', this.createOnMouseOutPolygon());
     }
   }, {
     key: 'renderCircles',
     value: function renderCircles() {
       var _this3 = this;
 
-      this.circles = this.drawingContext.selectAll(".nodes").data(this.points).enter().append("svg:circle").attr("class", "radar-chart-series" + this.seriesIdent).attr('r', this.circleRadius).attr("alt", function (j) {
+      this.circles = this.drawingContext.selectAll('.nodes').data(this.points).enter().append('svg:circle').attr('class', 'radar-chart-series' + this.seriesIdent).attr('r', this.circleRadius).attr('alt', function (j) {
         return Math.max(j.value, 0);
-      }).attr("cx", function (d) {
+      }).attr('cx', function (d) {
         return d.cords.x;
-      }).attr("cy", function (d) {
+      }).attr('cy', function (d) {
         return d.cords.y;
-      }).style("fill", function () {
+      }).style('fill', function () {
         if (_this3.opts.useColorScale) {
           return _this3.opts.lineColorScale(_this3.seriesIndex);
         }
-      }).style("fill-opacity", this.opts.defaultCircleOpacity).each(function (d) {
+      }).style('fill-opacity', this.opts.defaultCircleOpacity).each(function (d) {
         d.circleRef = this;
       });
 
-      this.circleOverylays = this.drawingContext.selectAll('.nodes-overlay').data(this.points).enter().append("svg:circle").call(d3.drag().subject(function (d) {
+      this.circleOverylays = this.drawingContext.selectAll('.nodes-overlay').data(this.points).enter().append('svg:circle').call(d3.drag().subject(function (d) {
         return this;
-      }).on('drag', this.createOnDraggingCircle()).on('end', this.createOnDragEndCircle())).attr('r', this.circleRadius * this.opts.circleOverlayRadiusMult).attr("cx", function (d) {
+      }).on('drag', this.createOnDraggingCircle()).on('end', this.createOnDragEndCircle())).attr('r', this.circleRadius * this.opts.circleOverlayRadiusMult).attr('cx', function (d) {
         return d.cords.x;
-      }).attr("cy", function (d) {
+      }).attr('cy', function (d) {
         return d.cords.y;
       }).attr('opacity', 0.0).on('mouseover', this.createOnMouseOverCircle()).on('mouseout', this.createMouseOutCirlce()).each(function (d) {
         d.overlayRef = this;
       });
 
-      this.circles.append("svg:title").text(function (d) {
+      this.circles.append('svg:title').text(function (d) {
         return d.datum.value;
       });
     }
@@ -414,7 +414,7 @@ var DEFAULTS_OPTS = {
     iconHeight: 10,
     iconWidth: 10,
     iconSpacing: 20,
-    title: "What % of owners use a specific service in a week",
+    title: 'Test title',
     titleProperties: {
       'font-size': '12px',
       'fill': '#404040'
@@ -437,6 +437,12 @@ var DEFAULTS_OPTS = {
   point: {
     radius: 5
   },
+  axis: {
+    config: [],
+    colorScale: null,
+    useGlobalMax: false,
+    maxValue: 0.6
+  },
   area: {
     defaultAreaOpacity: 0.4,
     highlightedAreaOpacity: 0.7,
@@ -448,13 +454,7 @@ var DEFAULTS_OPTS = {
     areaColorScale: d3.scaleOrdinal(d3.schemeAccent),
     lineColorScale: d3.scaleOrdinal(d3.schemeAccent)
   },
-  rootElement: null,
-  axis: {
-    config: [],
-    colorScale: null, // If specified then color the axis using different colors,
-    useGlobalMax: false, // U
-    maxValue: 0.6 // modify,
-  }
+  rootElement: null
 };
 
 var RadarChart = function () {
@@ -467,7 +467,7 @@ var RadarChart = function () {
     classCallCheck(this, RadarChart);
 
     this.rootElement = d3.select(opts.rootElement);
-    this.opts = _$1.merge(DEFAULTS_OPTS, opts);
+    this.opts = _.merge(DEFAULTS_OPTS, opts);
 
     this.opts.axis.maxAxisNo = this.opts.axis.config.length;
 
@@ -507,7 +507,6 @@ var RadarChart = function () {
       var _this2 = this;
 
       var opts = this.opts;
-      var maxAxisNo = this.opts.axis.maxAxisNo;
       var _opts$dims = this.opts.dims,
           width = _opts$dims.width,
           height = _opts$dims.height,
@@ -517,40 +516,40 @@ var RadarChart = function () {
           translateY = _opts$dims.translateY;
 
 
-      this.rootSvg = this.rootElement.append("svg").attr("width", width + extraWidth).attr("height", height + extraHeight);
+      this.rootSvg = this.rootElement.append('svg').attr('width', width + extraWidth).attr('height', height + extraHeight);
 
-      this.drawingContext = this.rootSvg.append("g").attr("transform", "translate(" + translateX + "," + translateY + ")");
+      this.drawingContext = this.rootSvg.append('g').attr('transform', 'translate(' + translateX + ',' + translateY + ')');
 
       // Circular segments
 
-      var _loop = function _loop() {
+      var _loop = function _loop(lvlInx) {
         var tickNos = opts.levels.levelsNo;
 
-        _this2.drawingContext.selectAll(".levels").data(_this2.axisParameters).enter().append("svg:line").attr("x1", function (d, i) {
+        _this2.drawingContext.selectAll('.levels').data(_this2.axisParameters).enter().append('svg:line').attr('x1', function (d, i) {
           var tickValue = d.maxValue / tickNos * (lvlInx + 1);
           var cordsOnAxis = d.projectValueOnAxis(tickValue);
           return cordsOnAxis.x;
-        }).attr("y1", function (d, i) {
+        }).attr('y1', function (d, i) {
           var tickValue = d.maxValue / tickNos * (lvlInx + 1);
           var cordsOnAxis = d.projectValueOnAxis(tickValue);
           return cordsOnAxis.y;
-        }).attr("x2", function (d, i) {
+        }).attr('x2', function (d, i) {
           var nxtInx = i + 1 === _this2.axisParameters.length ? 0 : i + 1;
           var nAxis = _this2.axisParameters[nxtInx];
           var nValue = nAxis.maxValue / tickNos * (lvlInx + 1);
           var nCordAxis = nAxis.projectValueOnAxis(nValue);
           return nCordAxis.x;
-        }).attr("y2", function (d, i) {
+        }).attr('y2', function (d, i) {
           var nxtInx = i + 1 === _this2.axisParameters.length ? 0 : i + 1;
           var nAxis = _this2.axisParameters[nxtInx];
           var nValue = nAxis.maxValue / tickNos * (lvlInx + 1);
           var nCordAxis = nAxis.projectValueOnAxis(nValue);
           return nCordAxis.y;
-        }).attr("class", "line").style("stroke", "grey").style("stroke-opacity", "0.75").style("stroke-width", "0.3px");
+        }).attr('class', 'line').style('stroke', 'grey').style('stroke-opacity', '0.75').style('stroke-width', '0.3px');
       };
 
       for (var lvlInx = 0; lvlInx < opts.levels.levelsNo - 1; lvlInx++) {
-        _loop();
+        _loop(lvlInx);
       }
 
       var Format = d3.format('.2%');
@@ -559,18 +558,18 @@ var RadarChart = function () {
 
       // Text indicating at what % each level is
 
-      var _loop2 = function _loop2() {
+      var _loop2 = function _loop2(lvlInx) {
         var tickNos = opts.levels.levelsNo;
 
-        z = _this2.drawingContext.selectAll(".levels").data(_this2.axisParameters).enter().append("svg:text").attr("x", function (d) {
+        _this2.drawingContext.selectAll('.levels').data(_this2.axisParameters).enter().append('svg:text').attr('x', function (d) {
           var tickValue = d.maxValue / tickNos * (lvlInx + 1);
           var cordsOnAxis = d.projectValueOnAxis(tickValue);
           return cordsOnAxis.x;
-        }).attr("y", function (d) {
+        }).attr('y', function (d) {
           var tickValue = d.maxValue / tickNos * (lvlInx + 1);
           var cordsOnAxis = d.projectValueOnAxis(tickValue);
           return cordsOnAxis.y;
-        }).attr("class", "legend").style("font-family", ticksAttr['font-family']).style("font-size", ticksAttr['font-size']).style("opacity", 0.0).attr("fill", ticksAttr['fill']).text(function (d) {
+        }).attr('class', 'legend').style('font-family', ticksAttr['font-family']).style('font-size', ticksAttr['font-size']).style('opacity', 0.0).attr('fill', ticksAttr['fill']).text(function (d) {
           return Format(d.maxValue / tickNos * (lvlInx + 1) / d.maxValue);
         }).each(function (d) {
           d.axisTickTextElements.push(this);
@@ -578,29 +577,27 @@ var RadarChart = function () {
       };
 
       for (var lvlInx = 0; lvlInx < opts.levels.levelsNo; lvlInx++) {
-        var z;
-
-        _loop2();
+        _loop2(lvlInx);
       }
 
-      this.axisG = this.drawingContext.selectAll(".axis").data(this.axisParameters).enter().append("g");
+      this.axisG = this.drawingContext.selectAll('.axis').data(this.axisParameters).enter().append('g');
 
-      this.axisLines = this.axisG.attr("class", "axis").append("line").attr("x1", function (d) {
+      this.axisLines = this.axisG.attr('class', 'axis').append('line').attr('x1', function (d) {
         return d.x1;
-      }).attr("y1", function (d) {
+      }).attr('y1', function (d) {
         return d.y1;
-      }).attr("x2", function (d) {
+      }).attr('x2', function (d) {
         return d.x2;
-      }).attr("y2", function (d) {
+      }).attr('y2', function (d) {
         return d.y2;
-      }).attr("class", "line").attr('pointer-events', 'none').style("stroke", "grey").style("stroke-width", "1px");
+      }).attr('class', 'line').attr('pointer-events', 'none').style('stroke', 'grey').style('stroke-width', '1px');
 
-      this.rects = this.axisG.append('rect').attr('class', 'overlay').attr("x", function (d) {
+      this.rects = this.axisG.append('rect').attr('class', 'overlay').attr('x', function (d) {
         return d.x1;
-      }).attr("y", function (d) {
+      }).attr('y', function (d) {
         return d.y1;
-      }).attr("transform", function (d, i) {
-        return "rotate(" + d.angleFromNorth + "," + d.x1 + "," + d.y1 + ")";
+      }).attr('transform', function (d, i) {
+        return 'rotate(' + d.angleFromNorth + ',' + d.x1 + ',' + d.y1 + ')';
       }).attr('width', function (d) {
         return d.axisLength;
       }).attr('height', 10).attr('fill-opacity', 0.0).on('mouseover', function (d) {
@@ -611,20 +608,21 @@ var RadarChart = function () {
         datum.axisRect = this;
       });
 
-      this.axisText = this.axisG.append("text").attr("class", "legend").text(function (d) {
+      this.axisText = this.axisG.append('text').attr('class', 'legend').text(function (d) {
         return d.label;
-      }).style("font-family", "sans-serif").style("font-size", "11px").attr("text-anchor", "middle").attr("dy", "1.5em").attr("transform", function () {
-        return "translate(0, -10)";
-      }).attr("x", function (d) {
-        return d.label_x;
-      }).attr("y", function (d) {
-        return d.label_y;
+      }).style('font-family', 'sans-serif').style('font-size', '11px').attr('text-anchor', 'middle').attr('dy', '1.5em').attr('transform', function () {
+        return 'translate(0, -10)';
+      }).attr('x', function (d) {
+        return d.labelX;
+      }).attr('y', function (d) {
+        return d.labelY;
       }).attr('pointer-events', 'none');
     }
   }, {
     key: 'renderArea',
     value: function renderArea() {
       var _this3 = this;
+
       this.areas = this.data.map(function (series, inx) {
         return new Area({
           axisMap: _this3.axisMap,
@@ -645,32 +643,31 @@ var RadarChart = function () {
       var _opts$dims2 = this.opts.dims,
           width = _opts$dims2.width,
           height = _opts$dims2.height,
-          extraWidth = _opts$dims2.extraWidth,
-          extraHeight = _opts$dims2.extraHeight;
+          extraWidth = _opts$dims2.extraWidth;
 
       var legendOpts = this.opts.legend;
 
       var LegendOptions = ['Smartphone', 'Tablet'];
 
-      var svg = this.rootSvg.append('svg').attr("width", width + extraWidth).attr("height", height);
+      var svg = this.rootSvg.append('svg').attr('width', width + extraWidth).attr('height', height);
 
-      //Create the title for the legend
-      var text = svg.append("text").attr("class", "title").attr('transform', 'translate(90,0)').attr("x", width + legendOpts.translateX).attr("y", legendOpts.translateY).text(legendOpts.title).attr("font-size", legendOpts.titleProperties['font-size']).attr("fill", legendOpts.titleProperties['fill']);
+      // Create the title for the legend
+      svg.append('text').attr('class', 'title').attr('transform', 'translate(90,0)').attr('x', width + legendOpts.translateX).attr('y', legendOpts.translateY).text(legendOpts.title).attr('font-size', legendOpts.titleProperties['font-size']).attr('fill', legendOpts.titleProperties['fill']);
 
-      //Initiate Legend
-      var legend = svg.append("g").attr("class", "legend").attr("height", legendOpts.height).attr("width", legendOpts.width).attr('transform', 'translate(90,20)');
+      // Initiate Legend
+      var legend = svg.append('g').attr('class', 'legend').attr('height', legendOpts.height).attr('width', legendOpts.width).attr('transform', 'translate(90,20)');
 
-      //Create colour squares
-      legend.selectAll('rect').data(LegendOptions).enter().append("rect").attr("x", width + legendOpts.translateX).attr("y", function (d, i) {
+      // Create colour squares
+      legend.selectAll('rect').data(LegendOptions).enter().append('rect').attr('x', width + legendOpts.translateX).attr('y', function (d, i) {
         return i * legendOpts.iconSpacing;
-      }).attr("width", legendOpts.iconWidth).attr("height", legendOpts.iconHeight).style("fill", function (d, i) {
+      }).attr('width', legendOpts.iconWidth).attr('height', legendOpts.iconHeight).style('fill', function (d, i) {
         return legendOpts.colorScale(i);
       });
 
-      //Create text next to squares
-      legend.selectAll('text').data(LegendOptions).enter().append("text").attr("x", width + legendOpts.textTranslateX).attr("y", function (d, i) {
+      // Create text next to squares
+      legend.selectAll('text').data(LegendOptions).enter().append('text').attr('x', width + legendOpts.textTranslateX).attr('y', function (d, i) {
         return i * legendOpts.textSpacing + legendOpts.textYOffset;
-      }).attr("font-size", legendOpts.labelTextProperties['font-size']).attr("fill", legendOpts.labelTextProperties['fill']).text(function (d) {
+      }).attr('font-size', legendOpts.labelTextProperties['font-size']).attr('fill', legendOpts.labelTextProperties['fill']).text(function (d) {
         return d;
       });
     }
