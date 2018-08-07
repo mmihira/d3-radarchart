@@ -11,21 +11,18 @@ import {
  */
 class Area {
   /**
-   * @param axisMap {Object} A map of axisId to axis Objects
-   * @param series {Array} Number of areas
-   * @param drawingContext {Object} A svg g-element for drawing on
-   * @param seriesIdent {String} The identity of the series must be unique
-   * @param areaOptions {Object} Options for this area
+   * @param opts {Object}
    */
-  constructor (args) {
-    this.axisMap = args.axisMap;
-    this.data = _.cloneDeep(args.series);
-    this.drawingContext = args.drawingContext;
+  constructor (opts) {
+    this.axisMap = opts.axisMap;
+    this.data = _.cloneDeep(opts.series);
+    this.drawingContext = opts.drawingContext;
     this.color = d3.scaleOrdinal(d3.schemeAccent);
-    this.seriesIdent = args.seriesIdent;
-    this.seriesIndex = args.seriesIndex;
-    this.opts = _.cloneDeep(args.areaOptions);
-    this.opts.colorScale = args.areaOptions.colorScale;
+    this.seriesIdent = opts.seriesIdent;
+    this.seriesIndex = opts.seriesIndex;
+    this.opts = _.cloneDeep(opts.areaOptions);
+    this.opts.onValueChange = opts.areaOptions.onValueChange;
+    this.opts.colorScale = opts.areaOptions.colorScale;
     this.circleRadius = 5;
 
     // For each axisId calculate the apex points for this area
@@ -57,7 +54,7 @@ class Area {
       return acc + p.cords.x + ',' + p.cords.y + ' ';
     }, '');
 
-    this.area.remove();
+    this.removeArea();
     this.renderArea();
   }
 
@@ -136,6 +133,10 @@ class Area {
         .attr('cy', newY);
 
       self.updatePositions();
+
+      if (_.isFunction(self.opts.onValueChange)) {
+        self.opts.onValueChange(d);
+      }
     };
   }
 
@@ -168,7 +169,7 @@ class Area {
       .data([this.polygonWrapper])
       .enter()
       .append('polygon')
-      .attr('class', 'radar-chart-serie' + this.seriesIdent)
+      .attr('class', 'radar-chart-series' + this.seriesIdent)
       .style('stroke-width', '2px')
       .style('stroke', () => {
         if (this.opts.useColorScale) {
@@ -228,29 +229,30 @@ class Area {
       .text(d => d.datum.value);
   }
 
+  removeArea() {
+    this.area
+      .on('mouseover', null)
+      .on('mouseout', null);
+    this.area.remove();
+  }
+
   /**
    * Remove this area. Also handles removing any event handlers.
    */
   remove () {
-    this.area
-      .on('mouseover', null)
-      .on('mouseout', null);
-
     this.circles.each(function (d) {
       d3.select(d.circleRef)
         .on('mouseover', null)
         .on('mouseout', null)
         .remove();
     });
-
     this.circleOverylays.each(function (d) {
       d3.select(d.circleRef)
         .on('mouseover', null)
         .on('mouseout', null)
         .remove();
     });
-
-    this.area.remove();
+    this.removeArea();
   }
 }
 

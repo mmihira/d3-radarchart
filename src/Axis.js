@@ -10,6 +10,12 @@ const QUAD_3 = 'QUAD_3';
 const QUAD_4 = 'QUAD_4';
 
 class Axis {
+  /**
+   * @param opts {Object}
+   * @param axisOptions {Object}
+   * @param axisIndex {String or Int}
+   *
+   */
   constructor (opts, axisOptions, axisIndex) {
     this.opts = opts;
     this.axisIndex = axisIndex;

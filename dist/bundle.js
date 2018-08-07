@@ -36,6 +36,12 @@ var QUAD_3 = 'QUAD_3';
 var QUAD_4 = 'QUAD_4';
 
 var Axis = function () {
+  /**
+   * @param opts {Object}
+   * @param axisOptions {Object}
+   * @param axisIndex {String or Int}
+   *
+   */
   function Axis(opts, axisOptions, axisIndex) {
     classCallCheck(this, Axis);
 
@@ -160,25 +166,22 @@ var Axis = function () {
 
 var Area = function () {
   /**
-   * @param axisMap {Object} A map of axisId to axis Objects
-   * @param series {Array} Number of areas
-   * @param drawingContext {Object} A svg g-element for drawing on
-   * @param seriesIdent {String} The identity of the series must be unique
-   * @param areaOptions {Object} Options for this area
+   * @param opts {Object}
    */
-  function Area(args) {
+  function Area(opts) {
     var _this = this;
 
     classCallCheck(this, Area);
 
-    this.axisMap = args.axisMap;
-    this.data = _.cloneDeep(args.series);
-    this.drawingContext = args.drawingContext;
+    this.axisMap = opts.axisMap;
+    this.data = _.cloneDeep(opts.series);
+    this.drawingContext = opts.drawingContext;
     this.color = d3.scaleOrdinal(d3.schemeAccent);
-    this.seriesIdent = args.seriesIdent;
-    this.seriesIndex = args.seriesIndex;
-    this.opts = _.cloneDeep(args.areaOptions);
-    this.opts.colorScale = args.areaOptions.colorScale;
+    this.seriesIdent = opts.seriesIdent;
+    this.seriesIndex = opts.seriesIndex;
+    this.opts = _.cloneDeep(opts.areaOptions);
+    this.opts.onValueChange = opts.areaOptions.onValueChange;
+    this.opts.colorScale = opts.areaOptions.colorScale;
     this.circleRadius = 5;
 
     // For each axisId calculate the apex points for this area
@@ -215,7 +218,7 @@ var Area = function () {
         return acc + p.cords.x + ',' + p.cords.y + ' ';
       }, '');
 
-      this.area.remove();
+      this.removeArea();
       this.renderArea();
     }
   }, {
@@ -285,6 +288,10 @@ var Area = function () {
         d3.select(d.overlayRef).attr('cx', newX).attr('cy', newY);
 
         self.updatePositions();
+
+        if (_.isFunction(self.opts.onValueChange)) {
+          self.opts.onValueChange(d);
+        }
       };
     }
   }, {
@@ -312,7 +319,7 @@ var Area = function () {
     value: function renderArea() {
       var _this2 = this;
 
-      this.area = this.drawingContext.selectAll('.area').data([this.polygonWrapper]).enter().append('polygon').attr('class', 'radar-chart-serie' + this.seriesIdent).style('stroke-width', '2px').style('stroke', function () {
+      this.area = this.drawingContext.selectAll('.area').data([this.polygonWrapper]).enter().append('polygon').attr('class', 'radar-chart-series' + this.seriesIdent).style('stroke-width', '2px').style('stroke', function () {
         if (_this2.opts.useColorScale) {
           return _this2.opts.lineColorScale(_this2.seriesIndex);
         }
@@ -357,6 +364,12 @@ var Area = function () {
         return d.datum.value;
       });
     }
+  }, {
+    key: 'removeArea',
+    value: function removeArea() {
+      this.area.on('mouseover', null).on('mouseout', null);
+      this.area.remove();
+    }
 
     /**
      * Remove this area. Also handles removing any event handlers.
@@ -365,17 +378,13 @@ var Area = function () {
   }, {
     key: 'remove',
     value: function remove() {
-      this.area.on('mouseover', null).on('mouseout', null);
-
       this.circles.each(function (d) {
         d3.select(d.circleRef).on('mouseover', null).on('mouseout', null).remove();
       });
-
       this.circleOverylays.each(function (d) {
         d3.select(d.circleRef).on('mouseover', null).on('mouseout', null).remove();
       });
-
-      this.area.remove();
+      this.removeArea();
     }
   }]);
   return Area;
@@ -452,47 +461,58 @@ var DEFAULTS_OPTS = {
     circleOverlayRadiusMult: 1.2,
     useColorScale: true,
     areaColorScale: d3.scaleOrdinal(d3.schemeAccent),
-    lineColorScale: d3.scaleOrdinal(d3.schemeAccent)
+    lineColorScale: d3.scaleOrdinal(d3.schemeAccent),
+    onValueChange: function onValueChange(datum) {
+      return null;
+    }
   },
   rootElement: null
 };
 
 var RadarChart = function () {
   /**
-   * @param args {Object}
+   * @param opts {Object}
    */
   function RadarChart(opts) {
-    var _this = this;
-
     classCallCheck(this, RadarChart);
 
     this.rootElement = d3.select(opts.rootElement);
-    this.opts = _.merge(DEFAULTS_OPTS, opts);
-
-    this.opts.axis.maxAxisNo = this.opts.axis.config.length;
-
-    this.opts.dims.extraWidth = this.opts.dims.width * (1 + this.opts.dims.extraWidthP);
-    this.opts.dims.extraHeight = this.opts.dims.height * (1 + this.opts.dims.extraHeightP);
-
-    this.opts.dims.translateX = (this.opts.dims.width + this.opts.dims.extraWidth) * this.opts.dims.translateXp;
-    this.opts.dims.translateY = (this.opts.dims.height + this.opts.dims.extraHeight) * this.opts.dims.translateYp;
-
-    this.data = this.opts.data;
-    this.axisConfig = this.opts.axis.config;
-
-    this.axisParameters = this.axisConfig.map(function (axis, inx) {
-      return new Axis(_this.opts, axis, inx);
-    });
-    this.axisMap = this.axisParameters.reduce(function (map, ix) {
-      map[ix.axis] = ix;
-      return map;
-    }, {});
-
-    // To store the area components
+    this.setOps(opts);
     this.areas = [];
   }
 
+  /**
+   * @param opts {Object}
+   */
+
+
   createClass(RadarChart, [{
+    key: 'setOps',
+    value: function setOps(opts) {
+      var _this = this;
+
+      this.opts = _.merge(DEFAULTS_OPTS, opts);
+
+      this.opts.axis.maxAxisNo = this.opts.axis.config.length;
+
+      this.opts.dims.extraWidth = this.opts.dims.width * (1 + this.opts.dims.extraWidthP);
+      this.opts.dims.extraHeight = this.opts.dims.height * (1 + this.opts.dims.extraHeightP);
+
+      this.opts.dims.translateX = (this.opts.dims.width + this.opts.dims.extraWidth) * this.opts.dims.translateXp;
+      this.opts.dims.translateY = (this.opts.dims.height + this.opts.dims.extraHeight) * this.opts.dims.translateYp;
+
+      this.data = this.opts.data;
+      this.axisConfig = this.opts.axis.config;
+
+      this.axisParameters = this.axisConfig.map(function (axis, inx) {
+        return new Axis(_this.opts, axis, inx);
+      });
+      this.axisMap = this.axisParameters.reduce(function (map, ix) {
+        map[ix.axis] = ix;
+        return map;
+      }, {});
+    }
+  }, {
     key: 'render',
     value: function render() {
       this.renderAxis();
@@ -673,15 +693,55 @@ var RadarChart = function () {
     }
 
     /**
-     * Remove the chart
+     * Rerender only the area with new data
+     * @param data {Object}
      */
 
   }, {
-    key: 'remove',
-    value: function remove() {
+    key: 'reRenderWithNewData',
+    value: function reRenderWithNewData(data) {
+      this.data = data;
+      this.removeAreas();
+      this.renderArea();
+    }
+
+    /**
+     * Remove the axis
+     */
+
+  }, {
+    key: 'removeAxis',
+    value: function removeAxis() {
+      this.axisLines.remove();
+      this.axisText.remove();
+      this.rects.each(function (d) {
+        d3.select(d.axisRect).on('mouseover', null).on('mouseout', null).remove();
+      });
+    }
+
+    /**
+     * Remove chart areas
+     */
+
+  }, {
+    key: 'removeAreas',
+    value: function removeAreas() {
+      this.removeAxis();
       this.areas.forEach(function (area) {
         return area.remove();
       });
+    }
+
+    /**
+     * Remove everything
+     */
+
+  }, {
+    key: 'delete',
+    value: function _delete() {
+      this.removeAreas();
+      this.removeAxis();
+      this.rootSvg.remove();
     }
   }]);
   return RadarChart;

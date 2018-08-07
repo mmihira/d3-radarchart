@@ -73,17 +73,26 @@ const DEFAULTS_OPTS = {
     circleOverlayRadiusMult: 1.2,
     useColorScale: true,
     areaColorScale: d3.scaleOrdinal(d3.schemeAccent),
-    lineColorScale: d3.scaleOrdinal(d3.schemeAccent)
+    lineColorScale: d3.scaleOrdinal(d3.schemeAccent),
+    onValueChange: function (datum) { return null; }
   },
   rootElement: null
 };
 
 class RadarChart {
   /**
-   * @param args {Object}
+   * @param opts {Object}
    */
   constructor (opts) {
     this.rootElement = d3.select(opts.rootElement);
+    this.setOps(opts);
+    this.areas = [];
+  }
+
+  /**
+   * @param opts {Object}
+   */
+  setOps (opts) {
     this.opts = _.merge(DEFAULTS_OPTS, opts);
 
     this.opts.axis.maxAxisNo = this.opts.axis.config.length;
@@ -103,9 +112,6 @@ class RadarChart {
         map[ix.axis] = ix;
         return map;
       }, {});
-
-    // To store the area components
-    this.areas = [];
   }
 
   render () {
@@ -319,10 +325,44 @@ class RadarChart {
   }
 
   /**
-   * Remove the chart
+   * Rerender only the area with new data
+   * @param data {Object}
    */
-  remove () {
+  reRenderWithNewData (data) {
+    this.data = data;
+    this.removeAreas();
+    this.renderArea();
+  }
+
+  /**
+   * Remove the axis
+   */
+  removeAxis () {
+    this.axisLines.remove();
+    this.axisText.remove();
+    this.rects.each(function (d) {
+      d3.select(d.axisRect)
+        .on('mouseover', null)
+        .on('mouseout', null)
+        .remove();
+    });
+  }
+
+  /**
+   * Remove chart areas
+   */
+  removeAreas () {
+    this.removeAxis();
     this.areas.forEach(area => area.remove());
+  }
+
+  /**
+   * Remove everything
+   */
+  delete() {
+    this.removeAreas();
+    this.removeAxis();
+    this.rootSvg.remove();
   }
 }
 
