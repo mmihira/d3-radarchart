@@ -229,7 +229,7 @@ class Area {
       .text(d => d.datum.value);
   }
 
-  removeArea() {
+  removeArea () {
     this.area
       .on('mouseover', null)
       .on('mouseout', null);

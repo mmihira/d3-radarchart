@@ -97,8 +97,8 @@ class RadarChart {
 
     this.opts.axis.maxAxisNo = this.opts.axis.config.length;
 
-    this.opts.dims.extraWidth = this.opts.dims.width * (1 + this.opts.dims.extraWidthP);
-    this.opts.dims.extraHeight = this.opts.dims.height * (1 + this.opts.dims.extraHeightP);
+    this.opts.dims.extraWidth = this.opts.dims.width * this.opts.dims.extraWidthP;
+    this.opts.dims.extraHeight = this.opts.dims.height * this.opts.dims.extraHeightP;
 
     this.opts.dims.translateX = (this.opts.dims.width + this.opts.dims.extraWidth) * this.opts.dims.translateXp;
     this.opts.dims.translateY = (this.opts.dims.height + this.opts.dims.extraHeight) * this.opts.dims.translateYp;
@@ -352,14 +352,13 @@ class RadarChart {
    * Remove chart areas
    */
   removeAreas () {
-    this.removeAxis();
     this.areas.forEach(area => area.remove());
   }
 
   /**
    * Remove everything
    */
-  delete() {
+  delete () {
     this.removeAreas();
     this.removeAxis();
     this.rootSvg.remove();
