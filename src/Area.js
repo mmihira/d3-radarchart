@@ -25,6 +25,8 @@ class Area {
     this.opts.colorScale = opts.areaOptions.colorScale;
     this.circleRadius = 5;
 
+    this.polygonClassName = `chart-poly-${this.seriesIdent}`;
+
     // For each axisId calculate the apex points for this area
     this.points = this.data.map(spoke => {
       return {
@@ -62,13 +64,15 @@ class Area {
     const self = this;
 
     return function (d) {
-      const thisPolygon = 'polygon.' + d3.select(this).attr('class');
+      const thisPolygon = '.' + self.polygonClassName;
       d3.select(this)
         .style('fill-opacity', self.opts.hoverCircleOpacity);
-      self.drawingContext.selectAll('polygon')
+
+      self.drawingContext().selectAll('polygon')
         .transition(200)
         .style('fill-opacity', self.opts.hiddenAreaOpacity);
-      self.drawingContext.selectAll(thisPolygon)
+
+      self.drawingContext().selectAll(thisPolygon)
         .transition(200)
         .style('fill-opacity', self.opts.highlightedAreaOpacity);
 
@@ -83,7 +87,8 @@ class Area {
     return function (d) {
       d3.select(this)
         .style('fill-opacity', self.opts.defaultCircleOpacity);
-      self.drawingContext.selectAll('polygon')
+
+      self.drawingContext().selectAll('polygon')
         .transition(200)
         .style('fill-opacity', self.opts.defaultAreaOpacity);
 
@@ -144,12 +149,12 @@ class Area {
     const self = this;
 
     return function (el) {
-      const thisPoly = 'polygon.' + d3.select(this).attr('class');
-      self.drawingContext.selectAll('polygon')
+      const thisPoly = '.' + self.polygonClassName;
+      self.drawingContext().selectAll('polygon')
         .transition(200)
         .style('fill-opacity', self.opts.hiddenAreaOpacity);
 
-      self.drawingContext.selectAll(thisPoly)
+      self.drawingContext().selectAll(thisPoly)
         .transition(200)
         .style('fill-opacity', self.opts.highlightedAreaOpacity);
     };
@@ -165,11 +170,13 @@ class Area {
   }
 
   renderArea () {
-    this.area = this.drawingContext.selectAll('.area')
+    this.area = this
+      .drawingContext()
+      .selectAll(`.area${this.seriesIdent}`)
       .data([this.polygonWrapper])
       .enter()
       .append('polygon')
-      .attr('class', 'radar-chart-series' + this.seriesIdent)
+      .attr('class', this.polygonClassName)
       .style('stroke-width', '2px')
       .style('stroke', () => {
         if (this.opts.useColorScale) {
@@ -189,11 +196,11 @@ class Area {
   }
 
   renderCircles () {
-    this.circles = this.drawingContext.selectAll('.nodes')
+    this.circles = this.drawingContext()
+      .selectAll(`.nodes${this.seriesIdent}`)
       .data(this.points)
       .enter()
       .append('svg:circle')
-      .attr('class', 'radar-chart-series' + this.seriesIdent)
       .attr('r', this.circleRadius)
       .attr('alt', function (j) { return Math.max(j.value, 0); })
       .attr('cx', d => d.cords.x)
@@ -206,8 +213,8 @@ class Area {
       .style('fill-opacity', this.opts.defaultCircleOpacity)
       .each(function (d) { d.circleRef = this; });
 
-    this.circleOverylays = this.drawingContext
-      .selectAll('.nodes-overlay')
+    this.circleOverylays = this.drawingContext()
+      .selectAll(`.nodes-overlay${this.seriesIdent}`)
       .data(this.points)
       .enter()
       .append('svg:circle')
@@ -240,16 +247,16 @@ class Area {
    * Remove this area. Also handles removing any event handlers.
    */
   remove () {
-    this.circles.each(function (d) {
-      d3.select(d.circleRef)
-        .on('mouseover', null)
-        .on('mouseout', null)
-        .remove();
-    });
     this.circleOverylays.each(function (d) {
       d3.select(d.circleRef)
         .on('mouseover', null)
         .on('mouseout', null)
+        .on('drag', null)
+        .on('end', null)
+        .remove();
+    });
+    this.circles.each(function (d) {
+      d3.select(d.circleRef)
         .remove();
     });
     this.removeArea();

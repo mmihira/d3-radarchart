@@ -11,72 +11,74 @@ import Axis from './Axis.js';
 /**
  * Default options
  */
-const DEFAULTS_OPTS = {
-  data: [],
-  dims: {
-    width: 500,
-    height: 500,
-    extraWidthP: 0.6,
-    extraHeightP: 0.25,
-    translateXp: 0.1,
-    translateYp: 0.05
-  },
-  showLegend: true,
-  legend: {
-    height: 100,
-    width: 200,
-    factor: 0.85,
-    translateX: -75,
-    translateY: 10,
-    textTranslateX: -52,
-    textSpacing: 20,
-    textYOffset: 9,
-    colorScale: d3.scaleOrdinal(d3.schemeAccent),
-    iconHeight: 10,
-    iconWidth: 10,
-    iconSpacing: 20,
-    title: 'Test title',
-    titleProperties: {
-      'font-size': '12px',
-      'fill': '#404040'
+const DEFAULTS_OPTS = function () {
+  return {
+    data: [],
+    dims: {
+      width: 500,
+      height: 500,
+      extraWidthP: 0.6,
+      extraHeightP: 0.25,
+      translateXp: 0.1,
+      translateYp: 0.05
     },
-    labelTextProperties: {
-      'font-size': '11px',
-      'fill': '#737373'
-    }
-  },
-  levels: {
-    levelsNo: 2,
-    noTicks: 3,
-    levelsColor: null,
-    ticks: {
-      fill: '#737373',
-      'font-size': '10px',
-      'font-family': 'sans-serif'
-    }
-  },
-  point: {
-    radius: 5
-  },
-  axis: {
-    config: [],
-    colorScale: null,
-    useGlobalMax: false,
-    maxValue: 0.6
-  },
-  area: {
-    defaultAreaOpacity: 0.4,
-    highlightedAreaOpacity: 0.7,
-    hiddenAreaOpacity: 0.1,
-    defaultCircleOpacity: 0.3,
-    hoverCircleOpacity: 1.0,
-    circleOverlayRadiusMult: 1.2,
-    useColorScale: true,
-    areaColorScale: d3.scaleOrdinal(d3.schemeAccent),
-    lineColorScale: d3.scaleOrdinal(d3.schemeAccent),
-    onValueChange: function (datum) { return null; }
-  },
-  rootElement: null
+    showLegend: true,
+    legend: {
+      height: 100,
+      width: 200,
+      factor: 0.85,
+      translateX: -75,
+      translateY: 10,
+      textTranslateX: -52,
+      textSpacing: 20,
+      textYOffset: 9,
+      colorScale: d3.scaleOrdinal(d3.schemeAccent),
+      iconHeight: 10,
+      iconWidth: 10,
+      iconSpacing: 20,
+      title: 'Test title',
+      titleProperties: {
+        'font-size': '12px',
+        'fill': '#404040'
+      },
+      labelTextProperties: {
+        'font-size': '11px',
+        'fill': '#737373'
+      }
+    },
+    levels: {
+      levelsNo: 2,
+      noTicks: 3,
+      levelsColor: null,
+      ticks: {
+        fill: '#737373',
+        'font-size': '10px',
+        'font-family': 'sans-serif'
+      }
+    },
+    point: {
+      radius: 5
+    },
+    axis: {
+      config: [],
+      colorScale: null,
+      useGlobalMax: false,
+      maxValue: 0.6
+    },
+    area: {
+      defaultAreaOpacity: 0.4,
+      highlightedAreaOpacity: 0.7,
+      hiddenAreaOpacity: 0.1,
+      defaultCircleOpacity: 0.3,
+      hoverCircleOpacity: 1.0,
+      circleOverlayRadiusMult: 1.2,
+      useColorScale: true,
+      areaColorScale: d3.scaleOrdinal(d3.schemeAccent),
+      lineColorScale: d3.scaleOrdinal(d3.schemeAccent),
+      onValueChange: null
+    },
+    rootElement: null
+  };
 };
 
 class RadarChart {
@@ -93,7 +95,8 @@ class RadarChart {
    * @param opts {Object}
    */
   setOps (opts) {
-    this.opts = _.merge(DEFAULTS_OPTS, opts);
+    this.opts = _.merge(DEFAULTS_OPTS(), opts);
+    this.rootElId = this.rootElement.attr('id');
 
     this.opts.axis.maxAxisNo = this.opts.axis.config.length;
 
@@ -138,15 +141,23 @@ class RadarChart {
       .attr('width', width + extraWidth)
       .attr('height', height + extraHeight);
 
-    this.drawingContext = this.rootSvg
+    this.rootSvg
       .append('g')
+      .attr('class', `root${this.rootElId}`)
       .attr('transform', 'translate(' + translateX + ',' + translateY + ')');
+
+    this.drawingContext = (function () {
+      let rootElId = this.rootElId.toString();
+      return function () {
+        return d3.select(`.root${rootElId}`);
+      };
+    }.bind(this))();
 
     // Circular segments
     for (let lvlInx = 0; lvlInx < opts.levels.levelsNo - 1; lvlInx++) {
       let tickNos = opts.levels.levelsNo;
 
-      this.drawingContext.selectAll('.levels')
+      this.drawingContext().selectAll('.levels')
         .data(this.axisParameters)
         .enter()
         .append('svg:line')
@@ -188,7 +199,7 @@ class RadarChart {
     for (let lvlInx = 0; lvlInx < opts.levels.levelsNo; lvlInx++) {
       let tickNos = opts.levels.levelsNo;
 
-      this.drawingContext
+      this.drawingContext()
         .selectAll('.levels')
         .data(this.axisParameters)
         .enter()
@@ -212,7 +223,7 @@ class RadarChart {
         .each(function (d) { d.axisTickTextElements.push(this); });
     }
 
-    this.axisG = this.drawingContext
+    this.axisG = this.drawingContext()
       .selectAll('.axis')
       .data(this.axisParameters)
       .enter()
@@ -262,7 +273,7 @@ class RadarChart {
       axisMap: this.axisMap,
       series: series,
       drawingContext: this.drawingContext,
-      seriesIdent: inx,
+      seriesIdent: `${inx}${this.rootElId}`,
       seriesIndex: inx,
       areaOptions: this.opts.area
     }));
