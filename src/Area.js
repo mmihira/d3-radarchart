@@ -26,6 +26,8 @@ class Area {
     this.circleRadius = 5;
 
     this.polygonClassName = `chart-poly-${this.seriesIdent}`;
+    this.circleOverlayClassName = `circle-overlay${this.seriesIdent}`;
+    this.circleClassName = `circle-${this.seriesIdent}`;
 
     // For each axisId calculate the apex points for this area
     this.points = this.data.map(spoke => {
@@ -172,7 +174,7 @@ class Area {
   renderArea () {
     this.area = this
       .drawingContext()
-      .selectAll(`.area${this.seriesIdent}`)
+      .selectAll(this.polygonClassName)
       .data([this.polygonWrapper])
       .enter()
       .append('polygon')
@@ -197,7 +199,7 @@ class Area {
 
   renderCircles () {
     this.circles = this.drawingContext()
-      .selectAll(`.nodes${this.seriesIdent}`)
+      .selectAll(this.circleClassName)
       .data(this.points)
       .enter()
       .append('svg:circle')
@@ -205,6 +207,7 @@ class Area {
       .attr('alt', function (j) { return Math.max(j.value, 0); })
       .attr('cx', d => d.cords.x)
       .attr('cy', d => d.cords.y)
+      .attr('class', this.circleClassName)
       .style('fill', () => {
         if (this.opts.useColorScale) {
           return this.opts.lineColorScale(this.seriesIndex);
@@ -214,7 +217,7 @@ class Area {
       .each(function (d) { d.circleRef = this; });
 
     this.circleOverylays = this.drawingContext()
-      .selectAll(`.nodes-overlay${this.seriesIdent}`)
+      .selectAll(this.circleOverlayClassName)
       .data(this.points)
       .enter()
       .append('svg:circle')
@@ -227,6 +230,7 @@ class Area {
       .attr('cx', d => d.cords.x)
       .attr('cy', d => d.cords.y)
       .attr('opacity', 0.0)
+      .attr('class', this.circleOverlayClassName)
       .on('mouseover', this.createOnMouseOverCircle())
       .on('mouseout', this.createMouseOutCirlce())
       .each(function (d) { d.overlayRef = this; });
