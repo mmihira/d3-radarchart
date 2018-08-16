@@ -28,13 +28,18 @@ class Axis {
 
   calculateAxisParameters () {
     const {opts, axisIndex, axisOptions} = this;
-    const {width, height} = this.opts.dims;
+    const {
+      innerW,
+      innerH,
+      optsLeftChartOffset,
+      optsTopChartOffset
+    } = this.opts.dims;
     const {maxAxisNo} = this.opts.axis;
 
-    const x1 = width / 2;
-    const y1 = height / 2;
-    const x2 = width / 2 * (1 - Math.sin(axisIndex * RADIANS / maxAxisNo));
-    const y2 = height / 2 * (1 - Math.cos(axisIndex * RADIANS / maxAxisNo));
+    const x1 = optsLeftChartOffset + innerW / 2;
+    const y1 = optsTopChartOffset + innerH / 2;
+    const x2 = optsLeftChartOffset + ((innerW / 2) * (1 - Math.sin(axisIndex * RADIANS / maxAxisNo)));
+    const y2 = optsTopChartOffset + ((innerH / 2) * (1 - Math.cos(axisIndex * RADIANS / maxAxisNo)));
 
     if (x2 < x1 && y2 <= y1) {
       this.quad = QUAD_1;
@@ -46,8 +51,8 @@ class Axis {
       this.quad = QUAD_4;
     }
 
-    const labelX = (width / 2) * (1 - opts.legend.factor * Math.sin(axisIndex * RADIANS / maxAxisNo)) - 60 * Math.sin(axisIndex * RADIANS / maxAxisNo);
-    const labelY = (height / 2) * (1 - Math.cos(axisIndex * RADIANS / maxAxisNo)) - 20 * Math.cos(axisIndex * RADIANS / maxAxisNo);
+    const labelX = (innerW / 2) * (1 - opts.axis.leftOffsetPLabel * Math.sin(axisIndex * RADIANS / maxAxisNo)) - 60 * Math.sin(axisIndex * RADIANS / maxAxisNo) + optsLeftChartOffset;
+    const labelY = (innerH / 2) * (1 - Math.cos(axisIndex * RADIANS / maxAxisNo)) - 20 * Math.cos(axisIndex * RADIANS / maxAxisNo) + optsTopChartOffset;
 
     // Note the gradients are inversed because of the SVG co-ordinate system.
     const gradient = Math.abs(x2 - x1) < 0.000000001 ? Infinity : (y2 - y1) / (x2 - x1);
@@ -73,6 +78,21 @@ class Axis {
     this.axis = axisOptions.axisId;
     this.label = axisOptions.label ? axisOptions.label : axisOptions.axisId;
 
+    if (this.opts.axis.textOverflow) {
+      this.textLineSpacingPx = this.opts.axis.textLineSpacingPx;
+      this.labelLines = [];
+      this.words = this.label.split(' ');
+      this.lines = [this.words[0]];
+      this.lines = this.words.slice(1).reduce((acc, word) => {
+        if ((acc[acc.length - 1].length + word.length) <= this.opts.axis.textOverflowWidthLimit) {
+          acc[acc.length - 1] = acc[acc.length - 1] + ' ' + word;
+        } else {
+          acc.push(word);
+        }
+        return acc;
+      }, this.lines);
+    }
+
     this.x1 = x1;
     this.y1 = y1;
     this.x2 = x2;
@@ -87,8 +107,8 @@ class Axis {
     this.projectCordToAxis = projectCordToAxis;
     this.projectValueOnAxis = function (value) {
       return {
-        x: width / 2 * (1 - (parseFloat(Math.max(value, 0)) / this.maxValue) * projectValueOnAxisXMultTerm),
-        y: height / 2 * (1 - (parseFloat(Math.max(value, 0)) / this.maxValue) * projectValueOnAxisYMultTerm)
+        x: optsLeftChartOffset + ((innerW / 2) * (1 - (parseFloat(Math.max(value, 0)) / this.maxValue) * projectValueOnAxisXMultTerm)),
+        y: optsTopChartOffset + ((innerH / 2) * (1 - (parseFloat(Math.max(value, 0)) / this.maxValue) * projectValueOnAxisYMultTerm))
       };
     };
 
@@ -100,7 +120,7 @@ class Axis {
         let len = Math.abs(this.x2 - x);
         return (this.axisLength - len) * this.maxValue / this.axisLength;
       } else {
-        return (2 * x / width - 1) * (this.maxValue / projectValueOnAxisXMultTerm) * -1;
+        return (2 * (x - optsLeftChartOffset) / innerW - 1) * (this.maxValue / projectValueOnAxisXMultTerm) * -1;
       }
     };
   }

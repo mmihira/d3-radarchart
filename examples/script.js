@@ -130,7 +130,7 @@ var d2 = [
 var options = {
   data: d,
   dims: {
-    width: 500,
+    width: 550,
     height: 500,
     extraWidthP: 0.6,
     extraHeightP: 0.25

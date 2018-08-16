@@ -17,21 +17,19 @@ const DEFAULTS_OPTS = function () {
     dims: {
       width: 500,
       height: 500,
-      extraWidthP: 0.6,
-      extraHeightP: 0.25,
-      translateXp: 0.1,
-      translateYp: 0.05
+      translateXp: 0.05,
+      translateYp: 0.05,
+      legendSpaceP: 0.10,
+      innerPaddingP: 0.10
     },
     showLegend: true,
     legend: {
-      height: 100,
-      width: 200,
-      factor: 0.85,
-      translateX: -75,
-      translateY: 10,
-      textTranslateX: -52,
-      textSpacing: 20,
+      legendWidthP: 0.9,
+      legendHeightP: 0.2,
+      legendWOverlap: 0.5,
+      legendTopOffset: 20,
       textYOffset: 9,
+      textOffsetP: 0.75,
       colorScale: d3.scaleOrdinal(d3.schemeAccent),
       iconHeight: 10,
       iconWidth: 10,
@@ -63,7 +61,11 @@ const DEFAULTS_OPTS = function () {
       config: [],
       colorScale: null,
       useGlobalMax: false,
-      maxValue: 0.6
+      maxValue: 0.6,
+      leftOffsetPLabel: 0.85,
+      textOverflow: true,
+      textOverflowWidthLimit: 10,
+      textLineSpacingPx: 10
     },
     area: {
       defaultAreaOpacity: 0.4,
@@ -87,6 +89,7 @@ class RadarChart {
    */
   constructor (opts) {
     this.rootElement = d3.select(opts.rootElement);
+    this.rootElId = this.rootElement.attr('id');
     this.setOps(opts);
     this.areas = [];
   }
@@ -96,15 +99,23 @@ class RadarChart {
    */
   setOps (opts) {
     this.opts = _.merge(DEFAULTS_OPTS(), opts);
-    this.rootElId = this.rootElement.attr('id');
-
     this.opts.axis.maxAxisNo = this.opts.axis.config.length;
 
-    this.opts.dims.extraWidth = this.opts.dims.width * this.opts.dims.extraWidthP;
-    this.opts.dims.extraHeight = this.opts.dims.height * this.opts.dims.extraHeightP;
+    const optDims = this.opts.dims;
+    optDims.paddingW = optDims.width * optDims.translateXp / 2;
+    optDims.paddingH = optDims.paddingW;
+    optDims.legendW = optDims.width * optDims.legendSpaceP;
+    optDims.chartContainerW = optDims.width - optDims.paddingW - optDims.legendW;
+    optDims.chartContainerH = optDims.height - (optDims.paddingH * 2);
+    optDims.innerPadding = optDims.chartContainerH * optDims.innerPaddingP;
+    optDims.innerW = optDims.chartContainerW - (2 * optDims.innerPadding);
+    optDims.innerH = optDims.chartContainerH - (2 * optDims.innerPadding);
+    optDims.optsLeftChartOffset = optDims.innerPadding;
+    optDims.optsTopChartOffset = optDims.innerPadding;
 
-    this.opts.dims.translateX = (this.opts.dims.width + this.opts.dims.extraWidth) * this.opts.dims.translateXp;
-    this.opts.dims.translateY = (this.opts.dims.height + this.opts.dims.extraHeight) * this.opts.dims.translateYp;
+    const legOpts = this.opts.legend;
+    legOpts.width = optDims.legendW * legOpts.legendWidthP;
+    legOpts.height = optDims.height * legOpts.legendHeightP;
 
     this.data = this.opts.data;
     this.axisConfig = this.opts.axis.config;
@@ -130,21 +141,19 @@ class RadarChart {
     const {
       width,
       height,
-      extraWidth,
-      extraHeight,
-      translateX,
-      translateY
+      paddingH,
+      paddingW
     } = this.opts.dims;
 
     this.rootSvg = this.rootElement
       .append('svg')
-      .attr('width', width + extraWidth)
-      .attr('height', height + extraHeight);
+      .attr('width', width)
+      .attr('height', height);
 
     this.rootSvg
       .append('g')
       .attr('class', `root${this.rootElId}`)
-      .attr('transform', 'translate(' + translateX + ',' + translateY + ')');
+      .attr('transform', 'translate(' + paddingW + ',' + paddingH + ')');
 
     this.drawingContext = (function () {
       let rootElId = this.rootElId.toString();
@@ -254,18 +263,41 @@ class RadarChart {
       .on('mouseout', d => d.onRectMouseOut())
       .each(function (datum) { datum.axisRect = this; });
 
-    this.axisText = this.axisG
-      .append('text')
-      .attr('class', 'legend')
-      .text(d => d.label)
-      .style('font-family', 'sans-serif')
-      .style('font-size', '11px')
-      .attr('text-anchor', 'middle')
-      .attr('dy', '1.5em')
-      .attr('transform', () => 'translate(0, -10)')
-      .attr('x', d => d.labelX)
-      .attr('y', d => d.labelY)
-      .attr('pointer-events', 'none');
+    if (opts.axis.textOverflow) {
+      this.axisText = this.axisG
+        .append('text')
+        .attr('class', 'axis-label')
+        .attr('pointer-events', 'none')
+        .text('')
+        .each(function (d) {
+          var lines = d.lines;
+          for (var i = 0; i < lines.length; i++) {
+            d3.select(this)
+              .append('tspan')
+              .attr('x', d => d.labelX)
+              .attr('y', d => d.labelY)
+              .attr('dy', i * d.textLineSpacingPx)
+              .text(lines[i])
+              .style('font-family', 'sans-serif')
+              .style('font-size', '11px')
+              .attr('text-anchor', 'middle')
+              .each(function (d) { d.labelLines.push(this); });
+          }
+        });
+    } else {
+      this.axisText = this.axisG
+        .append('text')
+        .attr('class', 'axis-label')
+        .text(d => d.label)
+        .style('font-family', 'sans-serif')
+        .style('font-size', '11px')
+        .attr('text-anchor', 'middle')
+        .attr('dy', '1.5em')
+        .attr('transform', () => 'translate(0, -10)')
+        .attr('x', d => d.labelX)
+        .attr('y', d => d.labelY)
+        .attr('pointer-events', 'none');
+    }
   }
 
   renderArea () {
@@ -284,7 +316,7 @@ class RadarChart {
     const {
       width,
       height,
-      extraWidth
+      legendW
     } = this.opts.dims;
     const legendOpts = this.opts.legend;
 
@@ -292,15 +324,14 @@ class RadarChart {
 
     let svg = this.rootSvg
       .append('svg')
-      .attr('width', width + extraWidth)
+      .attr('width', width)
       .attr('height', height);
 
     // Create the title for the legend
     svg.append('text')
       .attr('class', 'title')
-      .attr('transform', 'translate(90,0)')
-      .attr('x', width + legendOpts.translateX)
-      .attr('y', legendOpts.translateY)
+      .attr('x', width - (legendW * (1 + legendOpts.legendWOverlap)))
+      .attr('y', legendOpts.legendTopOffset)
       .text(legendOpts.title)
       .attr('font-size', legendOpts.titleProperties['font-size'])
       .attr('fill', legendOpts.titleProperties['fill']);
@@ -310,14 +341,14 @@ class RadarChart {
       .attr('class', 'legend')
       .attr('height', legendOpts.height)
       .attr('width', legendOpts.width)
-      .attr('transform', 'translate(90,20)');
+      .attr('transform', 'translate(0,' + (legendOpts.legendTopOffset * 2) + ')');
 
     // Create colour squares
     legend.selectAll('rect')
       .data(LegendOptions)
       .enter()
       .append('rect')
-      .attr('x', width + legendOpts.translateX)
+      .attr('x', width - (legendW * (1 + legendOpts.legendWOverlap)))
       .attr('y', (d, i) => i * legendOpts.iconSpacing)
       .attr('width', legendOpts.iconWidth)
       .attr('height', legendOpts.iconHeight)
@@ -328,8 +359,8 @@ class RadarChart {
       .data(LegendOptions)
       .enter()
       .append('text')
-      .attr('x', width + legendOpts.textTranslateX)
-      .attr('y', (d, i) => i * legendOpts.textSpacing + legendOpts.textYOffset)
+      .attr('x', width - (legendW * (1 + legendOpts.legendWOverlap)) * legendOpts.textOffsetP)
+      .attr('y', (d, i) => i * legendOpts.iconSpacing + legendOpts.textYOffset)
       .attr('font-size', legendOpts.labelTextProperties['font-size'])
       .attr('fill', legendOpts.labelTextProperties['fill'])
       .text(function (d) { return d; });
