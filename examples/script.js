@@ -132,10 +132,7 @@ var options = {
   dims: {
     width: 550,
     height: 500,
-    extraWidthP: 0.6,
-    extraHeightP: 0.25
   },
-  ToRight: 20,
   showLegend: true,
   rootElement: document.getElementById('chart'),
   levels: {
@@ -152,18 +149,15 @@ var options = {
 const radarChart = new RadarChart(options);
 radarChart.render();
 
-// Testing removal
-// let rr = function() {
-//   radarChart.reRenderWithNewData(d2);
-//   console.log('rerendering');
-//   setTimeout(function() {
-//     radarChart.delete();
-//     setTimeout(function() {
-//       const radarChart = new RadarChart(options);
-//       radarChart.render();
-//     }, 1000)
-//   }, 1000)
-// };
-// setTimeout(rr, 2000);
+let reRenderTest = function() {
+  console.log('Removing');
+  setTimeout(function() {
+    radarChart.delete();
+    setTimeout(function() {
+      console.log('Re-rendering');
+      radarChart.reRenderWithNewOptions(options);
+    }, 1000)
+  }, 1000)
+};
 
-
+// setTimeout(reRenderTest, 2000);

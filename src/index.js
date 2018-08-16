@@ -377,6 +377,18 @@ class RadarChart {
   }
 
   /**
+   * Rerenders everything using new options.
+   * @param opts {Object}
+   */
+  reRenderWithNewOptions (opts) {
+    this.delete();
+
+    this.setOps(opts);
+    this.areas = [];
+    this.render();
+  }
+
+  /**
    * Remove the axis
    */
   removeAxis () {
