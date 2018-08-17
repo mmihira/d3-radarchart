@@ -26,7 +26,7 @@ const DEFAULTS_OPTS = function () {
     legend: {
       legendWidthP: 0.9,
       legendHeightP: 0.2,
-      legendWOverlap: 0.5,
+      legendWOverlap: 1.1,
       legendTopOffset: 20,
       textYOffset: 9,
       textOffsetP: 0.75,
@@ -68,12 +68,15 @@ const DEFAULTS_OPTS = function () {
       textLineSpacingPx: 10
     },
     area: {
-      defaultAreaOpacity: 0.4,
-      highlightedAreaOpacity: 0.7,
-      hiddenAreaOpacity: 0.1,
+      areaHighlight: false,
+      areaHighlightProps: {
+        defaultAreaOpacity: 0.0,
+        highlightedAreaOpacity: 0.7,
+        hiddenAreaOpacity: 0.1,
+      },
       defaultCircleOpacity: 0.3,
-      hoverCircleOpacity: 1.0,
-      circleOverlayRadiusMult: 1.2,
+      hoverCircleOpacity: 0.8,
+      circleOverlayRadiusMult: 1.5,
       useColorScale: true,
       areaColorScale: d3.scaleOrdinal(d3.schemeAccent),
       lineColorScale: d3.scaleOrdinal(d3.schemeAccent),
@@ -307,7 +310,8 @@ class RadarChart {
       drawingContext: this.drawingContext,
       seriesIdent: `${inx}${this.rootElId}`,
       seriesIndex: inx,
-      areaOptions: this.opts.area
+      areaOptions: this.opts.area,
+      onAreaUpdate: this.onUpdateArea.bind(this)
     }));
     this.areas.forEach(area => area.render());
   }
@@ -320,7 +324,7 @@ class RadarChart {
     } = this.opts.dims;
     const legendOpts = this.opts.legend;
 
-    let LegendOptions = ['Smartphone', 'Tablet'];
+    let LegendOptions = this.opts.axis.config.map(e => e.axisId);
 
     let svg = this.rootSvg
       .append('svg')
@@ -416,6 +420,14 @@ class RadarChart {
     this.removeAreas();
     this.removeAxis();
     this.rootSvg.remove();
+  }
+
+  /**
+   * Update all the areas to maintain the same
+   */
+  onUpdateArea () {
+    this.removeAreas();
+    this.areas.forEach(area => area.render());
   }
 }
 
