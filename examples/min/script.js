@@ -1,15 +1,16 @@
 var axisConfig = [
-  {axisId: "Conscientiousness"},
-  {axisId: "Neuroticism"},
-  {axisId: "Agreeableness"},
-  {axisId: "Openness"},
-  {axisId: "Extraversion"}
+  {axisId: "Conscientiousness", axisValueMax: 1},
+  {axisId: "Neuroticism", axisValueMax: 1},
+  {axisId: "Agreeableness", axisValueMax: 1},
+  {axisId: "Openness", axisValueMax: 1},
+  {axisId: "Extraversion", axisValueMax: 1}
 ];
 
 var data = [
   {
     label: 'Normie',
     dragEnabled: false,
+    showCircle: false,
     data: [
       {axis: "Conscientiousness", value: 0.25},
       {axis: "Neuroticism", value: 0.1},
@@ -21,6 +22,7 @@ var data = [
   {
     label: 'Pepe',
     dragEnabled: true,
+    showCircle: true,
     data: [
       {axis: "Conscientiousness", value: 0.56},
       {axis: "Neuroticism", value: 0.7},

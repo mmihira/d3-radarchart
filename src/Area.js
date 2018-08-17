@@ -30,7 +30,7 @@ class Area {
     this.circleOverlayClassName = `circle-overlay${this.seriesIdent}`;
     this.circleClassName = `circle-${this.seriesIdent}`;
 
-    this.currentAreaOpacity =  this.opts.areaHighlightProps.defaultAreaOpacity;
+    this.currentAreaOpacity = this.opts.areaHighlightProps.defaultAreaOpacity;
 
     // For each axisId calculate the apex points for this area
     this.points = this.series.data.map(spoke => {
@@ -53,7 +53,9 @@ class Area {
    */
   render () {
     this.renderArea();
-    this.renderCircles();
+    if (this.series.showCircle) {
+      this.renderCircles();
+    }
   }
 
   updatePositions () {
@@ -61,21 +63,19 @@ class Area {
       return acc + p.cords.x + ',' + p.cords.y + ' ';
     }, '');
 
-    console.log(this.opts);
     this.onAreaUpdate();
   }
 
   createOnMouseOverCircle (_self) {
     const self = _self;
     return function (d) {
-      console.log(self);
       if (!self.dragActive) {
         self.circleSelectionTransition(d, self);
       }
     };
   }
 
-  circleSelectionTransition(d, self) {
+  circleSelectionTransition (d, self) {
     const thisPolygon = '.' + self.polygonClassName;
     d3.select(d.circleRef)
       .style('fill-opacity', self.opts.hoverCircleOpacity);
@@ -94,7 +94,7 @@ class Area {
       .attr('r', self.circleRadius * self.opts.circleOverlayRadiusMult);
   }
 
-  circleSelectionTransitionOut(d, self) {
+  circleSelectionTransitionOut (d, self) {
     d3.select(d.circleRef)
       .style('fill-opacity', self.opts.defaultCircleOpacity);
 
@@ -210,11 +210,10 @@ class Area {
           return this.opts.areaColorScale(this.seriesIndex);
         }
       })
-      .style('fill-opacity', this.currentAreaOpacity)
+      .style('fill-opacity', this.currentAreaOpacity);
 
     if (this.opts.areaHighlight) {
       this.area
-        .on('pointer-events', 'none')
         .on('mouseover', this.createOnMouseOverPolygon())
         .on('mouseout', this.createOnMouseOutPolygon());
     }
@@ -252,15 +251,19 @@ class Area {
       .attr('pointer-events', 'all')
       .each(function (d) { d.overlayRef = this; });
 
-    if (this.series.dragEnabled) {
+    if (this.series.circleHighlight) {
       this.circleOverylays
         .on('mouseover', this.createOnMouseOverCircle(this))
-        .on('mouseout', this.createMouseOutCirlce(this))
+        .on('mouseout', this.createMouseOutCirlce(this));
+    }
+
+    if (this.series.dragEnabled) {
+      this.circleOverylays
         .call(d3.drag()
           .subject(function (d) { return this; })
           .on('drag', this.createOnDraggingCircle())
           .on('end', this.createOnDragEndCircle())
-        )
+        );
     }
 
     this.circles
@@ -279,18 +282,20 @@ class Area {
    * Remove this area. Also handles removing any event handlers.
    */
   remove () {
-    this.circleOverylays.each(function (d) {
-      d3.select(d.circleRef)
-        .on('mouseover', null)
-        .on('mouseout', null)
-        .on('drag', null)
-        .on('end', null)
-        .remove();
-    });
-    this.circles.each(function (d) {
-      d3.select(d.circleRef)
-        .remove();
-    });
+    if (this.series.showCircle) {
+      this.circleOverylays.each(function (d) {
+        d3.select(d.circleRef)
+          .on('mouseover', null)
+          .on('mouseout', null)
+          .on('drag', null)
+          .on('end', null)
+          .remove();
+      });
+      this.circles.each(function (d) {
+        d3.select(d.circleRef)
+          .remove();
+      });
+    }
     this.removeArea();
   }
 }

@@ -1,5 +1,4 @@
 import * as d3 from 'd3';
-import * as _ from 'lodash';
 /**
  * Represents the axis, labels and circles
  */
@@ -72,11 +71,7 @@ class Axis {
       }
     };
 
-    const seriesMax = opts.data.reduce((acc, series) => {
-      return _.max([acc].concat(series.data.map(e => e.value)));
-    }, 0);
-
-    this.maxValue = opts.axis.useGlobalMax ? opts.axis.maxValue : seriesMax;
+    this.maxValue = opts.axis.useGlobalMax ? opts.axis.maxValue : axisOptions.axisValueMax;
     this.axisLength = Math.sqrt(Math.pow((x2 - x1), 2) + Math.pow((y2 - y1), 2));
     this.angleFromNorth = (180 / Math.PI) * (1 - axisIndex * RADIANS / maxAxisNo) - (180 / Math.PI) - 90 - (180 / Math.PI * 10 / this.axisLength / 2);
 

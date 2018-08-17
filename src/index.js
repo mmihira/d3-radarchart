@@ -72,7 +72,7 @@ const DEFAULTS_OPTS = function () {
       areaHighlightProps: {
         defaultAreaOpacity: 0.0,
         highlightedAreaOpacity: 0.7,
-        hiddenAreaOpacity: 0.1,
+        hiddenAreaOpacity: 0.1
       },
       defaultCircleOpacity: 0.3,
       hoverCircleOpacity: 0.8,
@@ -324,7 +324,7 @@ class RadarChart {
     } = this.opts.dims;
     const legendOpts = this.opts.legend;
 
-    let LegendOptions = this.opts.axis.config.map(e => e.axisId);
+    let LegendOptions = this.opts.data.map(e => e.label);
 
     let svg = this.rootSvg
       .append('svg')
