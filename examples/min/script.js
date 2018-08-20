@@ -9,8 +9,8 @@ var axisConfig = [
 var data = [
   {
     label: 'Normie',
-    dragEnabled: false,
-    showCircle: false,
+    dragEnabled: true,
+    showCircle: true,
     data: [
       {axis: "Conscientiousness", value: 0.25},
       {axis: "Neuroticism", value: 0.1},

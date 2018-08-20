@@ -2,6 +2,7 @@ import * as d3 from 'd3';
 import * as _ from 'lodash';
 import Area from './Area.js';
 import Axis from './Axis.js';
+
 /**
  * Based of
  *  - https://github.com/alangrafu/radar-chart-d3
@@ -13,6 +14,7 @@ import Axis from './Axis.js';
  */
 const DEFAULTS_OPTS = function () {
   return {
+    enableZoom: true,
     data: [],
     dims: {
       width: 500,
@@ -22,8 +24,8 @@ const DEFAULTS_OPTS = function () {
       legendSpaceP: 0.10,
       innerPaddingP: 0.10
     },
-    showLegend: true,
     legend: {
+      interactive: true,
       legendWidthP: 0.9,
       legendHeightP: 0.2,
       legendWOverlap: 1.1,
@@ -57,6 +59,7 @@ const DEFAULTS_OPTS = function () {
     point: {
       radius: 5
     },
+    showLegend: true,
     axis: {
       config: [],
       colorScale: null,
@@ -65,14 +68,29 @@ const DEFAULTS_OPTS = function () {
       leftOffsetPLabel: 0.85,
       textOverflow: true,
       textOverflowWidthLimit: 10,
-      textLineSpacingPx: 10
+      textLineSpacingPx: 10,
+      axisLabelProps: {
+        'font-family': 'sans-serif',
+        'font-size': '11px',
+        'fill': '#808080'
+      }
     },
     area: {
       areaHighlight: false,
       areaHighlightProps: {
         defaultAreaOpacity: 0.0,
         highlightedAreaOpacity: 0.7,
-        hiddenAreaOpacity: 0.1
+        hiddenAreaOpacity: 0.1,
+        defaultStrokeOpacity: 0.8,
+        highlightedStrokeOpacity: 1.0,
+        hiddenStrokeOpacity: 0.2,
+        defaultLabelOpacity: 0.0,
+        highlightedLabelOpacity: 1.0,
+        hiddenLabelOpacity: 0.0
+      },
+      labelProps: {
+        'font-family': 'sans-serif',
+        'font-size': '10px'
       },
       defaultCircleOpacity: 0.3,
       hoverCircleOpacity: 0.8,
@@ -80,7 +98,10 @@ const DEFAULTS_OPTS = function () {
       useColorScale: true,
       areaColorScale: d3.scaleOrdinal(d3.schemeAccent),
       lineColorScale: d3.scaleOrdinal(d3.schemeAccent),
-      onValueChange: null
+      onValueChange: null,
+      lineProps: {
+        'stroke-width': '2px'
+      }
     },
     rootElement: null
   };
@@ -157,6 +178,13 @@ class RadarChart {
       .append('g')
       .attr('class', `root${this.rootElId}`)
       .attr('transform', 'translate(' + paddingW + ',' + paddingH + ')');
+
+    if (this.opts.enableZoom) {
+      this.rootSvg
+        .call(d3.zoom().on('zoom', () => {
+          this.drawingContext().attr('transform', d3.event.transform);
+        }));
+    }
 
     this.drawingContext = (function () {
       let rootElId = this.rootElId.toString();
@@ -266,6 +294,7 @@ class RadarChart {
       .on('mouseout', d => d.onRectMouseOut())
       .each(function (datum) { datum.axisRect = this; });
 
+    const { axisLabelProps } = this.opts.axis;
     if (opts.axis.textOverflow) {
       this.axisText = this.axisG
         .append('text')
@@ -281,8 +310,9 @@ class RadarChart {
               .attr('y', d => d.labelY)
               .attr('dy', i * d.textLineSpacingPx)
               .text(lines[i])
-              .style('font-family', 'sans-serif')
-              .style('font-size', '11px')
+              .style('font-family', axisLabelProps['font-family'])
+              .style('font-size', axisLabelProps['font-size'])
+              .style('fill', axisLabelProps['fill'])
               .attr('text-anchor', 'middle')
               .each(function (d) { d.labelLines.push(this); });
           }
@@ -292,8 +322,9 @@ class RadarChart {
         .append('text')
         .attr('class', 'axis-label')
         .text(d => d.label)
-        .style('font-family', 'sans-serif')
-        .style('font-size', '11px')
+        .style('font-family', axisLabelProps['font-family'])
+        .style('font-size', axisLabelProps['font-size'])
+        .style('fill', axisLabelProps['fill'])
         .attr('text-anchor', 'middle')
         .attr('dy', '1.5em')
         .attr('transform', () => 'translate(0, -10)')
@@ -301,6 +332,7 @@ class RadarChart {
         .attr('y', d => d.labelY)
         .attr('pointer-events', 'none');
     }
+
   }
 
   renderArea () {
@@ -323,8 +355,6 @@ class RadarChart {
       legendW
     } = this.opts.dims;
     const legendOpts = this.opts.legend;
-
-    let LegendOptions = this.opts.data.map(e => e.label);
 
     let svg = this.rootSvg
       .append('svg')
@@ -349,25 +379,46 @@ class RadarChart {
 
     // Create colour squares
     legend.selectAll('rect')
-      .data(LegendOptions)
+      .data(this.areas)
       .enter()
       .append('rect')
       .attr('x', width - (legendW * (1 + legendOpts.legendWOverlap)))
       .attr('y', (d, i) => i * legendOpts.iconSpacing)
       .attr('width', legendOpts.iconWidth)
       .attr('height', legendOpts.iconHeight)
-      .style('fill', (d, i) => legendOpts.colorScale(i));
+      .attr('opacity', 0.7)
+      .on('mouseover', function (d, i) {
+        d3.select(this).attr('opacity', 1.0);
+        d3.select(d.legendLabel).attr('fill', legendOpts.colorScale(i));
+        d.onLegendOver(d);
+      })
+      .on('mouseout', function (d, i) {
+        d3.select(this).attr('opacity', 0.7);
+        d3.select(d.legendLabel).attr('fill', legendOpts.labelTextProperties['fill']);
+        d.onLegendOut(d);
+      })
+      .style('fill', (d, i) => legendOpts.colorScale(i))
+      .each(function (d) { d.legendRect = this; });
 
     // Create text next to squares
     legend.selectAll('text')
-      .data(LegendOptions)
+      .data(this.areas)
       .enter()
       .append('text')
       .attr('x', width - (legendW * (1 + legendOpts.legendWOverlap)) * legendOpts.textOffsetP)
       .attr('y', (d, i) => i * legendOpts.iconSpacing + legendOpts.textYOffset)
       .attr('font-size', legendOpts.labelTextProperties['font-size'])
       .attr('fill', legendOpts.labelTextProperties['fill'])
-      .text(function (d) { return d; });
+      .text(d => d.label)
+      .on('mouseover', function (d, i) {
+        d3.select(this).attr('fill', legendOpts.colorScale(i));
+        d.onLegendOver(d);
+      })
+      .on('mouseout', function (d, i) {
+        d3.select(this).attr('fill', legendOpts.labelTextProperties['fill']);
+        d.onLegendOut(d);
+      })
+      .each(function (d) { d.legendLabel = this; });
   }
 
   /**
