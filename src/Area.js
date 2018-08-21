@@ -55,8 +55,8 @@ class Area {
     this.onLegendOut = this.onLegendOut.bind(this);
     this.hilightThisAreaRemove = this.hilightThisAreaRemove.bind(this);
     this.hilightThisArea = this.hilightThisArea.bind(this);
-
     this.state = AREA_STATE.NEUTRAL;
+    this.postRenderQueue = [];
   }
 
   /**
@@ -109,6 +109,7 @@ class Area {
             .style('fill-opacity', self.opts.defaultCircleOpacity);
 
           self.state = AREA_STATE.NEUTRAL;
+          self.postRenderQueue.push(() => self.hilightThisAreaRemove());
           self.updatePositions();
 
           break;
@@ -365,6 +366,10 @@ class Area {
     this.renderArea();
     if (this.series.showCircle) {
       this.renderCircles();
+    }
+
+    while (this.postRenderQueue.length > 0) {
+      this.postRenderQueue.pop()();
     }
   }
 

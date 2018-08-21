@@ -39,12 +39,15 @@ const DEFAULTS_OPTS = function () {
       textYOffset: 9,
       textOffsetP: 0.75,
       colorScale: d3.scaleOrdinal(d3.schemeAccent),
-      iconHeight: 10,
-      iconWidth: 10,
-      iconSpacing: 20,
+      iconHeightP: 0.020,
+      iconWidthP: 0.020,
+      iconSpacingP: 0.05,
       title: 'Test title',
+      scaleTextWithSize: true,
+      titleScale: null,
+      labelScale: null,
       titleProperties: {
-        'font-size': '12px',
+        fontSize: 12,
         'fill': '#404040'
       },
       labelTextProperties: {
@@ -55,12 +58,7 @@ const DEFAULTS_OPTS = function () {
     levels: {
       levelsNo: 2,
       noTicks: 3,
-      levelsColor: null,
-      ticks: {
-        fill: '#737373',
-        'font-size': '10px',
-        'font-family': 'sans-serif'
-      }
+      levelsColor: null
     },
     point: {
       radius: 5
@@ -75,10 +73,18 @@ const DEFAULTS_OPTS = function () {
       textOverflow: true,
       textOverflowWidthLimit: 10,
       textLineSpacingPx: 10,
+      scaleTextWithSize: true,
+      tickScale: null,
+      axisTitleScale: null,
       axisLabelProps: {
         'font-family': 'sans-serif',
-        'font-size': '11px',
+        fontAize: 11,
         'fill': '#808080'
+      },
+      ticks: {
+        fill: '#737373',
+        fontSize: 10,
+        'font-family': 'sans-serif'
       }
     },
     area: {
@@ -99,7 +105,7 @@ const DEFAULTS_OPTS = function () {
         'font-size': '10px'
       },
       defaultCircleOpacity: 0.3,
-      hoverCircleOpacity: 0.8,
+      hoverCircleOpacity: 0.5,
       circleProps: {
         defaultRadius: 5,
         maxZoomRadius: 1,
@@ -151,6 +157,9 @@ class RadarChart {
     const legOpts = this.opts.legend;
     legOpts.width = optDims.legendW * legOpts.legendWidthP;
     legOpts.height = optDims.height * legOpts.legendHeightP;
+    legOpts.iconSpacing = legOpts.iconSpacingP * optDims.height;
+    legOpts.iconHeight = legOpts.iconHeightP * optDims.height;
+    legOpts.iconWidth = legOpts.iconWidthP * optDims.height;
 
     this.data = this.opts.data;
     this.axisConfig = this.opts.axis.config;
@@ -254,7 +263,18 @@ class RadarChart {
 
     var Format = d3.format('.2%');
 
-    const ticksAttr = opts.levels.ticks;
+    const ticksAttr = opts.axis.ticks;
+    if (opts.axis.scaleTextWithSize && !opts.axis.tickScale) {
+      opts.axis.tickScale = d3.scaleLinear()
+        .domain([100, 1200])
+        .range([5, 20]);
+    }
+
+    if (opts.axis.scaleTextWithSize && !opts.axis.axisTitleScale) {
+      opts.axis.axisTitleScale = d3.scaleLinear()
+        .domain([100, 1200])
+        .range([5, 23]);
+    }
 
     // Text indicating at what % each level is
     for (let lvlInx = 0; lvlInx < opts.levels.levelsNo; lvlInx++) {
@@ -277,7 +297,13 @@ class RadarChart {
         })
         .attr('class', 'legend')
         .style('font-family', ticksAttr['font-family'])
-        .style('font-size', ticksAttr['font-size'])
+        .style('font-size', () => {
+          if (opts.axis.scaleTextWithSize) {
+            return opts.axis.tickScale(width) + 'px';
+          } else {
+            return ticksAttr.fontSize + 'px';
+          }
+        })
         .style('opacity', 0.0)
         .attr('fill', ticksAttr['fill'])
         .text(function (d) { return Format((d.maxValue / tickNos) * (lvlInx + 1) / d.maxValue); })
@@ -333,7 +359,13 @@ class RadarChart {
               .attr('dy', i * d.textLineSpacingPx)
               .text(lines[i])
               .style('font-family', axisLabelProps['font-family'])
-              .style('font-size', axisLabelProps['font-size'])
+              .style('font-size', () => {
+                if (opts.axis.scaleTextWithSize) {
+                  return opts.axis.axisTitleScale(width) + 'px';
+                } else {
+                  return ticksAttr.fontSize + 'px';
+                }
+              })
               .style('fill', axisLabelProps['fill'])
               .attr('text-anchor', 'middle')
               .each(function (d) { d.labelLines.push(this); });
@@ -345,7 +377,13 @@ class RadarChart {
         .attr('class', 'axis-label')
         .text(d => d.label)
         .style('font-family', axisLabelProps['font-family'])
-        .style('font-size', axisLabelProps['font-size'])
+        .style('font-size', () => {
+          if (opts.axis.scaleTextWithSize) {
+            return opts.axis.axisTitleScale(width) + 'px';
+          } else {
+            return ticksAttr.fontSize + 'px';
+          }
+        })
         .style('fill', axisLabelProps['fill'])
         .attr('text-anchor', 'middle')
         .attr('dy', '1.5em')
@@ -383,13 +421,30 @@ class RadarChart {
       .attr('width', width)
       .attr('height', height);
 
+    if (legendOpts.scaleTextWithSize && !legendOpts.titleScale) {
+      legendOpts.titleScale = d3.scaleLinear()
+        .domain([100, 1200])
+        .range([5, 20]);
+    }
+    if (legendOpts.scaleTextWithSize && !legendOpts.labelScale) {
+      legendOpts.labelScale = d3.scaleLinear()
+        .domain([100, 1200])
+        .range([5, 15]);
+    }
+
     // Create the title for the legend
     svg.append('text')
       .attr('class', 'title')
       .attr('x', width - (legendW * (1 + legendOpts.legendWOverlap)))
       .attr('y', legendOpts.legendTopOffset)
       .text(legendOpts.title)
-      .attr('font-size', legendOpts.titleProperties['font-size'])
+      .style('font-size', () => {
+        if (legendOpts.scaleTextWithSize) {
+          return legendOpts.titleScale(width) + 'px';
+        } else {
+          return legendOpts.titleProperties.fontSize + 'px';
+        }
+      })
       .attr('fill', legendOpts.titleProperties['fill']);
 
     // Initiate Legend
@@ -429,7 +484,13 @@ class RadarChart {
       .append('text')
       .attr('x', width - (legendW * (1 + legendOpts.legendWOverlap)) * legendOpts.textOffsetP)
       .attr('y', (d, i) => i * legendOpts.iconSpacing + legendOpts.textYOffset)
-      .attr('font-size', legendOpts.labelTextProperties['font-size'])
+      .style('font-size', () => {
+        if (legendOpts.scaleTextWithSize) {
+          return legendOpts.labelScale(width) + 'px';
+        } else {
+          return legendOpts.labelTextProperties.fontSize + 'px';
+        }
+      })
       .attr('fill', legendOpts.labelTextProperties['fill'])
       .text(d => d.label)
       .on('mouseover', function (d, i) {
