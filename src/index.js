@@ -15,6 +15,12 @@ import Axis from './Axis.js';
 const DEFAULTS_OPTS = function () {
   return {
     enableZoom: true,
+    zoomProps: {
+      scaleExtent: {
+        minZoom: 1,
+        maxZoom: 12
+      }
+    },
     data: [],
     dims: {
       width: 500,
@@ -94,13 +100,18 @@ const DEFAULTS_OPTS = function () {
       },
       defaultCircleOpacity: 0.3,
       hoverCircleOpacity: 0.8,
-      circleOverlayRadiusMult: 1.5,
+      circleProps: {
+        defaultRadius: 5,
+        maxZoomRadius: 1,
+        circleOverlayRadiusMult: 1.5
+      },
       useColorScale: true,
       areaColorScale: d3.scaleOrdinal(d3.schemeAccent),
       lineColorScale: d3.scaleOrdinal(d3.schemeAccent),
       onValueChange: null,
       lineProps: {
-        'stroke-width': '2px'
+        strokeWidth: 2,
+        maxZoomStroke: 0.5
       }
     },
     rootElement: null
@@ -180,10 +191,20 @@ class RadarChart {
       .attr('transform', 'translate(' + paddingW + ',' + paddingH + ')');
 
     if (this.opts.enableZoom) {
-      this.rootSvg
-        .call(d3.zoom().on('zoom', () => {
+      this.zoom = d3.zoom()
+        .on('zoom', (d) => {
           this.drawingContext().attr('transform', d3.event.transform);
-        }));
+          this.areas.forEach(area => area.onZoomUpdateSizes(d3.event.transform.k));
+          this.onUpdateArea();
+        })
+        .translateExtent([[0, 0], [width, height]])
+        .scaleExtent([
+          this.opts.zoomProps.scaleExtent.minZoom,
+          this.opts.zoomProps.scaleExtent.maxZoom
+        ]);
+
+      this.rootSvg
+        .call(this.zoom);
     }
 
     this.drawingContext = (function () {
@@ -279,7 +300,8 @@ class RadarChart {
       .attr('class', 'line')
       .attr('pointer-events', 'none')
       .style('stroke', 'grey')
-      .style('stroke-width', '1px');
+      .style('stroke-opacity', 0.75)
+      .style('stroke-width', '0.3px');
 
     this.rects = this.axisG
       .append('rect')
@@ -332,7 +354,6 @@ class RadarChart {
         .attr('y', d => d.labelY)
         .attr('pointer-events', 'none');
     }
-
   }
 
   renderArea () {
@@ -343,7 +364,8 @@ class RadarChart {
       seriesIdent: `${inx}${this.rootElId}`,
       seriesIndex: inx,
       areaOptions: this.opts.area,
-      onAreaUpdate: this.onUpdateArea.bind(this)
+      onAreaUpdate: this.onUpdateArea.bind(this),
+      zoomProps: this.opts.zoomProps
     }));
     this.areas.forEach(area => area.render());
   }

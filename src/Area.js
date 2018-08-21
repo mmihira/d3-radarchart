@@ -4,6 +4,7 @@ import {
   QUAD_1,
   QUAD_2
 } from './Axis.js';
+import { AREA_STATE, AREA_EVENT } from './const.js';
 
 /**
  * The area represents the radar chat area for a particular series.
@@ -20,11 +21,11 @@ class Area {
     this.color = d3.scaleOrdinal(d3.schemeAccent);
     this.seriesIdent = opts.seriesIdent;
     this.seriesIndex = opts.seriesIndex;
+    this.zoomConfig = opts.zoomProps;
     this.opts = _.cloneDeep(opts.areaOptions);
     this.opts.onValueChange = opts.areaOptions.onValueChange;
     this.opts.colorScale = opts.areaOptions.colorScale;
     this.onAreaUpdate = opts.onAreaUpdate;
-    this.circleRadius = 5;
     this.label = this.series.label;
 
     this.polygonClassName = `chart-poly-${this.seriesIdent}`;
@@ -49,100 +50,68 @@ class Area {
       }, '')
     };
 
+    this.setupZoomInterpolators();
     this.onLegendOver = this.onLegendOver.bind(this);
     this.onLegendOut = this.onLegendOut.bind(this);
     this.hilightThisAreaRemove = this.hilightThisAreaRemove.bind(this);
     this.hilightThisArea = this.hilightThisArea.bind(this);
+
+    this.state = AREA_STATE.NEUTRAL;
   }
 
-  circleSelectionTransition (d, self) {
-    d3.select(d.circleRef)
-      .style('fill-opacity', self.opts.hoverCircleOpacity);
-
-    self.hilightThisArea();
-
-    d3.select(d.circleRef)
-      .transition(100)
-      .attr('r', self.circleRadius * self.opts.circleOverlayRadiusMult);
-  }
-
-  circleSelectionTransitionOut (d, self) {
-    d3.select(d.circleRef)
-      .style('fill-opacity', self.opts.defaultCircleOpacity);
-
-    self.hilightThisAreaRemove();
-
-    d3.select(d.circleRef)
-      .transition(100)
-      .attr('r', self.circleRadius);
-  }
-
-  createOnDragEndCircle () {
-    var self = this;
+  /**
+   * @param self {Object} this class
+   * @param NEW_EVENT {String} New Event
+   */
+  createEventHandler (NEW_EVENT, self) {
+    /**
+     * @param d {Object} d3 backing datum
+     */
     return function (d) {
-      self.axisMap[d.datum.axis].dragActive = false;
-      self.dragActive = false;
-      self.axisMap[d.datum.axis].onRectMouseOut();
-      self.circleSelectionTransitionOut(d, self);
-      self.hilightThisAreaRemove();
-    };
-  }
+      switch (NEW_EVENT) {
+        case AREA_EVENT.CIRCLE_ENTER:
+          if (self.state !== AREA_STATE.DRAGGING &&
+              self.state !== AREA_STATE.CIRCLE_LEAVE_WHILE_DRAGGING) {
+            self.state = AREA_STATE.CIRCLE_HOVER;
+            d3.select(d.circleRef)
+              .style('fill-opacity', self.opts.hoverCircleOpacity);
 
-  createOnDraggingCircle () {
-    var self = this;
-    return function (d) {
-      var axis = self.axisMap[d.datum.axis];
-      self.axisMap[d.datum.axis].onRectMouseOver();
-      self.axisMap[d.datum.axis].dragActive = true;
-      self.dragActive = true;
+            self.hilightThisArea();
 
-      let {x: mouseX, y: mouseY} = d3.event;
+            d3.select(d.circleRef)
+              .transition(100)
+              .attr('r', self.opts.circleProps.defaultRadius * self.opts.circleProps.circleOverlayRadiusMult);
+          }
+          break;
+        case AREA_EVENT.CIRCLE_LEAVE:
+          if (self.state === AREA_STATE.CIRCLE_HOVER) {
+            d3.select(d.circleRef)
+              .style('fill-opacity', self.opts.defaultCircleOpacity);
 
-      var newX = axis.projectCordToAxis(mouseX, mouseY).x;
-      var newY = axis.projectCordToAxis(mouseX, mouseY).y;
+            self.hilightThisAreaRemove();
 
-      if (axis.quad === QUAD_1 || axis.quad === QUAD_2) {
-        if (newY < axis.y2 || newY > axis.y1) return;
-      } else {
-        if (newY < axis.y1 || newY > axis.y2) return;
-      }
+            d3.select(d.circleRef)
+              .transition(100)
+              .attr('r', self.opts.circleProps.defaultRadius);
+            self.state = AREA_STATE.NEUTRAL;
+          } else if (self.state === AREA_STATE.DRAGGING) {
+            self.state = AREA_STATE.CIRCLE_LEAVE_WHILE_DRAGGING;
+          }
+          break;
+        case AREA_EVENT.DRAGGING:
+          self.draggingActions(d, self);
+          break;
+        case AREA_EVENT.DRAGGING_END:
+          self.axisMap[d.datum.axis].dragActive = false;
+          self.axisMap[d.datum.axis].onRectMouseOut();
 
-      var newValue = axis.cordOnAxisToValue(newX, newY);
+          d3.select(d.circleRef)
+            .style('fill-opacity', self.opts.defaultCircleOpacity);
 
-      d.datum.value = newValue;
-      d.cords = self.axisMap[d.datum.axis].projectValueOnAxis(newValue);
+          self.state = AREA_STATE.NEUTRAL;
+          self.updatePositions();
 
-      d3.select(d.circleRef)
-        .attr('cx', newX)
-        .attr('cy', newY);
-
-      d3.select(d.overlayRef)
-        .attr('cx', newX)
-        .attr('cy', newY);
-
-      self.updatePositions();
-      self.hilightThisArea();
-
-      if (_.isFunction(self.opts.onValueChange)) {
-        self.opts.onValueChange(d);
-      }
-    };
-  }
-
-  createMouseOutCirlce (_self) {
-    const self = _self;
-    return function (d) {
-      if (!self.dragActive) {
-        self.circleSelectionTransitionOut(d, self);
-      }
-    };
-  }
-
-  createOnMouseOverCircle (_self) {
-    const self = _self;
-    return function (d) {
-      if (!self.dragActive) {
-        self.circleSelectionTransition(d, self);
+          break;
       }
     };
   }
@@ -168,6 +137,34 @@ class Area {
         .transition(200)
         .style('fill-opacity', self.opts.areaHighlightProps.defaultAreaOpacity);
     };
+  }
+
+  draggingActions (d, self) {
+    var axis = self.axisMap[d.datum.axis];
+    self.axisMap[d.datum.axis].onRectMouseOver();
+    self.axisMap[d.datum.axis].dragActive = true;
+
+    let {x: mouseX, y: mouseY} = d3.event;
+
+    var newX = axis.projectCordToAxis(mouseX, mouseY).x;
+    var newY = axis.projectCordToAxis(mouseX, mouseY).y;
+
+    if (axis.quad === QUAD_1 || axis.quad === QUAD_2) {
+      if (newY < axis.y2 || newY > axis.y1) return;
+    } else {
+      if (newY < axis.y1 || newY > axis.y2) return;
+    }
+    this.state = AREA_STATE.DRAGGING;
+
+    var newValue = axis.cordOnAxisToValue(newX, newY);
+    d.datum.value = newValue;
+    d.cords = self.axisMap[d.datum.axis].projectValueOnAxis(newValue);
+
+    self.updatePositions();
+
+    if (_.isFunction(self.opts.onValueChange)) {
+      self.opts.onValueChange(d);
+    }
   }
 
   hilightThisArea () {
@@ -204,6 +201,31 @@ class Area {
     this.currentAreaOpacity = this.opts.areaHighlightProps.defaultAreaOpacity;
   }
 
+  isDragActive () {
+    return this.state === AREA_STATE.CIRCLE_LEAVE_WHILE_DRAGGING || this.state === AREA_STATE.DRAGGING;
+  }
+
+  onLegendOver () {
+    if (!this.dragActive) {
+      this.hilightThisArea(this);
+    }
+  }
+
+  onLegendOut () {
+    if (!this.dragActive) {
+      this.hilightThisAreaRemove(this);
+    }
+  }
+
+  /**
+   * On zoom update the stroke & circle sizes
+   * @param k zoom level
+   */
+  onZoomUpdateSizes (k) {
+    this.opts.lineProps.strokeWidth = this.zlop.areaLineLop(k);
+    this.opts.circleProps.defaultRadius = this.zlop.circleRadiusLop(k);
+  }
+
   renderArea () {
     this.area = this
       .drawingContext()
@@ -212,7 +234,7 @@ class Area {
       .enter()
       .append('polygon')
       .attr('class', this.polygonClassName)
-      .style('stroke-width', this.opts.lineProps['stroke-width'])
+      .style('stroke-width', this.opts.lineProps.strokeWidth + 'px')
       .style('stroke', () => {
         if (this.opts.useColorScale) {
           return this.opts.lineColorScale(this.seriesIndex);
@@ -240,7 +262,9 @@ class Area {
       .attr('class', this.polygonVertexLables)
       .style('font-family', this.opts.labelProps['font-family'])
       .style('font-size', this.opts.labelProps['font-size'])
-      .style('opacity', this.opts.areaHighlightProps.defaultLabelOpacity);
+      .style('opacity', () => {
+        return this.isDragActive() ? 1.0 : this.opts.areaHighlightProps.defaultLabelOpacity;
+      });
 
     if (this.opts.areaHighlight) {
       this.area
@@ -255,7 +279,9 @@ class Area {
       .data(this.points)
       .enter()
       .append('svg:circle')
-      .attr('r', this.circleRadius)
+      .attr('r', () => {
+        return this.isDragActive() ? this.opts.circleProps.circleOverlayRadiusMult * this.opts.circleProps.defaultRadius : this.opts.circleProps.defaultRadius;
+      })
       .attr('alt', function (j) { return Math.max(j.value, 0); })
       .attr('cx', d => d.cords.x)
       .attr('cy', d => d.cords.y)
@@ -265,7 +291,9 @@ class Area {
           return this.opts.lineColorScale(this.seriesIndex);
         }
       })
-      .style('fill-opacity', this.opts.defaultCircleOpacity)
+      .style('fill-opacity', () => {
+        return this.isDragActive() ? this.opts.hoverCircleOpacity : this.opts.defaultCircleOpacity;
+      })
       .each(function (d) { d.circleRef = this; });
 
     this.circleOverylays = this.drawingContext()
@@ -273,7 +301,7 @@ class Area {
       .data(this.points)
       .enter()
       .append('svg:circle')
-      .attr('r', this.circleRadius * this.opts.circleOverlayRadiusMult)
+      .attr('r', this.opts.circleProps.defaultRadius * this.opts.circleProps.circleOverlayRadiusMult)
       .attr('cx', d => d.cords.x)
       .attr('cy', d => d.cords.y)
       .attr('opacity', 0.0)
@@ -283,34 +311,22 @@ class Area {
 
     if (this.series.circleHighlight) {
       this.circleOverylays
-        .on('mouseover', this.createOnMouseOverCircle(this))
-        .on('mouseout', this.createMouseOutCirlce(this));
+        .on('mouseover', this.createEventHandler(AREA_EVENT.CIRCLE_ENTER, this))
+        .on('mouseout', this.createEventHandler(AREA_EVENT.CIRCLE_LEAVE, this));
     }
 
     if (this.series.dragEnabled) {
       this.circleOverylays
         .call(d3.drag()
           .subject(function (d) { return this; })
-          .on('drag', this.createOnDraggingCircle())
-          .on('end', this.createOnDragEndCircle())
+          .on('drag', this.createEventHandler(AREA_EVENT.DRAGGING, this))
+          .on('end', this.createEventHandler(AREA_EVENT.DRAGGING_END, this))
         );
     }
 
     this.circles
       .append('svg:title')
       .text(d => d.datum.value);
-  }
-
-  onLegendOver () {
-    if (!this.dragActive) {
-      this.hilightThisArea(this);
-    }
-  }
-
-  onLegendOut () {
-    if (!this.dragActive) {
-      this.hilightThisAreaRemove(this);
-    }
   }
 
   /**
@@ -350,6 +366,25 @@ class Area {
     if (this.series.showCircle) {
       this.renderCircles();
     }
+  }
+
+  /**
+   *
+   */
+  setupZoomInterpolators () {
+    const maxZoom = this.zoomConfig.scaleExtent.maxZoom;
+    this.zlop = {};
+
+    const base = 8;
+    this.zlop.areaLineLop = d3.scaleLog()
+      .base(base)
+      .domain([1, maxZoom])
+      .range([this.opts.lineProps.strokeWidth, this.opts.lineProps.maxZoomStroke]);
+
+    this.zlop.circleRadiusLop = d3.scaleLog()
+      .base(base)
+      .domain([1, maxZoom])
+      .range([this.opts.circleProps.defaultRadius, this.opts.circleProps.maxZoomRadius]);
   }
 
   updatePositions () {
