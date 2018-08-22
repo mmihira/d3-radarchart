@@ -24,6 +24,28 @@ class Axis {
     this.dragActive = false;
     this.axisTickTextElements = [];
     this.calculateAxisParameters();
+
+    if (!opts.axis.tickScale) {
+      this.tickScale = d3.scaleLinear()
+        .domain([100, 1200])
+        .range([5, 20]);
+    } else {
+      this.tickScale = opts.axis.tickScale;
+    }
+
+    this.scaledTickSize = this.tickScale(this.opts.dims.width);
+    this.currentTickSize = this.tickScale(this.opts.dims.width);
+
+    this.tickFontLop = d3.scaleLog()
+      .domain([this.opts.zoomProps.scaleExtent.minZoom, this.opts.zoomProps.scaleExtent.maxZoom])
+      .range([this.scaledTickSize, this.opts.axis.ticks.maxZoomFont]);
+  }
+
+  onZoom (k) {
+    this.currentTickSize = this.tickFontLop(k);
+    this.axisTickTextElements.forEach(e => {
+      d3.select(e).style('font-size', this.currentTickSize);
+    });
   }
 
   calculateAxisParameters () {

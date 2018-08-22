@@ -18,7 +18,6 @@ class Area {
     this.axisMap = opts.axisMap;
     this.series = _.cloneDeep(opts.series);
     this.drawingContext = opts.drawingContext;
-    this.color = d3.scaleOrdinal(d3.schemeAccent);
     this.seriesIdent = opts.seriesIdent;
     this.seriesIndex = opts.seriesIndex;
     this.zoomConfig = opts.zoomProps;
@@ -26,7 +25,24 @@ class Area {
     this.opts.onValueChange = opts.areaOptions.onValueChange;
     this.opts.colorScale = opts.areaOptions.colorScale;
     this.onAreaUpdate = opts.onAreaUpdate;
+
+    // Area legend Labels
     this.label = this.series.label;
+    const words = this.label.split(' ');
+    this.legendLabelLines = [words[0]];
+    this.legendLabelLines = words.slice(1).reduce((acc, word) => {
+      if ((acc[acc.length - 1].length + word.length) <= this.opts.textOverflowWidthLimit) {
+        acc[acc.length - 1] = acc[acc.length - 1] + ' ' + word;
+      } else {
+        acc.push(word);
+      }
+      return acc;
+    }, this.legendLabelLines);
+    this.labelTextLineSpacing = d3.scaleLinear()
+      .domain([100, 1200])
+      .range(this.opts.textLineSpacingRangeLegend);
+    // Will hold the svg elements once created.
+    this.legendLabelEls = [];
 
     this.polygonClassName = `chart-poly-${this.seriesIdent}`;
     this.polygonVertexLables = `poly-lables-${this.seriesIdent}`;
@@ -208,12 +224,28 @@ class Area {
 
   onLegendOver () {
     if (!this.dragActive) {
+      d3.select(this.legendRect)
+        .attr('opacity', 1.0);
+      this.legendLabelEls
+        .map(e => d3.select(e))
+        .forEach(e => {
+          e.attr('fill', this.opts.areaColorScale(this.seriesIndex));
+          e.attr('font-weight', 'bold');
+        });
       this.hilightThisArea(this);
     }
   }
 
   onLegendOut () {
     if (!this.dragActive) {
+      d3.select(this.legendRect)
+        .attr('opacity', 0.7);
+      this.legendLabelEls
+        .map(e => d3.select(e))
+        .forEach(e => {
+          e.attr('fill', e.attr('original-fill'));
+          e.attr('font-weight', 'normal');
+        });
       this.hilightThisAreaRemove(this);
     }
   }
@@ -225,6 +257,7 @@ class Area {
   onZoomUpdateSizes (k) {
     this.opts.lineProps.strokeWidth = this.zlop.areaLineLop(k);
     this.opts.circleProps.defaultRadius = this.zlop.circleRadiusLop(k);
+    this.opts.labelProps.fontSize = this.zlop.fontLop(k);
   }
 
   renderArea () {
@@ -262,7 +295,7 @@ class Area {
       .attr('y', d => d.cords.y)
       .attr('class', this.polygonVertexLables)
       .style('font-family', this.opts.labelProps['font-family'])
-      .style('font-size', this.opts.labelProps['font-size'])
+      .style('font-size', this.opts.labelProps.fontSize)
       .style('opacity', () => {
         return this.isDragActive() ? 1.0 : this.opts.areaHighlightProps.defaultLabelOpacity;
       });
@@ -373,9 +406,6 @@ class Area {
     }
   }
 
-  /**
-   *
-   */
   setupZoomInterpolators () {
     const maxZoom = this.zoomConfig.scaleExtent.maxZoom;
     this.zlop = {};
@@ -390,6 +420,10 @@ class Area {
       .base(base)
       .domain([1, maxZoom])
       .range([this.opts.circleProps.defaultRadius, this.opts.circleProps.maxZoomRadius]);
+
+    this.zlop.fontLop = d3.scaleLog()
+      .domain([1, maxZoom])
+      .range([this.opts.labelProps.fontSize, this.opts.labelProps.maxFontSize]);
   }
 
   updatePositions () {
