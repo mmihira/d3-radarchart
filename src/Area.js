@@ -25,6 +25,7 @@ class Area {
     this.opts.onValueChange = opts.areaOptions.onValueChange;
     this.opts.colorScale = opts.areaOptions.colorScale;
     this.onAreaUpdate = opts.onAreaUpdate;
+    this.dragCoordOffset = {x: 0, y: 0};
 
     // Area legend Labels
     this.label = this.series.label;
@@ -162,6 +163,9 @@ class Area {
     self.axisMap[d.datum.axis].dragActive = true;
 
     let {x: mouseX, y: mouseY} = d3.event;
+
+    mouseX += this.dragCoordOffset.x;
+    mouseY += this.dragCoordOffset.y;
 
     var newX = axis.projectCordToAxis(mouseX, mouseY).x;
     var newY = axis.projectCordToAxis(mouseX, mouseY).y;
@@ -404,6 +408,11 @@ class Area {
     while (this.postRenderQueue.length > 0) {
       this.postRenderQueue.pop()();
     }
+  }
+
+  setDragCoordOffset (xOffset, yOffset) {
+    this.dragCoordOffset.x = xOffset;
+    this.dragCoordOffset.y = yOffset;
   }
 
   setupZoomInterpolators () {

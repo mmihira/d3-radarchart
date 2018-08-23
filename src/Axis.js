@@ -33,6 +33,14 @@ class Axis {
       this.tickScale = opts.axis.tickScale;
     }
 
+    if (!opts.axis.axisTitleScale) {
+      this.axisTitleScale = d3.scaleLinear()
+        .domain([100, 1200])
+        .range([5, 23]);
+    } else {
+      this.axisTitleScale = opts.axis.tickScale;
+    }
+
     this.scaledTickSize = this.tickScale(this.opts.dims.width);
     this.currentTickSize = this.tickScale(this.opts.dims.width);
 

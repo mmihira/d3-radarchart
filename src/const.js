@@ -13,4 +13,27 @@ export const AREA_EVENT = {
   DRAGGING_END: 'DRAGGING_END'
 };
 
+export const browserVendor = (function () {
+  var isOpera = (!!window.opr && !!window.opr.addons) || !!window.opera || navigator.userAgent.indexOf(' OPR/') >= 0;
+  // Firefox 1.0+
+  var isFirefox = typeof InstallTrigger !== 'undefined';
+  // Internet Explorer 6-11
+  var isIE = false || !!document.documentMode;
+  // Edge 20+
+  var isEdge = !isIE && !!window.StyleMedia;
+  // Chrome 1+
+  var isChrome = !!window.chrome && !!window.chrome.webstore;
+  // Blink engine detection
+  var isBlink = (isChrome || isOpera) && !!window.CSS;
+
+  return {
+    isOpera: isOpera,
+    isFirefox: isFirefox,
+    isIE: isIE,
+    isEdge: isEdge,
+    isChrome: isChrome,
+    isBlink: isBlink
+  };
+})();
+
 export const RADIANS = 2 * Math.PI;

@@ -72,7 +72,6 @@ const DEFAULTS_OPTS = function () {
       leftOffsetPLabel: 0.85,
       textOverflow: true,
       textOverflowWidthLimit: 10,
-      scaleTextWithSize: true,
       textLineSpacingPx: 10,
       tickScale: null,
       axisTitleScale: null,
@@ -177,6 +176,7 @@ class RadarChart {
   }
 
   render () {
+    this.setupDrawingArea();
     this.renderAxis();
     this.renderArea();
     if (this.opts.showLegend) {
@@ -184,8 +184,7 @@ class RadarChart {
     }
   }
 
-  renderAxis () {
-    const opts = this.opts;
+  setupDrawingArea () {
     const {
       width,
       height,
@@ -227,6 +226,24 @@ class RadarChart {
         return d3.select(`.root${rootElId}`);
       };
     }.bind(this))();
+  }
+
+  /**
+   * Set this when the element containing the svg is css translated.
+   * Only needs to be set for Firefox because of this bug :
+   * https://bugzilla.mozilla.org/show_bug.cgi?id=972041*
+   * @param xOffset {Number}
+   * @param yOffset {Number}
+   */
+  setDragCoordOffset (xOffset, yOffset) {
+    this.areas.forEach(area => {
+      area.setDragCoordOffset(xOffset, yOffset);
+    });
+  }
+
+  renderAxis () {
+    const opts = this.opts;
+    const { width } = this.opts.dims;
 
     // Circular segments
     for (let lvlInx = 0; lvlInx < opts.levels.levelsNo - 1; lvlInx++) {
@@ -339,11 +356,9 @@ class RadarChart {
     const { axisLabelProps } = this.opts.axis;
     const axisOpts = this.opts.axis;
 
-    if (axisOpts.scaleTextWithSize) {
-      axisOpts.textLineSpacingPx = d3.scaleLinear()
-        .domain([100, 1200])
-        .range([1, 30]);
-    }
+    axisOpts.textLineSpacingPx = d3.scaleLinear()
+      .domain([100, 1200])
+      .range([1, 30]);
 
     if (opts.axis.textOverflow) {
       this.axisText = this.axisG
@@ -363,9 +378,7 @@ class RadarChart {
               })
               .text(lines[i])
               .style('font-family', axisLabelProps['font-family'])
-              .style('font-size', () => {
-                return opts.axis.axisTitleScale(width) + 'px';
-              })
+              .style('font-size', d => d.axisTitleScale(width) + 'px')
               .style('fill', axisLabelProps['fill'])
               .attr('text-anchor', 'middle')
               .each(function (d) { d.labelLines.push(this); });
@@ -377,13 +390,7 @@ class RadarChart {
         .attr('class', 'axis-label')
         .text(d => d.label)
         .style('font-family', axisLabelProps['font-family'])
-        .style('font-size', () => {
-          if (opts.axis.scaleTextWithSize) {
-            return opts.axis.axisTitleScale(width) + 'px';
-          } else {
-            return ticksAttr.fontSize + 'px';
-          }
-        })
+        .style('font-size', d => d.axisTitleScale(width) + 'px')
         .style('fill', axisLabelProps['fill'])
         .attr('text-anchor', 'middle')
         .attr('dy', '1.5em')
@@ -480,7 +487,6 @@ class RadarChart {
             .append('tspan')
             .attr('x', width - (legendW * (1 + legendOpts.legendWOverlap)) * legendOpts.textOffsetP)
             .attr('y', d => z * legendOpts.iconSpacing + legendOpts.textYOffset)
-
             .attr('dy', d => {
               return d.labelTextLineSpacing(width) * i;
             })
