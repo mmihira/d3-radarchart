@@ -4,7 +4,7 @@ import {
   QUAD_1,
   QUAD_2
 } from './Axis.js';
-import { AREA_STATE, AREA_EVENT } from './const.js';
+import { AREA_STATE, AREA_EVENT, browserVendor } from './const.js';
 
 /**
  * The area represents the radar chat area for a particular series.
@@ -22,6 +22,7 @@ class Area {
     this.seriesIndex = opts.seriesIndex;
     this.zoomConfig = opts.zoomProps;
     this.opts = _.cloneDeep(opts.areaOptions);
+    this.dims = opts.dims;
     this.opts.onValueChange = opts.areaOptions.onValueChange;
     this.opts.colorScale = opts.areaOptions.colorScale;
     this.onAreaUpdate = opts.onAreaUpdate;
@@ -46,7 +47,7 @@ class Area {
     this.legendLabelEls = [];
 
     this.polygonClassName = `chart-poly-${this.seriesIdent}`;
-    this.polygonVertexLables = `poly-lables-${this.seriesIdent}`;
+    this.polygonVertexLables = `poly-labels-${this.seriesIdent}`;
     this.circleOverlayClassName = `circle-overlay${this.seriesIdent}`;
     this.circleClassName = `circle-${this.seriesIdent}`;
 
@@ -116,7 +117,7 @@ class Area {
           }
           break;
         case AREA_EVENT.DRAGGING:
-          self.draggingActions(d, self);
+          self.draggingActions(d, self, this);
           break;
         case AREA_EVENT.DRAGGING_END:
           self.axisMap[d.datum.axis].dragActive = false;
@@ -157,15 +158,37 @@ class Area {
     };
   }
 
-  draggingActions (d, self) {
+  draggingActions (d, self, elementContext) {
     var axis = self.axisMap[d.datum.axis];
     self.axisMap[d.datum.axis].onRectMouseOver();
     self.axisMap[d.datum.axis].dragActive = true;
 
     let {x: mouseX, y: mouseY} = d3.event;
 
-    mouseX += this.dragCoordOffset.x;
-    mouseY += this.dragCoordOffset.y;
+    /**
+     * Firefox doesn't include ancestor transformations in calculating
+     * the current transformation matrix. So we have to compensate
+     * for that manually.
+     * https://github.com/d3/d3-selection/issues/81*
+     * https://bugzilla.mozilla.org/show_bug.cgi?id=972041*
+     */
+    if (browserVendor.isFirefox) {
+      let svgEl = this.drawingContext().nodes()[0].parentNode;
+      let eventPoint = svgEl.createSVGPoint();
+      let transformationMatrix = svgEl.createSVGMatrix();
+
+      transformationMatrix.e = svgEl.parentNode.getBoundingClientRect().x;
+      transformationMatrix.f = svgEl.parentNode.getBoundingClientRect().y;
+      transformationMatrix = transformationMatrix.multiply(elementContext.getCTM());
+
+      eventPoint.x = d3.event.sourceEvent.clientX;
+      eventPoint.y = d3.event.sourceEvent.clientY;
+
+      eventPoint = eventPoint.matrixTransform(transformationMatrix.inverse());
+
+      mouseX = eventPoint.x;
+      mouseY = eventPoint.y;
+    }
 
     var newX = axis.projectCordToAxis(mouseX, mouseY).x;
     var newY = axis.projectCordToAxis(mouseX, mouseY).y;
@@ -299,7 +322,7 @@ class Area {
       .attr('y', d => d.cords.y)
       .attr('class', this.polygonVertexLables)
       .style('font-family', this.opts.labelProps['font-family'])
-      .style('font-size', this.opts.labelProps.fontSize)
+      .style('font-size', this.opts.labelProps.fontSize + 'px')
       .style('opacity', () => {
         return this.isDragActive() ? 1.0 : this.opts.areaHighlightProps.defaultLabelOpacity;
       });
@@ -372,28 +395,33 @@ class Area {
    */
   remove () {
     if (this.series.showCircle) {
-      this.circleOverylays.each(function (d) {
-        d3.select(d.circleRef)
-          .on('mouseover', null)
-          .on('mouseout', null)
-          .on('drag', null)
-          .on('end', null)
-          .remove();
-      });
-      this.circles.each(function (d) {
-        d3.select(d.circleRef)
-          .remove();
-      });
+      d3.selectAll('.' + this.circleOverlayClassName)
+        .on('mouseover', null)
+        .on('mouseout', null)
+        .on('drag', null)
+        .on('end', null)
+        .data([])
+        .exit()
+        .remove();
+      d3.selectAll('.' + this.circleClassName)
+        .data([])
+        .exit()
+        .remove();
     }
+    this.circles = [];
+    this.circleOverylays = [];
     this.removeArea();
+    console.warn('>>>', this.drawingContext().nodes()[0].children.length);
   }
 
   removeArea () {
-    this.area
+    d3.selectAll('.' + this.polygonClassName)
       .on('mouseover', null)
-      .on('mouseout', null);
+      .on('mouseout', null)
+      .data([])
+      .exit()
+      .remove();
     this.areaVertexLabels.remove();
-    this.area.remove();
   }
 
   /**

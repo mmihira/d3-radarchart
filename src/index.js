@@ -2,6 +2,7 @@ import * as d3 from 'd3';
 import * as _ from 'lodash';
 import Area from './Area.js';
 import Axis from './Axis.js';
+import { browserVendor } from './const.js';
 
 /**
  * Based of
@@ -136,6 +137,18 @@ class RadarChart {
     this.rootElId = this.rootElement.attr('id');
     this.setOps(opts);
     this.areas = [];
+
+    this.axisRectClassName = 'axis-rect-overlay';
+  }
+
+
+  render () {
+    this.setupDrawingArea();
+    this.renderAxis();
+    this.renderArea();
+    if (this.opts.showLegend) {
+      this.renderLegend();
+    }
   }
 
   /**
@@ -175,15 +188,6 @@ class RadarChart {
       }, {});
   }
 
-  render () {
-    this.setupDrawingArea();
-    this.renderAxis();
-    this.renderArea();
-    if (this.opts.showLegend) {
-      this.renderLegend();
-    }
-  }
-
   setupDrawingArea () {
     const {
       width,
@@ -205,6 +209,27 @@ class RadarChart {
     if (this.opts.enableZoom) {
       this.zoom = d3.zoom()
         .on('zoom', (d) => {
+          // d3 zoom on firefox zooms gradient is too much so constraint and
+          // reset every time on zoom.
+          if (browserVendor.isFirefox) {
+            const k = d3.event.transform.k;
+            const minZoom = k > this.opts.zoomProps.scaleExtent.minZoom ? k * 0.1 : this.opts.zoomProps.scaleExtent.minZoom;
+            const maxZoom = k < this.opts.zoomProps.scaleExtent.maxZoom ? k * 1.1 : this.opts.zoomProps.scaleExtent.maxZoom;
+            this.zoom.scaleExtent([minZoom, maxZoom]);
+
+            this.drawingContext().attr('transform', d3.event.transform);
+            console.warn(k);
+            this.areas.forEach(area => area.onZoomUpdateSizes(k));
+            this.axisParameters.forEach(axis => axis.onZoom(k));
+            this.onUpdateArea();
+          } else {
+            this.drawingContext().attr('transform', d3.event.transform);
+            console.warn(d3.event.transform.k);
+            this.areas.forEach(area => area.onZoomUpdateSizes(d3.event.transform.k));
+            this.axisParameters.forEach(axis => axis.onZoom(d3.event.transform.k));
+            this.onUpdateArea();
+          }
+
           this.drawingContext().attr('transform', d3.event.transform);
           this.areas.forEach(area => area.onZoomUpdateSizes(d3.event.transform.k));
           this.axisParameters.forEach(axis => axis.onZoom(d3.event.transform.k));
@@ -342,7 +367,7 @@ class RadarChart {
 
     this.rects = this.axisG
       .append('rect')
-      .attr('class', 'overlay')
+      .attr('class', this.axisRectClassName)
       .attr('x', d => d.x1)
       .attr('y', d => d.y1)
       .attr('transform', (d, i) => 'rotate(' + d.angleFromNorth + ',' + d.x1 + ',' + d.y1 + ')')
@@ -404,6 +429,7 @@ class RadarChart {
   renderArea () {
     this.areas = this.data.map((series, inx) => new Area({
       axisMap: this.axisMap,
+      dims: this.opts.dims,
       series: series,
       drawingContext: this.drawingContext,
       seriesIdent: `${inx}${this.rootElId}`,
@@ -551,12 +577,12 @@ class RadarChart {
   removeAxis () {
     this.axisLines.remove();
     this.axisText.remove();
-    this.rects.each(function (d) {
-      d3.select(d.axisRect)
-        .on('mouseover', null)
-        .on('mouseout', null)
-        .remove();
-    });
+    d3.selectAll('.' + this.axisRectClassName)
+      .on('mouseover', null)
+      .on('mouseout', null)
+      .data([])
+      .exit()
+      .remove();
   }
 
   /**
