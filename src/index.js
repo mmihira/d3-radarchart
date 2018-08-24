@@ -141,7 +141,6 @@ class RadarChart {
     this.axisRectClassName = 'axis-rect-overlay';
   }
 
-
   render () {
     this.setupDrawingArea();
     this.renderAxis();
@@ -218,16 +217,12 @@ class RadarChart {
             this.zoom.scaleExtent([minZoom, maxZoom]);
 
             this.drawingContext().attr('transform', d3.event.transform);
-            console.warn(k);
             this.areas.forEach(area => area.onZoomUpdateSizes(k));
             this.axisParameters.forEach(axis => axis.onZoom(k));
-            this.onUpdateArea();
           } else {
             this.drawingContext().attr('transform', d3.event.transform);
-            console.warn(d3.event.transform.k);
             this.areas.forEach(area => area.onZoomUpdateSizes(d3.event.transform.k));
             this.axisParameters.forEach(axis => axis.onZoom(d3.event.transform.k));
-            this.onUpdateArea();
           }
 
           this.drawingContext().attr('transform', d3.event.transform);

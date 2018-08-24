@@ -75,6 +75,10 @@ class Area {
     this.hilightThisArea = this.hilightThisArea.bind(this);
     this.state = AREA_STATE.NEUTRAL;
     this.postRenderQueue = [];
+    this.draggingParams = {
+      tFMatrix: null,
+      svgEl: null
+    };
   }
 
   /**
@@ -116,8 +120,21 @@ class Area {
             self.state = AREA_STATE.CIRCLE_LEAVE_WHILE_DRAGGING;
           }
           break;
+        case AREA_EVENT.DRAGGING_START:
+          if (browserVendor.isFirefox) {
+            const ctm = this.getCTM();
+            let svgEl = self.drawingContext().nodes()[0].parentNode;
+            let transformationMatrix = svgEl.createSVGMatrix();
+
+            transformationMatrix.e = svgEl.parentNode.getBoundingClientRect().x;
+            transformationMatrix.f = svgEl.parentNode.getBoundingClientRect().y;
+            transformationMatrix = transformationMatrix.multiply(ctm);
+            self.draggingParams.tFMatrix = transformationMatrix.inverse();
+            self.draggingParams.svgEl = svgEl;
+          }
+          break;
         case AREA_EVENT.DRAGGING:
-          self.draggingActions(d, self, this);
+          self.draggingActions(d, self);
           break;
         case AREA_EVENT.DRAGGING_END:
           self.axisMap[d.datum.axis].dragActive = false;
@@ -129,7 +146,7 @@ class Area {
           self.state = AREA_STATE.NEUTRAL;
           self.postRenderQueue.push(() => self.hilightThisAreaRemove());
           self.updatePositions();
-
+          self.ctm = null;
           break;
       }
     };
@@ -158,7 +175,7 @@ class Area {
     };
   }
 
-  draggingActions (d, self, elementContext) {
+  draggingActions (d, self) {
     var axis = self.axisMap[d.datum.axis];
     self.axisMap[d.datum.axis].onRectMouseOver();
     self.axisMap[d.datum.axis].dragActive = true;
@@ -173,18 +190,12 @@ class Area {
      * https://bugzilla.mozilla.org/show_bug.cgi?id=972041*
      */
     if (browserVendor.isFirefox) {
-      let svgEl = this.drawingContext().nodes()[0].parentNode;
-      let eventPoint = svgEl.createSVGPoint();
-      let transformationMatrix = svgEl.createSVGMatrix();
-
-      transformationMatrix.e = svgEl.parentNode.getBoundingClientRect().x;
-      transformationMatrix.f = svgEl.parentNode.getBoundingClientRect().y;
-      transformationMatrix = transformationMatrix.multiply(elementContext.getCTM());
+      let eventPoint = self.draggingParams.svgEl.createSVGPoint();
 
       eventPoint.x = d3.event.sourceEvent.clientX;
       eventPoint.y = d3.event.sourceEvent.clientY;
 
-      eventPoint = eventPoint.matrixTransform(transformationMatrix.inverse());
+      eventPoint = eventPoint.matrixTransform(self.draggingParams.tFMatrix);
 
       mouseX = eventPoint.x;
       mouseY = eventPoint.y;
@@ -380,6 +391,7 @@ class Area {
       this.circleOverylays
         .call(d3.drag()
           .subject(function (d) { return this; })
+          .on('start', this.createEventHandler(AREA_EVENT.DRAGGING_START, this))
           .on('drag', this.createEventHandler(AREA_EVENT.DRAGGING, this))
           .on('end', this.createEventHandler(AREA_EVENT.DRAGGING_END, this))
         );
@@ -411,7 +423,6 @@ class Area {
     this.circles = [];
     this.circleOverylays = [];
     this.removeArea();
-    console.warn('>>>', this.drawingContext().nodes()[0].children.length);
   }
 
   removeArea () {
