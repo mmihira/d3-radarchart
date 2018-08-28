@@ -180,11 +180,10 @@ class RadarChart {
     this.axisConfig = this.opts.axis.config;
 
     this.axisParameters = this.axisConfig.map((axis, inx) => new Axis(this.opts, axis, inx));
-    this.axisMap = this.axisParameters
-      .reduce((map, ix) => {
-        map[ix.axis] = ix;
-        return map;
-      }, {});
+    this.axisMap = this.axisParameters.reduce((map, ix) => {
+      map[ix.axis] = ix;
+      return map;
+    }, {});
   }
 
   setupDrawingArea () {
@@ -207,7 +206,7 @@ class RadarChart {
 
     if (this.opts.enableZoom) {
       this.zoom = d3.zoom()
-        .on('zoom', (d) => {
+        .on('zoom', d => {
           // d3 zoom on firefox zooms gradient is too much so constraint and
           // reset every time on zoom.
           if (browserVendor.isFirefox) {
@@ -225,9 +224,6 @@ class RadarChart {
             this.axisParameters.forEach(axis => axis.onZoom(d3.event.transform.k));
           }
 
-          this.drawingContext().attr('transform', d3.event.transform);
-          this.areas.forEach(area => area.onZoomUpdateSizes(d3.event.transform.k));
-          this.axisParameters.forEach(axis => axis.onZoom(d3.event.transform.k));
           this.onUpdateArea();
         })
         .translateExtent([[0, 0], [width, height]])
@@ -236,8 +232,7 @@ class RadarChart {
           this.opts.zoomProps.scaleExtent.maxZoom
         ]);
 
-      this.rootSvg
-        .call(this.zoom);
+      this.rootSvg.call(this.zoom);
     }
 
     this.drawingContext = (function () {
@@ -246,19 +241,6 @@ class RadarChart {
         return d3.select(`.root${rootElId}`);
       };
     }.bind(this))();
-  }
-
-  /**
-   * Set this when the element containing the svg is css translated.
-   * Only needs to be set for Firefox because of this bug :
-   * https://bugzilla.mozilla.org/show_bug.cgi?id=972041*
-   * @param xOffset {Number}
-   * @param yOffset {Number}
-   */
-  setDragCoordOffset (xOffset, yOffset) {
-    this.areas.forEach(area => {
-      area.setDragCoordOffset(xOffset, yOffset);
-    });
   }
 
   renderAxis () {

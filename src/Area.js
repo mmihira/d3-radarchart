@@ -449,11 +449,6 @@ class Area {
     }
   }
 
-  setDragCoordOffset (xOffset, yOffset) {
-    this.dragCoordOffset.x = xOffset;
-    this.dragCoordOffset.y = yOffset;
-  }
-
   setupZoomInterpolators () {
     const maxZoom = this.zoomConfig.scaleExtent.maxZoom;
     this.zlop = {};
