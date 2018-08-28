@@ -1,5 +1,5 @@
 {
-  "name": "d3-RadarChart",
+  "name": "d3-radarchart",
   "version": "0.1.1",
   "description": "D3 Radar chart",
   "main": "src/index.js",
