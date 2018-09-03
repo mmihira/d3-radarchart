@@ -57,8 +57,7 @@ const DEFAULTS_OPTS = function () {
       }
     },
     levels: {
-      levelsNo: 2,
-      noTicks: 3,
+      levelsFractions: [0.25, 0.5, 0.75],
       levelsColor: null
     },
     point: {
@@ -248,34 +247,33 @@ class RadarChart {
     const { width } = this.opts.dims;
 
     // Circular segments
-    for (let lvlInx = 0; lvlInx < opts.levels.levelsNo - 1; lvlInx++) {
-      let tickNos = opts.levels.levelsNo;
-
+    for (let lvlInx = 0; lvlInx < opts.levels.levelsFractions.length; lvlInx++) {
+      const { levelsFractions } = this.opts.levels;
       this.drawingContext().selectAll('.levels')
         .data(this.axisParameters)
         .enter()
         .append('svg:line')
         .attr('x1', (d, i) => {
-          let tickValue = (d.maxValue / tickNos) * (lvlInx + 1);
+          let tickValue = d.range * levelsFractions[lvlInx] + d.minValue;
           let cordsOnAxis = d.projectValueOnAxis(tickValue);
           return cordsOnAxis.x;
         })
         .attr('y1', (d, i) => {
-          let tickValue = (d.maxValue / tickNos) * (lvlInx + 1);
+          let tickValue = d.range * levelsFractions[lvlInx] + d.minValue;
           let cordsOnAxis = d.projectValueOnAxis(tickValue);
           return cordsOnAxis.y;
         })
         .attr('x2', (d, i) => {
           let nxtInx = i + 1 === this.axisParameters.length ? 0 : (i + 1);
           let nAxis = this.axisParameters[nxtInx];
-          let nValue = (nAxis.maxValue / tickNos) * (lvlInx + 1);
+          let nValue = nAxis.range * levelsFractions[lvlInx] + nAxis.minValue;
           let nCordAxis = nAxis.projectValueOnAxis(nValue);
           return nCordAxis.x;
         })
         .attr('y2', (d, i) => {
           let nxtInx = i + 1 === this.axisParameters.length ? 0 : (i + 1);
           let nAxis = this.axisParameters[nxtInx];
-          let nValue = (nAxis.maxValue / tickNos) * (lvlInx + 1);
+          let nValue = nAxis.range * levelsFractions[lvlInx] + nAxis.minValue;
           let nCordAxis = nAxis.projectValueOnAxis(nValue);
           return nCordAxis.y;
         })
@@ -296,8 +294,8 @@ class RadarChart {
     }
 
     // Text indicating at what % each level is
-    for (let lvlInx = 0; lvlInx < opts.levels.levelsNo; lvlInx++) {
-      let tickNos = opts.levels.levelsNo;
+    for (let lvlInx = 0; lvlInx < opts.levels.levelsFractions.length; lvlInx++) {
+      const { levelsFractions } = this.opts.levels;
 
       this.drawingContext()
         .selectAll('.levels')
@@ -305,12 +303,12 @@ class RadarChart {
         .enter()
         .append('svg:text')
         .attr('x', (d) => {
-          let tickValue = (d.maxValue / tickNos) * (lvlInx + 1);
+          let tickValue = d.range * levelsFractions[lvlInx] + d.minValue;
           let cordsOnAxis = d.projectValueOnAxis(tickValue);
           return cordsOnAxis.x;
         })
         .attr('y', (d) => {
-          let tickValue = (d.maxValue / tickNos) * (lvlInx + 1);
+          let tickValue = d.range * levelsFractions[lvlInx] + d.minValue;
           let cordsOnAxis = d.projectValueOnAxis(tickValue);
           return cordsOnAxis.y;
         })
@@ -319,7 +317,7 @@ class RadarChart {
         .style('font-size', d => d.scaledTickSize + 'px')
         .style('opacity', 0.0)
         .attr('fill', ticksAttr['fill'])
-        .text(function (d) { return Format((d.maxValue / tickNos) * (lvlInx + 1) / d.maxValue); })
+        .text(d => Format(levelsFractions[lvlInx]))
         .each(function (d) { d.axisTickTextElements.push(this); });
     }
 

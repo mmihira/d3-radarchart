@@ -102,6 +102,9 @@ class Axis {
     };
 
     this.maxValue = opts.axis.useGlobalMax ? opts.axis.maxValue : axisOptions.axisValueMax;
+    this.minValue = opts.axis.useGlobalMax || isNaN(axisOptions.axisValueMin) ? 0 : axisOptions.axisValueMin;
+    console.warn(this.minValue);
+    this.range = this.maxValue - this.minValue;
     this.axisLength = Math.sqrt(Math.pow((x2 - x1), 2) + Math.pow((y2 - y1), 2));
     this.angleFromNorth = (180 / Math.PI) * (1 - axisIndex * RADIANS / maxAxisNo) - (180 / Math.PI) - 90 - (180 / Math.PI * 10 / this.axisLength / 2);
 
@@ -137,20 +140,20 @@ class Axis {
     this.projectCordToAxis = projectCordToAxis;
     this.projectValueOnAxis = function (value) {
       return {
-        x: optsLeftChartOffset + ((innerW / 2) * (1 - (parseFloat(Math.max(value, 0)) / this.maxValue) * projectValueOnAxisXMultTerm)),
-        y: optsTopChartOffset + ((innerH / 2) * (1 - (parseFloat(Math.max(value, 0)) / this.maxValue) * projectValueOnAxisYMultTerm))
+        x: optsLeftChartOffset + (innerW / 2) * (1 - ((parseFloat(value) - this.minValue) / this.range) * projectValueOnAxisXMultTerm),
+        y: optsTopChartOffset + (innerH / 2) * (1 - ((parseFloat(value) - this.minValue) / this.range) * projectValueOnAxisYMultTerm)
       };
     };
 
     this.cordOnAxisToValue = function (x, y) {
       if (this.gradient === Infinity) {
         let len = Math.abs(this.y2 - y);
-        return (this.axisLength - len) * this.maxValue / this.axisLength;
+        return this.minValue + (this.axisLength - len) * this.range / this.axisLength;
       } else if (this.gradient >= 0 && this.gradient < 0.00000001) {
         let len = Math.abs(this.x2 - x);
-        return (this.axisLength - len) * this.maxValue / this.axisLength;
+        return this.minValue + (this.axisLength - len) * this.range / this.axisLength;
       } else {
-        return (2 * (x - optsLeftChartOffset) / innerW - 1) * (this.maxValue / projectValueOnAxisXMultTerm) * -1;
+        return this.minValue + (2 * (x - optsLeftChartOffset) / innerW - 1) * (this.range / projectValueOnAxisXMultTerm) * -1;
       }
     };
   }
