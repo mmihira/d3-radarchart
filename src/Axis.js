@@ -103,7 +103,6 @@ class Axis {
 
     this.maxValue = opts.axis.useGlobalMax ? opts.axis.maxValue : axisOptions.axisValueMax;
     this.minValue = opts.axis.useGlobalMax || isNaN(axisOptions.axisValueMin) ? 0 : axisOptions.axisValueMin;
-    console.warn(this.minValue);
     this.range = this.maxValue - this.minValue;
     this.axisLength = Math.sqrt(Math.pow((x2 - x1), 2) + Math.pow((y2 - y1), 2));
     this.angleFromNorth = (180 / Math.PI) * (1 - axisIndex * RADIANS / maxAxisNo) - (180 / Math.PI) - 90 - (180 / Math.PI * 10 / this.axisLength / 2);
