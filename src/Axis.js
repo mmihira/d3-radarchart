@@ -36,24 +36,53 @@ class Axis {
     if (!opts.axis.axisTitleScale) {
       this.axisTitleScale = d3.scaleLinear()
         .domain([100, 1200])
-        .range([5, 23]);
+        .range([5, 18]);
     } else {
       this.axisTitleScale = opts.axis.tickScale;
     }
 
-    this.scaledTickSize = this.tickScale(this.opts.dims.width);
-    this.currentTickSize = this.tickScale(this.opts.dims.width);
+    const {width} = this.opts.dims;
 
-    this.tickFontLop = d3.scaleLog()
-      .domain([this.opts.zoomProps.scaleExtent.minZoom, this.opts.zoomProps.scaleExtent.maxZoom])
-      .range([this.scaledTickSize, this.opts.axis.ticks.maxZoomFont]);
+    this.scaledTickSize = this.tickScale(width);
+    this.scaledTitleSize = this.axisTitleScale(width);
+    this.currentTickSize = this.tickScale(width);
+
+    this.textLineSpacingPx = d3.scaleLinear()
+      .domain([100, 1200])
+      .range([1, 20]);
+
+    this.setupZoomInterpolators();
   }
 
   onZoom (k) {
     this.currentTickSize = this.tickFontLop(k);
     this.axisTickTextElements.forEach(e => {
-      d3.select(e).style('font-size', this.currentTickSize);
+      d3.select(e).style('font-size', this.currentTickSize + 'px');
     });
+
+    let newLabelY, newLabelX, titleSize, labelLineS;
+    if (k > 2) {
+      newLabelX = this.projectValueOnAxis(this.minValue + this.range * this.axisLabelFactorLop(k)).x;
+      newLabelY = this.projectValueOnAxis(this.minValue + this.range * this.axisLabelFactorLop(k)).y;
+      titleSize = this.axisTitleSizeLopMin(k) + 'px';
+      labelLineS = this.labelLineSpaceLopMin(k);
+    } else {
+      newLabelX = this.axisLabelCords().x;
+      newLabelY = this.axisLabelCords().y;
+      titleSize = this.axisTitleSizeLop(k) + 'px';
+      labelLineS = this.labelLineSpacingLop(k);
+    }
+
+    d3.selectAll(this.labelLines)
+      .attr('x', newLabelX)
+      .attr('y', newLabelY)
+      .attr('dy', (d, i) => labelLineS * i)
+      .style('font-size', titleSize);
+
+    d3.select(this.axisLabelEl)
+      .attr('transform', () => {
+        return 'rotate(' + this.axisLabelRotation() + ',' + newLabelX + ',' + newLabelY + ')';
+      });
   }
 
   calculateAxisParameters () {
@@ -81,8 +110,8 @@ class Axis {
       this.quad = QUAD_4;
     }
 
-    const labelX = (innerW / 2) * (1 - opts.axis.leftOffsetPLabel * Math.sin(axisIndex * RADIANS / maxAxisNo)) - 60 * Math.sin(axisIndex * RADIANS / maxAxisNo) + optsLeftChartOffset;
-    const labelY = (innerH / 2) * (1 - Math.cos(axisIndex * RADIANS / maxAxisNo)) - 20 * Math.cos(axisIndex * RADIANS / maxAxisNo) + optsTopChartOffset;
+    const labelX = x2;
+    const labelY = y2;
 
     // Note the gradients are inversed because of the SVG co-ordinate system.
     const gradient = Math.abs(x2 - x1) < 0.000000001 ? Infinity : (y2 - y1) / (x2 - x1);
@@ -110,20 +139,17 @@ class Axis {
     this.axis = axisOptions.axisId;
     this.label = axisOptions.label ? axisOptions.label : axisOptions.axisId;
 
-    if (this.opts.axis.textOverflow) {
-      this.textLineSpacingPx = this.opts.axis.textLineSpacingPx;
-      this.labelLines = [];
-      this.words = this.label.split(' ');
-      this.lines = [this.words[0]];
-      this.lines = this.words.slice(1).reduce((acc, word) => {
-        if ((acc[acc.length - 1].length + word.length) <= this.opts.axis.textOverflowWidthLimit) {
-          acc[acc.length - 1] = acc[acc.length - 1] + ' ' + word;
-        } else {
-          acc.push(word);
-        }
-        return acc;
-      }, this.lines);
-    }
+    this.labelLines = [];
+    this.words = this.label.split(' ');
+    this.lines = [this.words[0]];
+    this.lines = this.words.slice(1).reduce((acc, word) => {
+      if ((acc[acc.length - 1].length + word.length) <= this.opts.axis.textOverflowWidthLimit) {
+        acc[acc.length - 1] = acc[acc.length - 1] + ' ' + word;
+      } else {
+        acc.push(word);
+      }
+      return acc;
+    }, this.lines);
 
     this.x1 = x1;
     this.y1 = y1;
@@ -172,6 +198,60 @@ class Axis {
         .transition(200)
         .style('opacity', 0.0);
     });
+  }
+
+  axisLabelRotation () {
+    if (this.angleFromNorth > -270.0) {
+      return this.angleFromNorth - 180;
+    } else {
+      return this.angleFromNorth;
+    }
+  }
+
+  axisLabelCords (zoomK) {
+    if (!zoomK) {
+      return this.projectValueOnAxis(
+        this.axisLabelCordLop(this.opts.zoomProps.scaleExtent.minZoom)
+      );
+    } else {
+      return this.projectValueOnAxis(this.axisLabelCordLop(zoomK));
+    }
+  }
+
+  setupZoomInterpolators () {
+    const { maxZoom, minZoom } = this.opts.zoomProps.scaleExtent;
+    const {width} = this.opts.dims;
+
+    this.axisTitleSizeLop = d3.scaleLog()
+      .base(5)
+      .domain([minZoom, maxZoom])
+      .range([this.scaledTitleSize, this.scaledTitleSize * 0.1]);
+
+    this.axisTitleSizeLopMin = d3.scaleLog()
+      .base(5)
+      .domain([minZoom, maxZoom])
+      .range([5, 2]);
+
+    this.tickFontLop = d3.scaleLog()
+      .domain([minZoom, maxZoom])
+      .range([this.scaledTickSize, this.opts.axis.ticks.maxZoomFont]);
+
+    this.axisLabelCordLop = d3.scaleLog()
+      .base(20)
+      .domain([minZoom, maxZoom])
+      .range([this.maxValue, this.minValue]);
+
+    this.axisLabelFactorLop = d3.scaleLog()
+      .domain([minZoom, maxZoom])
+      .range([0.2, 0.1]);
+
+    this.labelLineSpacingLop = d3.scaleLinear()
+      .domain([minZoom, maxZoom])
+      .range([this.textLineSpacingPx(width), this.textLineSpacingPx(width) * 0.1]);
+
+    this.labelLineSpaceLopMin = d3.scaleLinear()
+      .domain([minZoom, maxZoom])
+      .range([this.textLineSpacingPx(width) * 0.5, this.textLineSpacingPx(width) * 0.3 * 0.5]);
   }
 }
 

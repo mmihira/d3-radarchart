@@ -1,7 +1,7 @@
 var axisConfig = [
   {axisId: "Conscientiousness", axisValueMax: 4, axisValueMin: 2},
   {axisId: "Neuroticism", axisValueMax: 1, axisValueMin: 0},
-  {axisId: "Agreeableness", axisValueMax: 1, axisValueMin: 0},
+  {axisId: "test spacing two three", axisValueMax: 1, axisValueMin: 0},
   {axisId: "Openness", axisValueMax: 1, axisValueMin: 0},
   {axisId: "Extraversion", axisValueMax: 1, axisValueMin: 0}
 ];
@@ -14,7 +14,7 @@ var data = [
     data: [
       {axis: "Conscientiousness", value: 3.8},
       {axis: "Neuroticism", value: 0.1},
-      {axis: "Agreeableness", value: 0.7},
+      {axis: "test spacing two three", value: 0.7},
       {axis: "Openness", value: 0.6},
       {axis: "Extraversion", value: 0.5}
     ]
@@ -27,7 +27,7 @@ var data = [
     data: [
       {axis: "Conscientiousness", value: 2.5},
       {axis: "Neuroticism", value: 0.7},
-      {axis: "Agreeableness", value: 0.2},
+      {axis: "test spacing two three", value: 0.2},
       {axis: "Openness", value: 0.3},
       {axis: "Extraversion", value: 0.2}
     ]

@@ -70,7 +70,7 @@ const DEFAULTS_OPTS = function () {
       useGlobalMax: false,
       maxValue: 0.6,
       leftOffsetPLabel: 0.85,
-      textOverflow: true,
+      rotateTextWithAxis: true,
       textOverflowWidthLimit: 10,
       textLineSpacingPx: 10,
       tickScale: null,
@@ -287,12 +287,6 @@ class RadarChart {
 
     const ticksAttr = opts.axis.ticks;
 
-    if (!opts.axis.axisTitleScale) {
-      opts.axis.axisTitleScale = d3.scaleLinear()
-        .domain([100, 1200])
-        .range([5, 23]);
-    }
-
     // Text indicating at what % each level is
     for (let lvlInx = 0; lvlInx < opts.levels.levelsFractions.length; lvlInx++) {
       const { levelsFractions } = this.opts.levels;
@@ -354,51 +348,38 @@ class RadarChart {
       .each(function (datum) { datum.axisRect = this; });
 
     const { axisLabelProps } = this.opts.axis;
-    const axisOpts = this.opts.axis;
 
-    axisOpts.textLineSpacingPx = d3.scaleLinear()
-      .domain([100, 1200])
-      .range([1, 30]);
-
-    if (opts.axis.textOverflow) {
-      this.axisText = this.axisG
-        .append('text')
-        .attr('class', 'axis-label')
-        .attr('pointer-events', 'none')
-        .text('')
-        .each(function (d) {
-          var lines = d.lines;
-          for (var i = 0; i < lines.length; i++) {
-            d3.select(this)
-              .append('tspan')
-              .attr('x', d => d.labelX)
-              .attr('y', d => d.labelY)
-              .attr('dy', d => {
-                return axisOpts.textLineSpacingPx(width) * i;
-              })
-              .text(lines[i])
-              .style('font-family', axisLabelProps['font-family'])
-              .style('font-size', d => d.axisTitleScale(width) + 'px')
-              .style('fill', axisLabelProps['fill'])
-              .attr('text-anchor', 'middle')
-              .each(function (d) { d.labelLines.push(this); });
-          }
-        });
-    } else {
-      this.axisText = this.axisG
-        .append('text')
-        .attr('class', 'axis-label')
-        .text(d => d.label)
-        .style('font-family', axisLabelProps['font-family'])
-        .style('font-size', d => d.axisTitleScale(width) + 'px')
-        .style('fill', axisLabelProps['fill'])
-        .attr('text-anchor', 'middle')
-        .attr('dy', '1.5em')
-        .attr('transform', () => 'translate(0, -10)')
-        .attr('x', d => d.labelX)
-        .attr('y', d => d.labelY)
-        .attr('pointer-events', 'none');
-    }
+    this.axisText = this.axisG
+      .append('text')
+      .attr('class', 'axis-label')
+      .attr('pointer-events', 'none')
+      .attr('transform', (d, i) => {
+        if (this.opts.axis.rotateTextWithAxis) {
+          return 'rotate(' + d.axisLabelRotation() + ',' + d.x2 + ',' + d.y2 + ')';
+        } else {
+          return '';
+        }
+      })
+      .text('')
+      .each(function (d) {
+        d.axisLabelEl = this;
+        var lines = d.lines;
+        for (var i = 0; i < lines.length; i++) {
+          d3.select(this)
+            .append('tspan')
+            .attr('x', d => d.axisLabelCords().x)
+            .attr('y', d => d.axisLabelCords().y)
+            .attr('dy', d => {
+              return d.textLineSpacingPx(width) * i;
+            })
+            .text(lines[i])
+            .style('font-family', axisLabelProps['font-family'])
+            .style('font-size', d => d.axisTitleScale(width) + 'px')
+            .style('fill', axisLabelProps['fill'])
+            .attr('text-anchor', 'middle')
+            .each(function (d) { d.labelLines.push(this); });
+        }
+      });
   }
 
   renderArea () {
