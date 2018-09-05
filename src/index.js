@@ -278,7 +278,7 @@ class RadarChart {
           return nCordAxis.y;
         })
         .attr('class', 'line')
-        .style('stroke', 'grey')
+        .style('stroke', '#DCDCDC')
         .style('stroke-opacity', '0.75')
         .style('stroke-width', '0.3px');
     }
@@ -322,15 +322,14 @@ class RadarChart {
       .append('g');
 
     this.axisLines = this.axisG
-      .attr('class', 'axis')
       .append('line')
+      .attr('class', 'axisline')
       .attr('x1', d => d.x1)
       .attr('y1', d => d.y1)
       .attr('x2', d => d.x2)
       .attr('y2', d => d.y2)
-      .attr('class', 'line')
       .attr('pointer-events', 'none')
-      .style('stroke', 'grey')
+      .style('stroke', '#E0E0E0')
       .style('stroke-opacity', 0.75)
       .style('stroke-width', '0.3px');
 
