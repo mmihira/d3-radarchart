@@ -162,55 +162,54 @@ scale with the height and width of the chart.
 Whether the chart is interactive or not. I.E hover over a legend item highlights the area 
 associated.
 
-#### `legend.legendWidthP: Float, default = 0.9`
+##### `legend.legendWidthP: Float, default = 0.9`
 
 The legend inner width = dims.width * dims.legendSpaceP * legend.legendWidthP
 
-#### `legend.legendHeightP: Float, default = 0.2`
+##### `legend.legendHeightP: Float, default = 0.2`
 
 The legend inner height = dims.heigt * legend.legendHeightP
 
-#### `legend.legendWOverlap: Float, default = 1.1`
+##### `legend.legendWOverlap: Float, default = 1.1`
 
 Offset the legend by a fraction of the legend width. Adjust this value if you 
 don't want to squash the chart but want the legend to overlap into the chart space.
 
-#### `legend.legendTopOffsetP: Float, default = 0.030`
+##### `legend.legendTopOffsetP: Float, default = 0.030`
 
 Fraction dims.height which the Legend is offset from the top
 
-
-#### `legend.textYOffset: Float, default = 9`
+##### `legend.textYOffset: Float, default = 9`
 
 The offset in pixels the legend label text is offset from the top of the chart
 
-#### `legend.textOffsetP: Float, default = 0.75`
+##### `legend.textOffsetP: Float, default = 0.75`
 
 The offset of the label text from the right :
 
 ```offset =  width - (legendW * (1 + legendWOverlap)) * textOffsetP)```
 
-#### `legend.iconHeightP: Float, default = 0.020`
+##### `legend.iconHeightP: Float, default = 0.020`
 
 The height of the label square as a fraction of the chart height
 
-#### `legend.iconWidthP: Float, default = 0.020`
+##### `legend.iconWidthP: Float, default = 0.020`
 
 The width of the label square as a fraction of the chart width
 
-#### `legend.iconSpacingP: 0.05: Float, default = 0.05`
+##### `legend.iconSpacingP: 0.05: Float, default = 0.05`
 
 The spacing between legend square icon as a fraction of the height
 
-#### `legend.title: String, default = 'Test title'`
+##### `legend.title: String, default = 'Test title'`
 
 The legend title
 
-#### `legend.scaleTextWithSize: Bool, default = true`
+##### `legend.scaleTextWithSize: Bool, default = true`
 
 Scale the legend text with the size of the chart.
 
-#### `legend.titleScale: Function, default = null`
+##### `legend.titleScale: Function, default = null`
 
 Provide a custom title scale with size. If null is supplied the following
 scaling function is used : 
@@ -221,28 +220,84 @@ scaling function is used :
     .range([5, 20])
 ```
 
-#### `legend.labelScale: Function, default = null`
+##### `legend.labelScale: Function, default = null`
 
 ```
   legendOpts.labelScale = d3.scaleLinear()
     .domain([100, 1200])
     .range([5, 15]);
 ```
-#### `legend.titleProperties.fontSize: Ineteger, default = 12`
+##### `legend.titleProperties.fontSize: Ineteger, default = 12`
 
 The fontSize for the legend title. Ignore if the legend labels scale with size.
 
-#### `legend.titleProperties.fill: String, default = '#404040'`
+##### `legend.titleProperties.fill: String, default = '#404040'`
 
 The legend title color
 
-#### `legend.labelTextProperties.font-sze: String, default = 11`
+##### `legend.labelTextProperties.font-sze: String, default = 11`
 
 The fontSize for the legend labels. Ignore if the legend labels scale with size.
 
-#### `legend.labelTextProperties.fill: String, default = '#737373'`
+##### `legend.labelTextProperties.fill: String, default = '#737373'`
 
-The legend text colors
+##### `showLegend: Bool, default = true`
+
+Show the legend or not
+
+##### `levels.levelsFractions: Array, default = [0.25, 0.5, 0.75]`
+
+The percentage levels at which to show circular segments
+
+#### `axis`
+
+Setup the axis with options
+
+##### `axis.config: Array, default = []`
+
+The axis configuration array. The axisValueMax and axisValueMin only
+need to be specified if the chart is not using a global maximum.
+
+````
+  {axisId: "Conscientiousness", axisValueMax: 4, axisValueMin: 2},
+  {axisId: "Neuroticism", axisValueMax: 1, axisValueMin: 0},
+  {axisId: "test spacing two three", axisValueMax: 1, axisValueMin: 0},
+  {axisId: "Openness", axisValueMax: 1, axisValueMin: 0},
+  {axisId: "Extraversion", axisValueMax: 1, axisValueMin: 0}
+````
+##### `axis.useGlobalMax: Bool, default = false`
+
+Use a global maximum or not. A global maximum means that all axis have
+maxValue = axis.maxValue and a minimum equal to 0.
+
+##### `axis.maxValue: Float, default = 0.6`
+
+The global maxValue for the chart used if axis.useGlobalMax is true
+
+##### `axis.leftOffsetPLab`
+....
+    axis: {
+
+      useGlobalMax: false,
+      maxValue: 0.6,
+      leftOffsetPLabel: 0.85,
+      rotateTextWithAxis: true,
+      textOverflowWidthLimit: 10,
+      textLineSpacingPx: 10,
+      tickScale: null,
+      axisTitleScale: null,
+      axisLabelProps: {
+        'font-family': 'sans-serif',
+        fontSize: 11,
+        'fill': '#808080'
+      },
+      ticks: {
+        fill: '#737373',
+        minZoomFont: 10,
+        maxZoomFont: 1,
+        'font-family': 'sans-serif'
+      }
+    },
 
 ## Contribute
 
