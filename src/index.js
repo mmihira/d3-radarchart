@@ -39,7 +39,6 @@ const DEFAULTS_OPTS = function () {
       legendTopOffsetP: 0.030,
       textYOffset: 9,
       textOffsetP: 0.75,
-      colorScale: d3.scaleOrdinal(d3.schemeAccent),
       iconHeightP: 0.020,
       iconWidthP: 0.020,
       iconSpacingP: 0.05,
@@ -52,21 +51,16 @@ const DEFAULTS_OPTS = function () {
         'fill': '#404040'
       },
       labelTextProperties: {
-        'font-size': '11px',
+        fontSize: 11,
         'fill': '#737373'
       }
     },
     levels: {
       levelsFractions: [0.25, 0.5, 0.75],
-      levelsColor: null
-    },
-    point: {
-      radius: 5
     },
     showLegend: true,
     axis: {
       config: [],
-      colorScale: null,
       useGlobalMax: false,
       maxValue: 0.6,
       leftOffsetPLabel: 0.85,
