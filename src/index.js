@@ -102,8 +102,8 @@ const DEFAULTS_OPTS = function () {
       },
       labelProps: {
         'font-family': 'sans-serif',
-        fontSize: 10,
-        maxFontSize: 2
+        fontSize: 8,
+        maxFontSize: 1
       },
       defaultCircleOpacity: 0.3,
       hoverCircleOpacity: 0.5,
@@ -463,14 +463,12 @@ class RadarChart {
       .text('')
       .each(function (d, z) {
         var lines = d.legendLabelLines;
-        for (var i = 0; i < lines.length; i++) {
+        for (let i = 0; i < lines.length; i++) {
           d3.select(this)
             .append('tspan')
             .attr('x', width - (legendW * (1 + legendOpts.legendWOverlap)) * legendOpts.textOffsetP)
             .attr('y', d => z * legendOpts.iconSpacing + legendOpts.textYOffset)
-            .attr('dy', d => {
-              return d.labelTextLineSpacing(width) * i;
-            })
+            .attr('dy', d => d.labelTextLineSpacing(width) * i)
             .text(d => d.legendLabelLines[i])
             .style('font-size', () => {
               if (legendOpts.scaleTextWithSize) {

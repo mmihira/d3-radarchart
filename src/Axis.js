@@ -25,35 +25,14 @@ class Axis {
     this.axisTickTextElements = [];
     this.calculateAxisParameters();
 
-    if (!opts.axis.tickScale) {
-      this.tickScale = d3.scaleLinear()
-        .domain([100, 1200])
-        .range([5, 20]);
-    } else {
-      this.tickScale = opts.axis.tickScale;
-    }
-
-    if (!opts.axis.axisTitleScale) {
-      this.axisTitleScale = d3.scaleLinear()
-        .domain([100, 1200])
-        .range([5, 18]);
-    } else {
-      this.axisTitleScale = opts.axis.tickScale;
-    }
-
-    const {width} = this.opts.dims;
-
-    this.scaledTickSize = this.tickScale(width);
-    this.scaledTitleSize = this.axisTitleScale(width);
-    this.currentTickSize = this.tickScale(width);
-
-    this.textLineSpacingPx = d3.scaleLinear()
-      .domain([100, 1200])
-      .range([1, 20]);
-
+    this.setupSizeScales();
     this.setupZoomInterpolators();
   }
 
+  /**
+   * Called by the zoom handler when the user zoom
+   * @param k {Float} Zoom amount
+   */
   onZoom (k) {
     this.currentTickSize = this.tickFontLop(k);
     this.axisTickTextElements.forEach(e => {
@@ -118,27 +97,17 @@ class Axis {
     const b = gradient === Infinity ? 0 : y2 - gradient * x2;
     this.gradient = gradient;
 
-    const projectCordToAxis = function (x, y) {
-      if (gradient === Infinity) {
-        return {x: x1, y: y};
-      } else {
-        if (gradient < -2 || (gradient >= 0 || gradient < 0.145)) {
-          return {x: x, y: gradient * x + b};
-        } else {
-          return {x: (y - b) / gradient, y: y};
-        }
-      }
-    };
-
+    // Axis max value
     this.maxValue = opts.axis.useGlobalMax ? opts.axis.maxValue : axisOptions.axisValueMax;
+    // Axis min value
     this.minValue = opts.axis.useGlobalMax || isNaN(axisOptions.axisValueMin) ? 0 : axisOptions.axisValueMin;
     this.range = this.maxValue - this.minValue;
     this.axisLength = Math.sqrt(Math.pow((x2 - x1), 2) + Math.pow((y2 - y1), 2));
     this.angleFromNorth = (180 / Math.PI) * (1 - axisIndex * RADIANS / maxAxisNo) - (180 / Math.PI) - 90 - (180 / Math.PI * 10 / this.axisLength / 2);
-
     this.axis = axisOptions.axisId;
     this.label = axisOptions.label ? axisOptions.label : axisOptions.axisId;
 
+    // Split the axis label into lines for renderings
     this.labelLines = [];
     this.words = this.label.split(' ');
     this.lines = [this.words[0]];
@@ -162,7 +131,28 @@ class Axis {
     const projectValueOnAxisXMultTerm = Math.sin(axisIndex * RADIANS / maxAxisNo);
     const projectValueOnAxisYMultTerm = Math.cos(axisIndex * RADIANS / maxAxisNo);
 
-    this.projectCordToAxis = projectCordToAxis;
+    /**
+     * Project a cordinate on the svg onto this axis
+     * @param x {Float} x-value
+     * @param y {Float} y-value
+     */
+    this.projectCordToAxis = function (x, y) {
+      if (gradient === Infinity) {
+        return {x: x1, y: y};
+      } else {
+        if (gradient < -2 || (gradient >= 0 || gradient < 0.145)) {
+          return {x: x, y: gradient * x + b};
+        } else {
+          return {x: (y - b) / gradient, y: y};
+        }
+      }
+    };
+
+    /**
+     * Project a value onto the axis.
+     * @param value {Float}
+     * @return cordinates Like {x: Float, y: Float}
+     */
     this.projectValueOnAxis = function (value) {
       return {
         x: optsLeftChartOffset + (innerW / 2) * (1 - ((parseFloat(value) - this.minValue) / this.range) * projectValueOnAxisXMultTerm),
@@ -170,6 +160,7 @@ class Axis {
       };
     };
 
+    // Convert a coordinate on the axis to a value
     this.cordOnAxisToValue = function (x, y) {
       if (this.gradient === Infinity) {
         let len = Math.abs(this.y2 - y);
@@ -218,6 +209,9 @@ class Axis {
     }
   }
 
+  /**
+   * Setup intepolators to scale based on the zoom
+   */
   setupZoomInterpolators () {
     const { maxZoom, minZoom } = this.opts.zoomProps.scaleExtent;
     const {width} = this.opts.dims;
@@ -252,6 +246,38 @@ class Axis {
     this.labelLineSpaceLopMin = d3.scaleLinear()
       .domain([minZoom, maxZoom])
       .range([this.textLineSpacingPx(width) * 0.5, this.textLineSpacingPx(width) * 0.3 * 0.5]);
+  }
+
+  /**
+   * Scale values based on the width
+   */
+  setupSizeScales () {
+    const {width} = this.opts.dims;
+    const opts = this.opts;
+
+    if (!opts.axis.tickScale) {
+      this.tickScale = d3.scaleLinear()
+        .domain([100, 1200])
+        .range([5, 20]);
+    } else {
+      this.tickScale = opts.axis.tickScale;
+    }
+
+    if (!opts.axis.axisTitleScale) {
+      this.axisTitleScale = d3.scaleLinear()
+        .domain([100, 1200])
+        .range([5, 18]);
+    } else {
+      this.axisTitleScale = opts.axis.tickScale;
+    }
+
+    this.textLineSpacingPx = d3.scaleLinear()
+      .domain([100, 1200])
+      .range([1, 20]);
+
+    this.scaledTickSize = this.tickScale(width);
+    this.scaledTitleSize = this.axisTitleScale(width);
+    this.currentTickSize = this.tickScale(width);
   }
 }
 

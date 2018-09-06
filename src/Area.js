@@ -31,6 +31,8 @@ class Area {
     // Area legend Labels
     this.label = this.series.label;
     const words = this.label.split(' ');
+
+    // Create lines for the legend labels
     this.legendLabelLines = [words[0]];
     this.legendLabelLines = words.slice(1).reduce((acc, word) => {
       if ((acc[acc.length - 1].length + word.length) <= this.opts.textOverflowWidthLimit) {
@@ -40,17 +42,15 @@ class Area {
       }
       return acc;
     }, this.legendLabelLines);
+
     this.labelTextLineSpacing = d3.scaleLinear()
       .domain([100, 1200])
       .range(this.opts.textLineSpacingRangeLegend);
-    // Will hold the svg elements once created.
-    this.legendLabelEls = [];
 
     this.polygonClassName = `chart-poly-${this.seriesIdent}`;
     this.polygonVertexLables = `poly-labels-${this.seriesIdent}`;
     this.circleOverlayClassName = `circle-overlay${this.seriesIdent}`;
     this.circleClassName = `circle-${this.seriesIdent}`;
-
     this.currentAreaOpacity = this.opts.areaHighlightProps.defaultAreaOpacity;
 
     // For each axisId calculate the apex points for this area
@@ -69,6 +69,8 @@ class Area {
     };
 
     this.setupZoomInterpolators();
+    // Will hold the svg elements once created.
+    this.legendLabelEls = [];
     this.onLegendOver = this.onLegendOver.bind(this);
     this.onLegendOut = this.onLegendOut.bind(this);
     this.hilightThisAreaRemove = this.hilightThisAreaRemove.bind(this);
@@ -82,6 +84,7 @@ class Area {
   }
 
   /**
+   * All events route through here
    * @param self {Object} this class
    * @param NEW_EVENT {String} New Event
    */
@@ -145,7 +148,7 @@ class Area {
 
           self.state = AREA_STATE.NEUTRAL;
           self.postRenderQueue.push(() => self.hilightThisAreaRemove());
-          self.updatePositions();
+          self.updatePolygonPositions();
           self.ctm = null;
           break;
       }
@@ -215,13 +218,16 @@ class Area {
     d.datum.value = newValue;
     d.cords = self.axisMap[d.datum.axis].projectValueOnAxis(newValue);
 
-    self.updatePositions();
+    self.updatePolygonPositions();
 
     if (_.isFunction(self.opts.onValueChange)) {
       self.opts.onValueChange(d);
     }
   }
 
+  /**
+   * Highlight this area
+   */
   hilightThisArea () {
     const thisPolygon = '.' + this.polygonClassName;
     this.drawingContext()
@@ -243,6 +249,9 @@ class Area {
     this.currentAreaOpacity = this.opts.areaHighlightProps.highlightedAreaOpacity;
   }
 
+  /**
+   * Remove this area highlight
+   */
   hilightThisAreaRemove () {
     this.drawingContext().selectAll('polygon')
       .transition(200)
@@ -256,10 +265,16 @@ class Area {
     this.currentAreaOpacity = this.opts.areaHighlightProps.defaultAreaOpacity;
   }
 
+  /**
+   * Is circle drag active
+   */
   isDragActive () {
     return this.state === AREA_STATE.CIRCLE_LEAVE_WHILE_DRAGGING || this.state === AREA_STATE.DRAGGING;
   }
 
+  /**
+   * Called by the legend onHover Handler
+   */
   onLegendOver () {
     if (!this.dragActive) {
       d3.select(this.legendRect)
@@ -274,6 +289,9 @@ class Area {
     }
   }
 
+  /**
+   * Called by the legend onHoverOut Handler
+   */
   onLegendOut () {
     if (!this.dragActive) {
       d3.select(this.legendRect)
@@ -298,6 +316,9 @@ class Area {
     this.opts.labelProps.fontSize = this.zlop.fontLop(k);
   }
 
+  /**
+   * Render polygons
+   */
   renderArea () {
     this.area = this
       .drawingContext()
@@ -345,6 +366,9 @@ class Area {
     }
   }
 
+  /**
+   * Render
+   */
   renderCircles () {
     this.circles = this.drawingContext()
       .selectAll(this.circleClassName)
@@ -449,6 +473,9 @@ class Area {
     }
   }
 
+  /**
+   * Setup intepolators to scale based on the zoom
+   */
   setupZoomInterpolators () {
     const maxZoom = this.zoomConfig.scaleExtent.maxZoom;
     this.zlop = {};
@@ -469,7 +496,10 @@ class Area {
       .range([this.opts.labelProps.fontSize, this.opts.labelProps.maxFontSize]);
   }
 
-  updatePositions () {
+  /**
+   * Update the polygon path
+   */
+  updatePolygonPositions () {
     this.polygonWrapper.svgStringRep = this.points.reduce((acc, p) => {
       return acc + p.cords.x + ',' + p.cords.y + ' ';
     }, '');
