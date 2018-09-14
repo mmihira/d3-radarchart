@@ -45,18 +45,32 @@ class Axis {
       newLabelY = this.projectValueOnAxis(this.minValue + this.range * this.axisLabelFactorLop(k)).y;
       titleSize = this.axisTitleSizeLopMin(k) + 'px';
       labelLineS = this.labelLineSpaceLopMin(k);
+
+      d3.selectAll(this.zoomedLabelLines)
+        .attr('x', newLabelX)
+        .attr('y', newLabelY)
+        .attr('dy', (d, i) => labelLineS * i)
+        .style('font-size', titleSize)
+        .style('opacity', 1.0);
+
+      d3.selectAll(this.labelLines)
+        .style('opacity', 0);
     } else {
       newLabelX = this.axisLabelCords().x;
       newLabelY = this.axisLabelCords().y;
       titleSize = this.axisTitleSizeLop(k) + 'px';
       labelLineS = this.labelLineSpacingLop(k);
-    }
 
-    d3.selectAll(this.labelLines)
-      .attr('x', newLabelX)
-      .attr('y', newLabelY)
-      .attr('dy', (d, i) => labelLineS * i)
-      .style('font-size', titleSize);
+      d3.selectAll(this.zoomedLabelLines)
+        .style('opacity', 0.0);
+
+      d3.selectAll(this.labelLines)
+        .attr('x', newLabelX)
+        .attr('y', newLabelY)
+        .attr('dy', (d, i) => labelLineS * i)
+        .style('font-size', titleSize)
+        .style('opacity', 1.0);
+    }
 
     d3.select(this.axisLabelEl)
       .attr('transform', () => {
@@ -119,6 +133,17 @@ class Axis {
       }
       return acc;
     }, this.lines);
+
+    this.zoomedLabelLines = [];
+    this.zoomLines = [this.words[0]];
+    this.zoomLines = this.words.slice(1).reduce((acc, word) => {
+      if ((acc[acc.length - 1].length + word.length) <= this.opts.axis.textOverflowWidthLimitZoomed) {
+        acc[acc.length - 1] = acc[acc.length - 1] + ' ' + word;
+      } else {
+        acc.push(word);
+      }
+      return acc;
+    }, this.zoomLines);
 
     this.x1 = x1;
     this.y1 = y1;
@@ -224,7 +249,7 @@ class Axis {
     this.axisTitleSizeLopMin = d3.scaleLog()
       .base(5)
       .domain([minZoom, maxZoom])
-      .range([5, 2]);
+      .range([3, 2]);
 
     this.tickFontLop = d3.scaleLog()
       .domain([minZoom, maxZoom])

@@ -56,7 +56,7 @@ const DEFAULTS_OPTS = function () {
       }
     },
     levels: {
-      levelsFractions: [0.25, 0.5, 0.75],
+      levelsFractions: [0.25, 0.5, 0.75]
     },
     showLegend: true,
     axis: {
@@ -66,6 +66,7 @@ const DEFAULTS_OPTS = function () {
       leftOffsetPLabel: 0.85,
       rotateTextWithAxis: true,
       textOverflowWidthLimit: 10,
+      textOverflowWidthLimitZoomed: 50,
       textLineSpacingPx: 10,
       tickScale: null,
       axisTitleScale: null,
@@ -356,8 +357,8 @@ class RadarChart {
       .text('')
       .each(function (d) {
         d.axisLabelEl = this;
-        var lines = d.lines;
-        for (var i = 0; i < lines.length; i++) {
+        let lines = d.lines;
+        for (let i = 0; i < lines.length; i++) {
           d3.select(this)
             .append('tspan')
             .attr('x', d => d.axisLabelCords().x)
@@ -371,6 +372,23 @@ class RadarChart {
             .style('fill', axisLabelProps['fill'])
             .attr('text-anchor', 'middle')
             .each(function (d) { d.labelLines.push(this); });
+        }
+
+        for (let i = 0; i < d.zoomLines.length; i++) {
+          d3.select(this)
+            .append('tspan')
+            .attr('x', d => d.axisLabelCords().x)
+            .attr('y', d => d.axisLabelCords().y)
+            .attr('dy', d => {
+              return d.textLineSpacingPx(width) * i;
+            })
+            .text(d.zoomLines[i])
+            .style('font-family', axisLabelProps['font-family'])
+            .style('font-size', d => d.axisTitleScale(width) + 'px')
+            .style('fill', axisLabelProps['fill'])
+            .style('opacity', 0.0)
+            .attr('text-anchor', 'middle')
+            .each(function (d) { d.zoomedLabelLines.push(this); });
         }
       });
   }
