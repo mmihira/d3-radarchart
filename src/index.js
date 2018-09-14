@@ -386,7 +386,7 @@ class RadarChart {
             .style('font-family', axisLabelProps['font-family'])
             .style('font-size', d => d.axisTitleScale(width) + 'px')
             .style('fill', axisLabelProps['fill'])
-            .style('opacity', 0.0)
+            .style('fill-opacity', 0.0)
             .attr('text-anchor', 'middle')
             .each(function (d) { d.zoomedLabelLines.push(this); });
         }

@@ -51,10 +51,11 @@ class Axis {
         .attr('y', newLabelY)
         .attr('dy', (d, i) => labelLineS * i)
         .style('font-size', titleSize)
-        .style('opacity', 1.0);
+        .style('fill-opacity', 1.0);
 
       d3.selectAll(this.labelLines)
-        .style('opacity', 0);
+        .style('fill-opacity', 0.0);
+
     } else {
       newLabelX = this.axisLabelCords().x;
       newLabelY = this.axisLabelCords().y;
@@ -62,14 +63,14 @@ class Axis {
       labelLineS = this.labelLineSpacingLop(k);
 
       d3.selectAll(this.zoomedLabelLines)
-        .style('opacity', 0.0);
+        .style('fill-opacity', 0.0);
 
       d3.selectAll(this.labelLines)
         .attr('x', newLabelX)
         .attr('y', newLabelY)
         .attr('dy', (d, i) => labelLineS * i)
         .style('font-size', titleSize)
-        .style('opacity', 1.0);
+        .style('fill-opacity', 1.0);
     }
 
     d3.select(this.axisLabelEl)
