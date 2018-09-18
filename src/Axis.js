@@ -55,7 +55,6 @@ class Axis {
 
       d3.selectAll(this.labelLines)
         .style('fill-opacity', 0.0);
-
     } else {
       newLabelX = this.axisLabelCords().x;
       newLabelY = this.axisLabelCords().y;
@@ -280,6 +279,7 @@ class Axis {
   setupSizeScales () {
     const {width} = this.opts.dims;
     const opts = this.opts;
+    const { axisScaleProps } = opts.axis;
 
     if (!opts.axis.tickScale) {
       this.tickScale = d3.scaleLinear()
@@ -292,14 +292,14 @@ class Axis {
     if (!opts.axis.axisTitleScale) {
       this.axisTitleScale = d3.scaleLinear()
         .domain([100, 1200])
-        .range([5, 18]);
+        .range([axisScaleProps.minTitleSize, axisScaleProps.maxTitleSize]);
     } else {
       this.axisTitleScale = opts.axis.tickScale;
     }
 
     this.textLineSpacingPx = d3.scaleLinear()
       .domain([100, 1200])
-      .range([1, 20]);
+      .range([axisScaleProps.minTextLineSpacing, axisScaleProps.maxTextLineSpacing]);
 
     this.scaledTickSize = this.tickScale(width);
     this.scaledTitleSize = this.axisTitleScale(width);

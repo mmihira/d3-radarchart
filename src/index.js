@@ -70,6 +70,14 @@ const DEFAULTS_OPTS = function () {
       textLineSpacingPx: 10,
       tickScale: null,
       axisTitleScale: null,
+      axisScaleProps: {
+        minTitleSize: 5,
+        maxTitleSize: 20,
+        minTickSize: 5,
+        maxTickSize: 20,
+        minTextLineSpacing: 1,
+        maxTextLineSpacing: 20
+      },
       axisLabelProps: {
         'font-family': 'sans-serif',
         fontSize: 11,
