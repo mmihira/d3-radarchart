@@ -81,8 +81,10 @@ const DEFAULTS_OPTS = function () {
       axisLabelProps: {
         'font-family': 'sans-serif',
         fontSize: 11,
-        'fill': '#808080'
+        'fill': '#808080',
+        'value-fill': '#548bd8'
       },
+
       ticks: {
         fill: '#737373',
         minZoomFont: 10,
@@ -106,7 +108,7 @@ const DEFAULTS_OPTS = function () {
       labelProps: {
         'font-family': 'sans-serif',
         fontSize: 8,
-        maxFontSize: 1
+        maxFontSize: 2
       },
       defaultCircleOpacity: 0.3,
       hoverCircleOpacity: 0.5,
@@ -381,6 +383,20 @@ class RadarChart {
             .attr('text-anchor', 'middle')
             .each(function (d) { d.labelLines.push(this); });
         }
+
+        d3.select(this)
+          .append('tspan')
+          .attr('x', d => d.axisLabelCords().x)
+          .attr('y', d => d.axisLabelCords().y)
+          .attr('dy', d => {
+            return d.textLineSpacingPx(width) * d.lines.length;
+          })
+          .text('')
+          .style('font-family', axisLabelProps['font-family'])
+          .style('font-size', d => d.axisTitleScale(width) + 'px')
+          .style('fill', axisLabelProps['value-fill'])
+          .attr('text-anchor', 'middle')
+          .each(function (d) { d.labelValue = this; });
 
         for (let i = 0; i < d.zoomLines.length; i++) {
           d3.select(this)

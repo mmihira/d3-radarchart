@@ -53,8 +53,12 @@ class Axis {
         .style('font-size', titleSize)
         .style('fill-opacity', 1.0);
 
+      d3.select(this.labelValue)
+        .style('fill-opacity', 0.0);
+
       d3.selectAll(this.labelLines)
         .style('fill-opacity', 0.0);
+
     } else {
       newLabelX = this.axisLabelCords().x;
       newLabelY = this.axisLabelCords().y;
@@ -63,6 +67,11 @@ class Axis {
 
       d3.selectAll(this.zoomedLabelLines)
         .style('fill-opacity', 0.0);
+
+      d3.select(this.labelValue)
+        .style('fill-opacity', 1.0)
+        .attr('dy', (d, i) => labelLineS * this.labelLines.length)
+        .style('font-size', titleSize);
 
       d3.selectAll(this.labelLines)
         .attr('x', newLabelX)
@@ -123,6 +132,7 @@ class Axis {
 
     // Split the axis label into lines for renderings
     this.labelLines = [];
+    this.labelValue = null;
     this.words = this.label.split(' ');
     this.lines = [this.words[0]];
     this.lines = this.words.slice(1).reduce((acc, word) => {
@@ -231,6 +241,15 @@ class Axis {
       );
     } else {
       return this.projectValueOnAxis(this.axisLabelCordLop(zoomK));
+    }
+  }
+
+  setAxisLabelValue (newValue) {
+    if (newValue === null) {
+      d3.select(this.labelValue).text('');
+    } else {
+      var format = d3.format('.3');
+      d3.select(this.labelValue).text(format(newValue));
     }
   }
 

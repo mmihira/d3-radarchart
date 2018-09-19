@@ -106,6 +106,9 @@ class Area {
             d3.select(d.circleRef)
               .transition(100)
               .attr('r', self.opts.circleProps.defaultRadius * self.opts.circleProps.circleOverlayRadiusMult);
+            self.axisMap[d.datum.axis].setAxisLabelValue(
+              self.getCurrentValueForAxis(d.datum.axis)
+            );
           }
           break;
         case AREA_EVENT.CIRCLE_LEAVE:
@@ -118,6 +121,7 @@ class Area {
             d3.select(d.circleRef)
               .transition(100)
               .attr('r', self.opts.circleProps.defaultRadius);
+            self.axisMap[d.datum.axis].setAxisLabelValue(null);
             self.state = AREA_STATE.NEUTRAL;
           } else if (self.state === AREA_STATE.DRAGGING) {
             self.state = AREA_STATE.CIRCLE_LEAVE_WHILE_DRAGGING;
@@ -142,6 +146,7 @@ class Area {
         case AREA_EVENT.DRAGGING_END:
           self.axisMap[d.datum.axis].dragActive = false;
           self.axisMap[d.datum.axis].onRectMouseOut();
+          self.axisMap[d.datum.axis].setAxisLabelValue(null);
 
           d3.select(d.circleRef)
             .style('fill-opacity', self.opts.defaultCircleOpacity);
@@ -217,6 +222,7 @@ class Area {
     var newValue = axis.cordOnAxisToValue(newX, newY);
     d.datum.value = newValue;
     d.cords = self.axisMap[d.datum.axis].projectValueOnAxis(newValue);
+    self.axisMap[d.datum.axis].setAxisLabelValue(newValue);
 
     self.updatePolygonPositions();
 
@@ -236,9 +242,7 @@ class Area {
       .style('fill-opacity', this.opts.areaHighlightProps.hiddenAreaOpacity)
       .style('stroke-opacity', this.opts.areaHighlightProps.hiddenStrokeOpacity);
 
-    this.drawingContext()
-      .selectAll('.' + this.polygonVertexLables)
-      .style('opacity', this.opts.areaHighlightProps.highlightedLabelOpacity);
+    this.showVertexLabels();
 
     this.drawingContext()
       .selectAll(thisPolygon)
@@ -249,6 +253,18 @@ class Area {
     this.currentAreaOpacity = this.opts.areaHighlightProps.highlightedAreaOpacity;
   }
 
+  hideVertexLabels () {
+    this.drawingContext()
+      .selectAll('.' + this.polygonVertexLables)
+      .style('opacity', this.opts.areaHighlightProps.hiddenLabelOpacity);
+  }
+
+  showVertexLabels () {
+    this.drawingContext()
+      .selectAll('.' + this.polygonVertexLables)
+      .style('opacity', this.opts.areaHighlightProps.highlightedLabelOpacity);
+  }
+
   /**
    * Remove this area highlight
    */
@@ -257,10 +273,7 @@ class Area {
       .transition(200)
       .style('fill-opacity', this.opts.areaHighlightProps.defaultAreaOpacity)
       .style('stroke-opacity', this.opts.areaHighlightProps.defaultStrokeOpacity);
-
-    this.drawingContext()
-      .selectAll('.' + this.polygonVertexLables)
-      .style('opacity', this.opts.areaHighlightProps.hiddenLabelOpacity);
+      this.hideVertexLabels();
 
     this.currentAreaOpacity = this.opts.areaHighlightProps.defaultAreaOpacity;
   }
@@ -286,6 +299,10 @@ class Area {
           e.attr('font-weight', 'bold');
         });
       this.hilightThisArea(this);
+
+      Object.values(this.axisMap).forEach(d => {
+        d.setAxisLabelValue(this.getCurrentValueForAxis(d.axis));
+      });
     }
   }
 
@@ -303,6 +320,9 @@ class Area {
           e.attr('font-weight', 'normal');
         });
       this.hilightThisAreaRemove(this);
+      Object.values(this.axisMap).forEach(d => {
+        d.setAxisLabelValue(null);
+      });
     }
   }
 
@@ -494,6 +514,10 @@ class Area {
     this.zlop.fontLop = d3.scaleLog()
       .domain([1, maxZoom])
       .range([this.opts.labelProps.fontSize, this.opts.labelProps.maxFontSize]);
+  }
+
+  getCurrentValueForAxis (axisId) {
+    return this.points.find(e => e.datum.axis === axisId).datum.value;
   }
 
   /**
