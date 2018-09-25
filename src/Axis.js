@@ -16,7 +16,7 @@ class Axis {
    * @param axisIndex {String or Int}
    *
    */
-  constructor (opts, axisOptions, axisIndex) {
+  constructor (opts, axisOptions, axisIndex, onAxisLabelWheel) {
     this.opts = opts;
     this.axisIndex = axisIndex;
     this.axisOptions = axisOptions;
@@ -27,6 +27,8 @@ class Axis {
 
     this.setupSizeScales();
     this.setupZoomInterpolators();
+    this.axisLineEl = null;
+    this.onAxisLabelWheel = onAxisLabelWheel;
   }
 
   /**
@@ -58,7 +60,6 @@ class Axis {
 
       d3.selectAll(this.labelLines)
         .style('fill-opacity', 0.0);
-
     } else {
       newLabelX = this.axisLabelCords().x;
       newLabelY = this.axisLabelCords().y;
@@ -209,7 +210,7 @@ class Axis {
     };
   }
 
-  onRectMouseOver () {
+  onAxisLineRectOver () {
     if (this.dragActive) return false;
     this.axisTickTextElements.forEach(d => {
       d3.select(d)
@@ -217,13 +218,53 @@ class Axis {
     });
   }
 
-  onRectMouseOut () {
+  onAxisLineRectMouseOut () {
     if (this.dragActive) return false;
     this.axisTickTextElements.forEach(d => {
       d3.select(d)
         .transition(200)
         .style('opacity', 0.0);
     });
+  }
+
+  onLabelRectOver () {
+    if (this.dragActive) return false;
+    this.axisTickTextElements.forEach(d => {
+      d3.select(d)
+        .style('opacity', 1.0);
+    });
+
+    d3
+      .select(this.axisLineEl)
+      .transition(200)
+      .style('stroke-width', '0.8px')
+      .style('stroke', this.opts.axis.lineProps['hover-fill']);
+
+    d3.selectAll(this.labelLines)
+      .style('fill', this.opts.axis.axisLabelProps['hover-fill']);
+  }
+
+  onLabelWheel () {
+    this.onAxisLabelWheel(this);
+  }
+
+  onLabelRectOut () {
+    d3
+      .select(this.axisLineEl)
+      .transition(200)
+      .style('stroke', this.opts.axis.lineProps['fill']);
+
+    this.axisTickTextElements.forEach(d => {
+      d3.select(d)
+        .transition(200)
+        .style('stroke-width', '0.5px')
+        .style('opacity', 0.0);
+    });
+
+    d3.selectAll(this.labelLines)
+      .style('fill', this.opts.axis.axisLabelProps['fill']);
+
+    this.setAxisLabelValue(null);
   }
 
   axisLabelRotation () {
@@ -323,6 +364,11 @@ class Axis {
     this.scaledTickSize = this.tickScale(width);
     this.scaledTitleSize = this.axisTitleScale(width);
     this.currentTickSize = this.tickScale(width);
+
+    this.overLayWidth = this.axisTitleScale(width) * this.opts.axis.textOverflowWidthLimit;
+    this.overLayx = () => this.axisLabelCords().x - this.overLayWidth / 2;
+    this.overLayHeight = () => (1 + this.lines.length) * this.axisTitleScale(width) * 2;
+    this.overLayy = () => this.axisLabelCords().y - this.overLayHeight() / 2.5;
   }
 }
 

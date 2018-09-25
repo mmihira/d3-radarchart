@@ -1,9 +1,9 @@
 var axisConfig = [
-  {axisId: "Conscientiousness", axisValueMax: 4, axisValueMin: 2},
-  {axisId: "Neuroticism", axisValueMax: 1, axisValueMin: 0},
-  {axisId: "test spacing two three", axisValueMax: 1, axisValueMin: 0},
-  {axisId: "Openness", axisValueMax: 1, axisValueMin: 0},
-  {axisId: "Extraversion", axisValueMax: 1, axisValueMin: 0}
+  {label: 'Conscientiousness', axisId: "con_1", axisValueMax: 4, axisValueMin: 2},
+  {label: 'Neuroticism', axisId: "neu_2", axisValueMax: 1, axisValueMin: 0},
+  {label: 'Test spacign space space', axisId: "spac_3", axisValueMax: 1, axisValueMin: 0},
+  {label: 'Opennes', axisId: "open_2", axisValueMax: 1, axisValueMin: 0},
+  {label: 'Extraversion', axisId: "extra_3", axisValueMax: 1, axisValueMin: 0}
 ];
 
 var data = [
@@ -12,11 +12,11 @@ var data = [
     dragEnabled: true,
     showCircle: true,
     data: [
-      {axis: "Conscientiousness", value: 3.8},
-      {axis: "Neuroticism", value: 0.1},
-      {axis: "test spacing two three", value: 0.7},
-      {axis: "Openness", value: 0.6},
-      {axis: "Extraversion", value: 0.5}
+      {axis: "con_1", value: 3.8},
+      {axis: "neu_2", value: 0.1},
+      {axis: "spac_3", value: 0.7},
+      {axis: "open_2", value: 0.6},
+      {axis: "extra_3", value: 0.5}
     ]
   },
   {
@@ -25,11 +25,11 @@ var data = [
     showCircle: true,
     circleHighlight: true,
     data: [
-      {axis: "Conscientiousness", value: 2.5},
-      {axis: "Neuroticism", value: 0.7},
-      {axis: "test spacing two three", value: 0.2},
-      {axis: "Openness", value: 0.3},
-      {axis: "Extraversion", value: 0.2}
+      {axis: "con_1", value: 2.5},
+      {axis: "neu_2", value: 0.7},
+      {axis: "spac_3", value: 0.2},
+      {axis: "open_2", value: 0.3},
+      {axis: "extra_3", value: 0.2}
     ]
   },
 ];
@@ -49,7 +49,8 @@ var options = {
     title: "Big 5"
   },
   axis: {
-    config: axisConfig
+    config: axisConfig,
+    wheelLabelAreaId: 'Pepe'
   }
 }
 

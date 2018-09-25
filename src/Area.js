@@ -94,6 +94,10 @@ class Area {
      */
     return function (d) {
       switch (NEW_EVENT) {
+        case AREA_EVENT.CIRCLE_WHEEL_SCROLL:
+          d3.event.stopPropagation();
+          console.warn('hello');
+          break;
         case AREA_EVENT.CIRCLE_ENTER:
           if (self.state !== AREA_STATE.DRAGGING &&
               self.state !== AREA_STATE.CIRCLE_LEAVE_WHILE_DRAGGING) {
@@ -145,7 +149,7 @@ class Area {
           break;
         case AREA_EVENT.DRAGGING_END:
           self.axisMap[d.datum.axis].dragActive = false;
-          self.axisMap[d.datum.axis].onRectMouseOut();
+          self.axisMap[d.datum.axis].onAxisLineRectMouseOut();
           self.axisMap[d.datum.axis].setAxisLabelValue(null);
 
           d3.select(d.circleRef)
@@ -185,7 +189,7 @@ class Area {
 
   draggingActions (d, self) {
     var axis = self.axisMap[d.datum.axis];
-    self.axisMap[d.datum.axis].onRectMouseOver();
+    self.axisMap[d.datum.axis].onAxisLineRectOver();
     self.axisMap[d.datum.axis].dragActive = true;
 
     let {x: mouseX, y: mouseY} = d3.event;
@@ -273,7 +277,7 @@ class Area {
       .transition(200)
       .style('fill-opacity', this.opts.areaHighlightProps.defaultAreaOpacity)
       .style('stroke-opacity', this.opts.areaHighlightProps.defaultStrokeOpacity);
-      this.hideVertexLabels();
+    this.hideVertexLabels();
 
     this.currentAreaOpacity = this.opts.areaHighlightProps.defaultAreaOpacity;
   }
@@ -529,6 +533,42 @@ class Area {
     }, '');
 
     this.onAreaUpdate();
+  }
+
+  onAxisLabelRectOver(axisId) {
+    const currentValue = this.getCurrentValueForAxis(axisId);
+    this.axisMap[axisId].setAxisLabelValue(currentValue);
+  }
+
+  onWheelEvent (axis) {
+    d3.event.stopPropagation();
+    const { axisId } = axis.axisOptions;
+    const currentValue = this.getCurrentValueForAxis(axisId);
+    let newValue;
+    if (d3.event.deltaY <= 0) {
+      newValue = currentValue + axis.range * 0.01;
+    } else {
+      newValue = currentValue - axis.range * 0.01;
+    }
+
+    if (newValue >= axis.maxValue) {
+      newValue = axis.maxValue;
+    }
+
+    if (newValue <= axis.minValue) {
+      newValue = axis.minValue;
+    }
+
+    const point = this.points.find(e => e.datum.axis === axisId);
+    point.datum.value = newValue;
+    point.cords = this.axisMap[axisId].projectValueOnAxis(newValue);
+
+    this.axisMap[axisId].setAxisLabelValue(newValue);
+    this.updatePolygonPositions();
+
+    if (_.isFunction(this.opts.onValueChange)) {
+      this.opts.onValueChange(point);
+    }
   }
 }
 

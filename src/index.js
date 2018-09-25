@@ -82,15 +82,20 @@ const DEFAULTS_OPTS = function () {
         'font-family': 'sans-serif',
         fontSize: 11,
         'fill': '#808080',
-        'value-fill': '#548bd8'
+        'value-fill': '#548bd8',
+        'hover-fill': '#E44822'
       },
-
+      lineProps: {
+        fill: '#E0E0E0',
+        'hover-fill': '#E44822'
+      },
       ticks: {
         fill: '#737373',
         minZoomFont: 10,
         maxZoomFont: 1,
         'font-family': 'sans-serif'
-      }
+      },
+      wheelLabelAreaId: null
     },
     area: {
       areaHighlight: false,
@@ -183,11 +188,23 @@ class RadarChart {
     this.data = this.opts.data;
     this.axisConfig = this.opts.axis.config;
 
-    this.axisParameters = this.axisConfig.map((axis, inx) => new Axis(this.opts, axis, inx));
+    this.axisParameters = this.axisConfig.map((axis, inx) => new Axis(
+      this.opts,
+      axis,
+      inx,
+      this.onAxisLabelWheel.bind(this)
+    ));
     this.axisMap = this.axisParameters.reduce((map, ix) => {
       map[ix.axis] = ix;
       return map;
     }, {});
+  }
+
+  onAxisLabelWheel (callingAxis) {
+    if (this.opts.axis.wheelLabelAreaId) {
+      const area = this.areas.find(e => e.label === this.opts.axis.wheelLabelAreaId);
+      area.onWheelEvent(callingAxis);
+    }
   }
 
   setupDrawingArea () {
@@ -334,9 +351,10 @@ class RadarChart {
       .attr('x2', d => d.x2)
       .attr('y2', d => d.y2)
       .attr('pointer-events', 'none')
-      .style('stroke', '#E0E0E0')
+      .style('stroke', opts.axis.lineProps.fill)
       .style('stroke-opacity', 0.75)
-      .style('stroke-width', '0.3px');
+      .style('stroke-width', '0.3px')
+      .each(function (datum) { datum.axisLineEl = this; });
 
     this.rects = this.axisG
       .append('rect')
@@ -347,8 +365,8 @@ class RadarChart {
       .attr('width', d => d.axisLength)
       .attr('height', 10)
       .attr('fill-opacity', 0.0)
-      .on('mouseover', d => d.onRectMouseOver())
-      .on('mouseout', d => d.onRectMouseOut())
+      .on('mouseover', d => d.onAxisLineRectOver())
+      .on('mouseout', d => d.onAxisLineRectMouseOut())
       .each(function (datum) { datum.axisRect = this; });
 
     const { axisLabelProps } = this.opts.axis;
@@ -366,6 +384,7 @@ class RadarChart {
       })
       .text('')
       .each(function (d) {
+        // Label text
         d.axisLabelEl = this;
         let lines = d.lines;
         for (let i = 0; i < lines.length; i++) {
@@ -384,6 +403,7 @@ class RadarChart {
             .each(function (d) { d.labelLines.push(this); });
         }
 
+        // Label value
         d3.select(this)
           .append('tspan')
           .attr('x', d => d.axisLabelCords().x)
@@ -398,6 +418,7 @@ class RadarChart {
           .attr('text-anchor', 'middle')
           .each(function (d) { d.labelValue = this; });
 
+        // Zoom label text
         for (let i = 0; i < d.zoomLines.length; i++) {
           d3.select(this)
             .append('tspan')
@@ -415,6 +436,31 @@ class RadarChart {
             .each(function (d) { d.zoomedLabelLines.push(this); });
         }
       });
+
+    this.axisTextOverlay = this.axisG
+      .append('rect')
+      .attr('class', 'axis-text-overlay')
+      .attr('x', d => d.overLayx())
+      .attr('y', d => d.overLayy())
+      .attr('width', d => d.overLayWidth)
+      .attr('height', d => d.overLayHeight())
+      .attr('fill-opacity', 0.0)
+      .attr('transform', (d, i) => {
+        if (this.opts.axis.rotateTextWithAxis) {
+          return 'rotate(' + d.axisLabelRotation() + ',' + d.x2 + ',' + d.y2 + ')';
+        } else {
+          return '';
+        }
+      })
+      .on('wheel', d => d.onLabelWheel())
+      .on('mouseover', d => {
+        if (this.opts.axis.wheelLabelAreaId) {
+          const area = this.areas.find(e => e.label === this.opts.axis.wheelLabelAreaId);
+          area.onAxisLabelRectOver(d.axisOptions.axisId);
+        }
+        d.onLabelRectOver();
+      })
+      .on('mouseout', d => d.onLabelRectOut());
   }
 
   renderArea () {
