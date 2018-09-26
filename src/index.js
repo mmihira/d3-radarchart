@@ -16,6 +16,7 @@ import { browserVendor } from './const.js';
 const DEFAULTS_OPTS = function () {
   return {
     enableZoom: true,
+    backgroundColor: 'white',
     zoomProps: {
       scaleExtent: {
         minZoom: 1,
@@ -48,11 +49,15 @@ const DEFAULTS_OPTS = function () {
       labelScale: null,
       titleProperties: {
         fontSize: 12,
+        fontScaleMin: 5,
+        fontScaleMax: 20,
         'font-family': 'sans-serif',
         'fill': '#404040'
       },
       labelTextProperties: {
         fontSize: 11,
+        fontScaleMin: 5,
+        fontScaleMax: 20,
         'font-family': 'sans-serif',
         'fill': '#737373'
       }
@@ -223,10 +228,11 @@ class RadarChart {
 
     this.rootSvg = this.rootElement
       .append('svg')
+      .style('background', this.opts.backgroundColor)
       .attr('width', width)
       .attr('height', height);
 
-    this.rootSvg
+    this.rootG = this.rootSvg
       .append('g')
       .attr('class', `root${this.rootElId}`)
       .attr('transform', 'translate(' + paddingW + ',' + paddingH + ')');
@@ -252,6 +258,9 @@ class RadarChart {
           }
 
           this.onUpdateArea();
+          if (d3.event.transform.k === 1) {
+            this.rootG.attr('transform', 'translate(' + paddingW + ',' + paddingH + ')');
+          }
         })
         .translateExtent([[0, 0], [width, height]])
         .scaleExtent([
@@ -501,15 +510,18 @@ class RadarChart {
       .attr('height', height);
     this.legendSvg = svg;
 
+    const { titleProperties, labelTextProperties } = legendOpts;
+
     if (legendOpts.scaleTextWithSize && !legendOpts.titleScale) {
       legendOpts.titleScale = d3.scaleLinear()
         .domain([100, 1200])
-        .range([5, 20]);
+        .range([titleProperties.fontScaleMin, titleProperties.fontScaleMax]);
     }
+
     if (legendOpts.scaleTextWithSize && !legendOpts.labelScale) {
       legendOpts.labelScale = d3.scaleLinear()
         .domain([100, 1200])
-        .range([5, 15]);
+        .range([labelTextProperties.fontScaleMin, labelTextProperties.fontScaleMax]);
     }
 
     // Create the title for the legend
@@ -525,7 +537,7 @@ class RadarChart {
           return legendOpts.titleProperties.fontSize + 'px';
         }
       })
-      .style('font-size', legendOpts.titleProperties['font-family'])
+      .style('font-family', legendOpts.titleProperties['font-family'])
       .attr('fill', legendOpts.titleProperties['fill']);
 
     // Initiate Legend
@@ -536,9 +548,21 @@ class RadarChart {
       .attr('transform', 'translate(0,' + (legendOpts.legendTopOffsetP * height * 2) + ')');
     this.legendG = legend;
 
+    this.createLegendOverlays();
+  }
+
+  createLegendOverlays () {
+    const {
+      width,
+      legendW
+    } = this.opts.dims;
+    const legendOpts = this.opts.legend;
+    const legend = this.legendG;
+
     // Create colour squares
-    legend.selectAll('rect')
+    this.legendRects = legend.selectAll('legend-rect')
       .data(this.areas)
+      .attr('class', 'legend-rect')
       .enter()
       .append('rect')
       .attr('x', width - (legendW * (1 + legendOpts.legendWOverlap)))
@@ -550,7 +574,7 @@ class RadarChart {
       .each(function (d) { d.legendRect = this; });
 
     // Create text next to squares
-    legend.selectAll('text')
+    this.legendText = legend.selectAll('text')
       .data(this.areas)
       .enter()
       .append('text')
@@ -571,22 +595,12 @@ class RadarChart {
                 return legendOpts.labelTextProperties.fontSize + 'px';
               }
             })
-            .style('font-size', legendOpts.labelTextProperties['font-family'])
+            .style('font-family', legendOpts.labelTextProperties['font-family'])
             .attr('fill', legendOpts.labelTextProperties['fill'])
             .attr('original-fill', legendOpts.labelTextProperties['fill'])
             .each(function (d) { d.legendLabelEls.push(this); });
         }
       });
-
-    this.createLegendOverlays();
-  }
-
-  createLegendOverlays () {
-    const {
-      width,
-      legendW
-    } = this.opts.dims;
-    const legendOpts = this.opts.legend;
 
     this.legendG
       .selectAll('legend-rect-overlays')
@@ -600,12 +614,12 @@ class RadarChart {
       .attr('height', legendOpts.iconSpacing)
       .attr('opacity', 0.0)
       .on('mouseover', function (d, i) {
-        d.onLegendOver(d);
+        d.onLegendOver();
       })
       .on('mouseout', function (d, i) {
-        d.onLegendOut(d);
+        d.onLegendOut();
       })
-      .each(function (d) { d.rectOverlay = d; });
+      .each(function (d) { d.rectOverlay = this; });
   }
 
   /**
@@ -614,6 +628,7 @@ class RadarChart {
    */
   reRenderWithNewData (data) {
     this.data = data;
+    this.areas.forEach(area => area.removeLegendRefs());
     this.removeAreas();
     this.renderArea();
     this.updateLegendOverlays();
@@ -654,6 +669,16 @@ class RadarChart {
 
   updateLegendOverlays () {
     d3.select('.legend-rect-overlays')
+      .data([])
+      .exit()
+      .remove();
+
+    this.legendText
+      .data([])
+      .exit()
+      .remove();
+
+    this.legendRects
       .data([])
       .exit()
       .remove();

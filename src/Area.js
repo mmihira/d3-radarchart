@@ -97,7 +97,6 @@ class Area {
       switch (NEW_EVENT) {
         case AREA_EVENT.CIRCLE_WHEEL_SCROLL:
           d3.event.stopPropagation();
-          console.warn('hello');
           break;
         case AREA_EVENT.CIRCLE_ENTER:
           if (self.state !== AREA_STATE.DRAGGING &&
@@ -475,6 +474,12 @@ class Area {
     this.circles = [];
     this.circleOverylays = [];
     this.removeArea();
+  }
+
+  removeLegendRefs () {
+    this.legendRect = null;
+    this.rectOverlay = null;
+    this.legendLabelEls = [];
   }
 
   removeArea () {
