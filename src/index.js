@@ -48,10 +48,12 @@ const DEFAULTS_OPTS = function () {
       labelScale: null,
       titleProperties: {
         fontSize: 12,
+        'font-family': 'sans-serif',
         'fill': '#404040'
       },
       labelTextProperties: {
         fontSize: 11,
+        'font-family': 'sans-serif',
         'fill': '#737373'
       }
     },
@@ -523,6 +525,7 @@ class RadarChart {
           return legendOpts.titleProperties.fontSize + 'px';
         }
       })
+      .style('font-size', legendOpts.titleProperties['font-family'])
       .attr('fill', legendOpts.titleProperties['fill']);
 
     // Initiate Legend
@@ -568,6 +571,7 @@ class RadarChart {
                 return legendOpts.labelTextProperties.fontSize + 'px';
               }
             })
+            .style('font-size', legendOpts.labelTextProperties['font-family'])
             .attr('fill', legendOpts.labelTextProperties['fill'])
             .attr('original-fill', legendOpts.labelTextProperties['fill'])
             .each(function (d) { d.legendLabelEls.push(this); });
