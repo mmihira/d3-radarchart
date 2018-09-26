@@ -242,6 +242,10 @@ class Axis {
 
     d3.selectAll(this.labelLines)
       .style('fill', this.opts.axis.axisLabelProps['hover-fill']);
+
+    if (this.opts.axis.onAxisLabelOver) {
+      this.opts.axis.onAxisLabelOver(this.axisOptions.axisId)
+    }
   }
 
   onLabelWheel () {
@@ -265,6 +269,9 @@ class Axis {
       .style('fill', this.opts.axis.axisLabelProps['fill']);
 
     this.setAxisLabelValue(null);
+    if (this.opts.axis.onAxisLabelOut) {
+      this.opts.axis.onAxisLabelOut(this.axisOptions.axisId)
+    }
   }
 
   axisLabelRotation () {

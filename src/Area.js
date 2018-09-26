@@ -24,6 +24,7 @@ class Area {
     this.opts = _.cloneDeep(opts.areaOptions);
     this.dims = opts.dims;
     this.opts.onValueChange = opts.areaOptions.onValueChange;
+    this.opts.onValueFinishChange = opts.areaOptions.onValueFinishChange;
     this.opts.colorScale = opts.areaOptions.colorScale;
     this.onAreaUpdate = opts.onAreaUpdate;
     this.dragCoordOffset = {x: 0, y: 0};
@@ -159,6 +160,9 @@ class Area {
           self.postRenderQueue.push(() => self.hilightThisAreaRemove());
           self.updatePolygonPositions();
           self.ctm = null;
+          if (_.isFunction(self.opts.onValueFinishChange)) {
+            self.opts.onValueFinishChange(self.label);
+          }
           break;
       }
     };
@@ -535,7 +539,7 @@ class Area {
     this.onAreaUpdate();
   }
 
-  onAxisLabelRectOver(axisId) {
+  onAxisLabelRectOver (axisId) {
     const currentValue = this.getCurrentValueForAxis(axisId);
     this.axisMap[axisId].setAxisLabelValue(currentValue);
   }

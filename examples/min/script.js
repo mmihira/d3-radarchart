@@ -34,6 +34,8 @@ var data = [
   },
 ];
 
+let radarChart;
+
 var options = {
   data: data,
   dims: {
@@ -50,11 +52,12 @@ var options = {
   },
   axis: {
     config: axisConfig,
-    wheelLabelAreaId: 'Pepe'
+    wheelLabelAreaId: 'Pepe',
+    onAxisLabelOver: null
   }
 }
 
-const radarChart = new RadarChart(options);
+radarChart = new RadarChart(options);
 radarChart.render();
 
 let reRenderTest = function() {
