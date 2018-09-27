@@ -11,6 +11,7 @@ var data = [
     label: 'Normie',
     dragEnabled: true,
     showCircle: true,
+    fill: 'royalblue',
     data: [
       {axis: "con_1", value: 3.8},
       {axis: "neu_2", value: 0.1},

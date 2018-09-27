@@ -570,7 +570,7 @@ class RadarChart {
       .attr('width', legendOpts.iconWidth)
       .attr('height', legendOpts.iconHeight)
       .attr('opacity', 0.7)
-      .style('fill', (d, i) => this.opts.area.areaColorScale(i))
+      .style('fill', d => d.fillColor)
       .each(function (d) { d.legendRect = this; });
 
     // Create text next to squares

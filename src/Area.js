@@ -25,7 +25,8 @@ class Area {
     this.dims = opts.dims;
     this.opts.onValueChange = opts.areaOptions.onValueChange;
     this.opts.onValueFinishChange = opts.areaOptions.onValueFinishChange;
-    this.opts.colorScale = opts.areaOptions.colorScale;
+    this.opts.colorScale = opts.areaOptions.areaColorScale;
+    this.fillColor = this.series.fill ? this.series.fill : opts.areaOptions.areaColorScale(this.seriesIndex);
     this.onAreaUpdate = opts.onAreaUpdate;
     this.dragCoordOffset = {x: 0, y: 0};
 
@@ -302,7 +303,7 @@ class Area {
       this.legendLabelEls
         .map(e => d3.select(e))
         .forEach(e => {
-          e.attr('fill', this.opts.areaColorScale(this.seriesIndex));
+          e.attr('fill', this.fillColor)
           e.attr('font-weight', 'bold');
         });
       this.hilightThisArea(this);
@@ -355,18 +356,10 @@ class Area {
       .append('polygon')
       .attr('class', this.polygonClassName)
       .style('stroke-width', this.opts.lineProps.strokeWidth + 'px')
-      .style('stroke', () => {
-        if (this.opts.useColorScale) {
-          return this.opts.lineColorScale(this.seriesIndex);
-        }
-      })
+      .style('stroke', () => this.fillColor)
       .style('stroke-opacity', this.opts.areaHighlightProps.defaultStrokeOpacity)
       .attr('points', d => d.svgStringRep)
-      .style('fill', () => {
-        if (this.opts.useColorScale) {
-          return this.opts.areaColorScale(this.seriesIndex);
-        }
-      })
+      .style('fill', () => this.fillColor)
       .style('fill-opacity', this.currentAreaOpacity);
 
     var Format = d3.format('.2');
@@ -409,11 +402,7 @@ class Area {
       .attr('cx', d => d.cords.x)
       .attr('cy', d => d.cords.y)
       .attr('class', this.circleClassName)
-      .style('fill', () => {
-        if (this.opts.useColorScale) {
-          return this.opts.lineColorScale(this.seriesIndex);
-        }
-      })
+      .style('fill', () => this.fillColor)
       .style('fill-opacity', () => {
         return this.isDragActive() ? this.opts.hoverCircleOpacity : this.opts.defaultCircleOpacity;
       })
