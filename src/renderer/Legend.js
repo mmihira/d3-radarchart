@@ -10,6 +10,10 @@ class Legend {
   }
 
   render () {
+    if (!this.stateQuery.shouldRenderLegend()) {
+      return 0;
+    }
+
     const {
       height,
       width,

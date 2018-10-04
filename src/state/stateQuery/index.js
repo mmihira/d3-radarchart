@@ -51,6 +51,10 @@ const zoomEnabled = function _zoomEnabled () {
   return this.__STATE__.opts.enableZoom;
 };
 
+const shouldRenderLegend = function _shouldRenderLegend () {
+  return this.__STATE__.opts.showLegend;
+};
+
 export {
   axisIds,
   areaPoint,
@@ -61,6 +65,7 @@ export {
   onWheelAxisFn,
   onAxisLabelOutFn,
   onAxisLabelOverFn,
+  shouldRenderLegend,
   legendProps,
   wheelLabelAreaId,
   zoomEnabled,
