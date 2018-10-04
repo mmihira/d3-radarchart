@@ -23,13 +23,13 @@
 - use npm
 
 ```sh
-npm i -S react-rnd
+npm i -S d3-radarchart
 ```
 
 - use yarn
 
 ```sh
-yarn add react-rnd
+yarn add d3-radarchart
 ```
 
 ## Usage
@@ -37,33 +37,55 @@ yarn add react-rnd
 ### Minimum configuration
 
 ``` javascript
-const axisConfig = [
-  {axisId:"Email"},
-  {axisId:"Social Networks"},
-  {axisId:"Internet Banking"l}
+var axisConfig = [
+  {label: 'Conscientiousness', axisId: "con_1", axisValueMax: 4, axisValueMin: 2},
+  {label: 'Neuroticism', axisId: "neu_2", axisValueMax: 1, axisValueMin: 0},
+  {label: 'Test spacign space space', axisId: "spac_3", axisValueMax: 1, axisValueMin: 0},
+  {label: 'Opennes', axisId: "open_2", axisValueMax: 1, axisValueMin: 0},
+  {label: 'Extraversion', axisId: "extra_3", axisValueMax: 1, axisValueMin: 0}
 ];
 
-const data = [
-  [
-    {axis:"Email",value:0.4},
-    {axis:"Social Networks",value:0.56},
-    {axis:"Internet Banking",value:0.42}
-  ],
-  [
-    {axis:"Email",value:0.48},
-    {axis:"Social Networks",value:0.41},
-    {axis:"Internet Banking",value:0.27}
-  ]
-];
+var data = [
+  {
+    label: 'Normie',
+    seriesId: 'nor_1',
+    dragEnabled: true,
+    showCircle: true,
+    circleHighlight: false,
+    fill: 'royalblue',
+    data: [
+      {axis: "con_1", value: 3.8},
+      {axis: "neu_2", value: 0.1},
+      {axis: "spac_3", value: 0.7},
+      {axis: "open_2", value: 0.6},
+      {axis: "extra_3", value: 0.5}
+    ]
+  },
+  {
+    label: 'Pepe',
+    seriesId: 'pep_1',
+    dragEnabled: true,
+    showCircle: false,
+    circleHighlight: true,
+    data: [
+      {axis: "con_1", value: 2.5},
+      {axis: "neu_2", value: 0.7},
+      {axis: "spac_3", value: 0.2},
+      {axis: "open_2", value: 0.3},
+      {axis: "extra_3", value: 0.2}
+    ]
+  },
+]
 
 var options = {
+  chartRootName: 'example',
   data: data,
   dims: {
     width: 550,
     height: 500,
   },
   showLegend: true,
-  rootElement: document.getElementById('chart'),
+  rootElementId: 'chart',
   axis: {
     config: axisConfig,
   }
@@ -95,27 +117,29 @@ Example format :
 [
   {
     label: 'Normie',
+    seriesId: 'norm',
     dragEnabled: false,
     showCircle: true,
     data: [
-      {axis: "Conscientiousness", value: 3.8},
-      {axis: "Neuroticism", value: 0.1},
-      {axis: "test spacing two three", value: 0.7},
-      {axis: "Openness", value: 0.6},
-      {axis: "Extraversion", value: 0.5}
+      {axis: "con_1", value: 3.8},
+      {axis: "neu_2", value: 0.1},
+      {axis: "spac_3", value: 0.7},
+      {axis: "open_2", value: 0.6},
+      {axis: "extra_3", value: 0.5}
     ]
   },
   {
     label: 'Pepe',
+    seriesId: 'pep',
     dragEnabled: true,
     showCircle: true,
     circleHighlight: true,
     data: [
-      {axis: "Conscientiousness", value: 2.5},
-      {axis: "Neuroticism", value: 0.7},
-      {axis: "test spacing two three", value: 0.2},
-      {axis: "Openness", value: 0.3},
-      {axis: "Extraversion", value: 0.2}
+      {axis: "con_1", value: 3.8},
+      {axis: "neu_2", value: 0.2},
+      {axis: "spac_3", value: 0.7},
+      {axis: "open_2", value: 0.8},
+      {axis: "extra_3", value: 0.5}
     ]
   },
 ];
@@ -227,13 +251,25 @@ scaling function is used :
     .domain([100, 1200])
     .range([5, 15]);
 ```
-##### `legend.titleProperties.fontSize: Ineteger, default = 12`
+##### `legend.titleProperties.fontSize: Integer, default = 12`
 
 The fontSize for the legend title. Ignore if the legend labels scale with size.
 
 ##### `legend.titleProperties.fill: String, default = '#404040'`
 
 The legend title color
+
+##### `legend.titleProperties.font-family: String, default = 'sans-serif'`
+
+Legend title font family
+
+##### `legend.titleProperties.fontScaleMin: Float, default = 5`
+
+Legend title minimum font scale. As the minimum when legend font size scales with chart height.
+
+##### `legend.titleProperties.fontScaleMax: Float, default = 20`
+
+Legend title minimum font scale. As the minimum when legend font size scales with chart height.
 
 ##### `legend.labelTextProperties.font-sze: String, default = 11`
 
@@ -274,36 +310,11 @@ maxValue = axis.maxValue and a minimum equal to 0.
 
 The global maxValue for the chart used if axis.useGlobalMax is true
 
-##### `axis.leftOffsetPLab`
-....
-    axis: {
-
-      useGlobalMax: false,
-      maxValue: 0.6,
-      leftOffsetPLabel: 0.85,
-      rotateTextWithAxis: true,
-      textOverflowWidthLimit: 10,
-      textLineSpacingPx: 10,
-      tickScale: null,
-      axisTitleScale: null,
-      axisLabelProps: {
-        'font-family': 'sans-serif',
-        fontSize: 11,
-        'fill': '#808080'
-      },
-      ticks: {
-        fill: '#737373',
-        minZoomFont: 10,
-        maxZoomFont: 1,
-        'font-family': 'sans-serif'
-      }
-    },
+## .... TODO: Complete Documentation 
 
 ## Contribute
 
 If you have a feature request, please add it as an issue or make a pull request.
-
-## Changelog
 
 ## Attributions
 
