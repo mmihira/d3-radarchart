@@ -1,6 +1,14 @@
 # d3-RadarChart
 
-RadarChart using 
+RadarChart using d3
+
+Features 
+ - Zoomable
+ - Specify size in options
+ - Interactive legend
+ - Draggable circles
+ - Scroll on axis to change values
+ - Many customisable options
 
 ## Table of Contents
 
@@ -15,10 +23,12 @@ RadarChart using
 * [Attributions](#Attributions)
 
 ## Screenshot
+
 ![sdfsfd](https://media.giphy.com/media/uACQODMkpkg8jdapuy/giphy.gif)
 
 ## Live Demo
-Test the demo ![here](https://mmihira.github.io/d3-RadarChart)
+
+Test the demo (https://mmihira.github.io/d3-RadarChart)
 
 ## Install
 
@@ -317,6 +327,11 @@ The global maxValue for the chart used if axis.useGlobalMax is true
 ## Contribute
 
 If you have a feature request, please add it as an issue or make a pull request.
+
+## Related
+
+There's many radar chart libs which google will find for you. This one is based of the following :
+(http://bl.ocks.org/nbremer/6506614)
 
 ## Attributions
 
