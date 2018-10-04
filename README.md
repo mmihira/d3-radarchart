@@ -1,5 +1,7 @@
 # d3-RadarChart
 
+RadarChart using 
+
 ## Table of Contents
 
 * [Screenshot](#Screenshot)
@@ -14,9 +16,9 @@
 
 ## Screenshot
 ![sdfsfd](https://media.giphy.com/media/uACQODMkpkg8jdapuy/giphy.gif)
-## Live Demo
 
-## Install
+## Live Demo
+Test the demo ![here](https://mmihira.github.io/d3-RadarChart)
 
 ## Install
 
