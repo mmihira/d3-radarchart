@@ -92,7 +92,6 @@ function __setupSizeScales (params) {
   const currentTickSize = tickScale(width);
 
   const overLayWidth = axisTitleScale(width) * textOverflowWidthLimit;
-  // TODO: Rename overLayX
   const overLayx = () => axisLabelCords().x - overLayWidth / 2;
   const overLayHeight = () => (1 + lines.length) * axisTitleScale(width) * 2;
   const overLayy = () => axisLabelCords().y - overLayHeight() / 2.5;

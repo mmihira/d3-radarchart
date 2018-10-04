@@ -8,6 +8,7 @@ import * as selectors from './selectors/index.js';
 
 const DEFAULTS_OPTS = function () {
   return {
+    charRootName: 'd3radarchart',
     enableZoom: true,
     backgroundColor: 'white',
     zoomProps: {
@@ -140,13 +141,14 @@ const DEFAULTS_OPTS = function () {
   };
 };
 
-/***
- * Area
- * Circles
- * Axis
- * Legend
+/**
+ * State holds all state variables for the radar chart.
+ * Only state instance members should access __STATE__ directly.
+ * Otherwise other components should interact with the __STATE__ through
+ * setters/getters.
+ *
+ * @param options {Object}
  */
-
 class State {
   constructor (options) {
     this.__STATE__ = _.merge(
@@ -236,6 +238,9 @@ class State {
     return this.__STATE__.opts.axis;
   }
 
+  /**
+   * Calculate chart layout dimensions
+   */
   __calculateDimensions () {
     const legendDimsToKeep = [
       'legendWidthP',
@@ -277,6 +282,9 @@ class State {
     this.__STATE__.calculatedDims.maxAxisNo = this.__STATE__.axisConfig.length;
   }
 
+  /**
+   * Create parameters for all axis
+   */
   __buildAxis () {
     const axisParameters = this.axisConfig.map((axisOptions, inx) => {
       const { axis } = this.__STATE__.opts;
@@ -385,6 +393,7 @@ class State {
   }
 }
 
+// Add the mixins
 Object.assign(State.prototype, setters);
 Object.assign(State.prototype, renderPropsGetters);
 Object.assign(State.prototype, stateQuery);

@@ -26,12 +26,19 @@ class RadarChart {
       .renderLegend();
   }
 
+  /**
+   * Rerender the chart with new options
+   * @param options {Object}
+   */
   reRenderWithNewOptions (options) {
     this.delete();
     this.__construct(options);
     this.render();
   }
 
+  /**
+   * Completely remove the current chart
+   */
   delete () {
     const seriesIds = this.state.getAreaDatums().map(e => e.props.seriesId);
     this.renderEngine.areaRender.removeArea(seriesIds);
@@ -43,10 +50,16 @@ class RadarChart {
     this.state.selectors.selectRootSvg().remove();
   }
 
+  /**
+   * Show axis value label values for a given series
+   */
   showAxisLabelValues (seriesId) {
     this.eventHandlerFactory.showCurrentValuesForSeries(seriesId);
   }
 
+  /**
+   * Hide all axis label values
+   */
   hideAxisLabelValues () {
     this.eventHandlerFactory.hideAllAxisValues();
   }

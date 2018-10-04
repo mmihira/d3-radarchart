@@ -1,11 +1,6 @@
 import * as d3 from 'd3';
 
 class Legend {
-  /**
-   * @param charRootName {String}
-   * @param stateSetters {Object}
-   * @param rootElement {HTMLElement} The root parent div
-   */
   constructor (params) {
     for (let key in params) {
       this[key] = params[key];

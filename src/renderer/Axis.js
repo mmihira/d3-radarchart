@@ -2,11 +2,6 @@ import * as d3 from 'd3';
 import {AREA_EVENT} from '../const.js';
 
 class Axis {
-  /**
-   * @param charRootName {String}
-   * @param stateSetters {Object}
-   * @param rootElement {HTMLElement} The root parent div
-   */
   constructor (params) {
     for (let key in params) {
       this[key] = params[key];

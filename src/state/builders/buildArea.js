@@ -16,9 +16,7 @@ const buildArea = function _buildArea (params) {
 
   const seriesId = series.seriesId;
   const fillColor = series.fill ? series.fill : areaOptions.areaColorScale(seriesInx);
-  // const dragCoordOffset = {x: 0, y: 0};
 
-  // For each axisId calculate the apex points for this area
   const points = series.data.map(sers => {
     return {
       seriesId: seriesId,

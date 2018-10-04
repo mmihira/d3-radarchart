@@ -4,11 +4,6 @@ import Area from './Area.js';
 import Legend from './Legend.js';
 
 class Renderer {
-  /**
-   * @param charRootName {String}
-   * @param stateSetters {Object}
-   * @param rootElement {HTMLElement} The root parent div
-   */
   constructor (props) {
     for (let key in props) {
       this[key] = props[key];
