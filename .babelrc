@@ -1,13 +1,15 @@
 {
   "presets": [
-    [
-      "es2015",
-      {
-        "modules": false
+    ["@babel/preset-env", {
+      "modules": false,
+      "targets": {
+        "browsers": "ie >= 11"
       }
-    ]
+    }]
   ],
-  "plugins": [
-    "external-helpers"
-  ]
+  "env": {
+    "test": {
+      "presets": [["@babel/preset-env"]]
+    }
+  }
 }

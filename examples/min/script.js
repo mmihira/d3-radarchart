@@ -9,8 +9,10 @@ var axisConfig = [
 var data = [
   {
     label: 'Normie',
+    seriesId: 'nor_1',
     dragEnabled: true,
     showCircle: true,
+    circleHighlight: false,
     fill: 'royalblue',
     data: [
       {axis: "con_1", value: 3.8},
@@ -22,8 +24,9 @@ var data = [
   },
   {
     label: 'Pepe',
+    seriesId: 'pep_1',
     dragEnabled: true,
-    showCircle: true,
+    showCircle: false,
     circleHighlight: true,
     data: [
       {axis: "con_1", value: 2.5},
@@ -38,13 +41,14 @@ var data = [
 let radarChart;
 
 var options = {
+  chartRootName: 'test1',
   data: data,
   dims: {
     width: 550,
     height: 500,
   },
   showLegend: true,
-  rootElement: document.getElementById('chart'),
+  rootElementId: 'chart',
   levels: {
     levelsNo: 3
   },
@@ -53,23 +57,12 @@ var options = {
   },
   axis: {
     config: axisConfig,
-    wheelLabelAreaId: 'Pepe',
+    wheelLabelAreaId: 'pep_1',
     onAxisLabelOver: null
   }
 }
 
 radarChart = new RadarChart(options);
 radarChart.render();
-
-let reRenderTest = function() {
-  console.log('Removing');
-  setTimeout(function() {
-    radarChart.delete();
-    setTimeout(function() {
-      console.log('Re-rendering');
-      radarChart.reRenderWithNewOptions(options);
-    }, 1000)
-  }, 1000)
-};
-
-// setTimeout(reRenderTest, 2000);
+radarChart.reRenderWithNewOptions(options);
+radarChart.showAxisLabelValues('pep_1');
