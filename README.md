@@ -310,7 +310,7 @@ maxValue = axis.maxValue and a minimum equal to 0.
 
 The global maxValue for the chart used if axis.useGlobalMax is true
 
-## .... TODO: Complete Documentation 
+#### .... TODO: Complete Documentation 
 
 ## Contribute
 
