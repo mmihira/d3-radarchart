@@ -2,7 +2,7 @@
 
 RadarChart using d3
 
-Features 
+Features
  - Zoomable
  - Specify size in options
  - Interactive legend
@@ -28,7 +28,7 @@ Features
 
 ## Live Demo
 
-Test the demo https://mmihira.github.io/d3-RadarChart
+Test the demo https://mmihira.github.io/d3-radarchart
 
 ## Install
 
@@ -129,7 +129,7 @@ The maximum zoom (How much can be zoomed in)
 
 The data to display in the radar chart. Should be an array of Series objects.
 See series parameters for a list of parameters available.
-Example format : 
+Example format :
 ```
 [
   {
@@ -195,12 +195,12 @@ height * dims.innerPaddingP
 
 #### `legend: Object`
 
-Set options for the chart legend. The legend is designed to 
+Set options for the chart legend. The legend is designed to
 scale with the height and width of the chart.
 
 ##### `legend.interactive: Bool; default = true`
 
-Whether the chart is interactive or not. I.E hover over a legend item highlights the area 
+Whether the chart is interactive or not. I.E hover over a legend item highlights the area
 associated.
 
 ##### `legend.legendWidthP: Float, default = 0.9`
@@ -213,7 +213,7 @@ The legend inner height = dims.heigt * legend.legendHeightP
 
 ##### `legend.legendWOverlap: Float, default = 1.1`
 
-Offset the legend by a fraction of the legend width. Adjust this value if you 
+Offset the legend by a fraction of the legend width. Adjust this value if you
 don't want to squash the chart but want the legend to overlap into the chart space.
 
 ##### `legend.legendTopOffsetP: Float, default = 0.030`
@@ -253,7 +253,7 @@ Scale the legend text with the size of the chart.
 ##### `legend.titleScale: Function, default = null`
 
 Provide a custom title scale with size. If null is supplied the following
-scaling function is used : 
+scaling function is used :
 
 ```
   legendOpts.titleScale = d3.scaleLinear()
@@ -327,7 +327,7 @@ maxValue = axis.maxValue and a minimum equal to 0.
 
 The global maxValue for the chart used if axis.useGlobalMax is true
 
-#### .... TODO: Complete Documentation 
+#### .... TODO: Complete Documentation
 
 ## Contribute
 
