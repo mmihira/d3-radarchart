@@ -6,7 +6,7 @@ function showCurrentValuesForSeries (seriesId) {
     return acc;
   }, {});
 
-  let Format = d3.format('.2');
+  let Format = d3.format('.3');
   Object.keys(valuesForSeries).forEach(axisId => {
     this.selectors.labelValueForAxis(axisId).text(Format(valuesForSeries[axisId]));
   });
@@ -19,7 +19,7 @@ function hideAllAxisValues () {
 }
 
 function showCurrentValueForSeriesAndAxis (seriesId, axisId) {
-  let Format = d3.format('.2');
+  let Format = d3.format('.3');
   const valuesForSeries = this.state.areaForAreaId(seriesId).state.points.reduce((acc, point) => {
     acc[point.axisId] = point.value;
     return acc;
