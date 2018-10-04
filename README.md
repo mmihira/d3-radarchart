@@ -28,7 +28,7 @@ Features
 
 ## Live Demo
 
-Test the demo (https://mmihira.github.io/d3-RadarChart)
+Test the demo https://mmihira.github.io/d3-RadarChart
 
 ## Install
 
@@ -43,6 +43,11 @@ npm i -S d3-radarchart
 ```sh
 yarn add d3-radarchart
 ```
+
+- CDN
+
+For example :
+https://unpkg.com/d3-radarchart@1.0.1/dist/bundle.js
 
 ## Usage
 
