@@ -1,7 +1,6 @@
 import axisConfig from '../../../test/fixtures/axisOptions.js';
 import State from '../../../src/state/state.js';
 import {setters} from '../../../src/state/setters/index.js';
-import * as _ from 'lodash';
 
 test('stateSetters', () => {
   const options = {
@@ -17,7 +16,7 @@ test('stateSetters', () => {
 
   let target = new State(options);
 
-  expect(_.keys(target.stateSetters)).toEqual(
-    expect.arrayContaining(_.keys(setters))
+  expect(Object.keys(target.stateSetters)).toEqual(
+    expect.arrayContaining(Object.keys(setters))
   );
 });

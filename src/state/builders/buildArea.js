@@ -1,4 +1,4 @@
-import {scaleLog} from 'd3';
+import { scaleLog } from 'd3';
 import { AREA_STATE } from '../../const.js';
 
 const buildArea = function _buildArea (params) {
@@ -15,7 +15,9 @@ const buildArea = function _buildArea (params) {
   } = params;
 
   const seriesId = series.seriesId;
-  const fillColor = series.fill ? series.fill : areaOptions.areaColorScale(seriesInx);
+  const fillColor = series.fill
+    ? series.fill
+    : areaOptions.areaColorScale(seriesInx);
 
   const points = series.data.map(sers => {
     return {
@@ -51,7 +53,7 @@ const buildArea = function _buildArea (params) {
   const words = label.split(' ');
   let legendLabelLines = [words[0]];
   legendLabelLines = words.slice(1).reduce((acc, word) => {
-    if ((acc[acc.length - 1].length + word.length) <= textOverflowWidthLimit) {
+    if (acc[acc.length - 1].length + word.length <= textOverflowWidthLimit) {
       acc[acc.length - 1] = acc[acc.length - 1] + ' ' + word;
     } else {
       acc.push(word);
@@ -79,6 +81,4 @@ const buildArea = function _buildArea (params) {
   };
 };
 
-export {
-  buildArea
-};
+export { buildArea };

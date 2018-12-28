@@ -9,7 +9,9 @@ const polygonClassForSeriesName = function (seriesId) {
 };
 
 const polygonClassName = function (seriesId) {
-  return `${this.polygonClassForSeriesName(seriesId)} ${this.polygonDefaultName()}`;
+  return `${this.polygonClassForSeriesName(
+    seriesId
+  )} ${this.polygonDefaultName()}`;
 };
 
 const polygonVertexClassForSeries = function (seriesId) {
@@ -21,7 +23,9 @@ const polygonVertexDefault = function () {
 };
 
 const polygonVertextClassNames = function (seriesId) {
-  return `${this.polygonVertexDefault()} ${this.polygonVertexClassForSeries(seriesId)}`;
+  return `${this.polygonVertexDefault()} ${this.polygonVertexClassForSeries(
+    seriesId
+  )}`;
 };
 
 const circleClassDefaultName = function () {
@@ -33,7 +37,9 @@ const circleClassForSeriesName = function (seriesId) {
 };
 
 const circleClassName = function (seriesId) {
-  return `${this.circleClassDefaultName()} ${this.circleClassForSeriesName(seriesId)}`;
+  return `${this.circleClassDefaultName()} ${this.circleClassForSeriesName(
+    seriesId
+  )}`;
 };
 
 const circleOverlayDefaultName = function () {
@@ -45,7 +51,9 @@ const circleOverlayForSeriesName = function (seriesId) {
 };
 
 const circleOverlayClassName = function (seriesId) {
-  return `${this.circleOverlayDefaultName()} ${this.circleOverlayForSeriesName(seriesId)}`;
+  return `${this.circleOverlayDefaultName()} ${this.circleOverlayForSeriesName(
+    seriesId
+  )}`;
 };
 
 const selectAllPolygons = function () {
@@ -57,11 +65,15 @@ const selectAllCircles = function () {
 };
 
 const selectAllCirclesForSeries = function (seriesId) {
-  return this.drawingContext().selectAll('.' + this.circleClassForSeriesName(seriesId));
+  return this.drawingContext().selectAll(
+    '.' + this.circleClassForSeriesName(seriesId)
+  );
 };
 
 const selectAllCircleOverlaysForSeries = function (seriesId) {
-  return this.drawingContext().selectAll('.' + this.circleOverlayForSeriesName(seriesId));
+  return this.drawingContext().selectAll(
+    '.' + this.circleOverlayForSeriesName(seriesId)
+  );
 };
 
 const selectAllCircleOverlays = function () {
@@ -69,11 +81,15 @@ const selectAllCircleOverlays = function () {
 };
 
 const selectPolygonForSeries = function (seriesId) {
-  return this.drawingContext().select('.' + this.polygonClassForSeriesName(seriesId));
+  return this.drawingContext().select(
+    '.' + this.polygonClassForSeriesName(seriesId)
+  );
 };
 
 const selectPolyVertexLabelForSeries = function (seriesId) {
-  return this.drawingContext().selectAll('.' + this.polygonVertexClassForSeries(seriesId));
+  return this.drawingContext().selectAll(
+    '.' + this.polygonVertexClassForSeries(seriesId)
+  );
 };
 
 const rootIdent = function () {
@@ -101,7 +117,9 @@ const legendGId = function () {
 };
 
 const selectLegendSvg = function () {
-  return this.__STATE__.components.root.rootSvg.select('.' + this.legendSvgId());
+  return this.__STATE__.components.root.rootSvg.select(
+    '.' + this.legendSvgId()
+  );
 };
 
 const selectLegendG = function () {
@@ -117,10 +135,12 @@ const legendRectNameForSeries = function (seriesId) {
 };
 
 const legendRectClassName = function (seriesId) {
-  return `${this.legendRectDefaultName()} ${this.legendRectNameForSeries(seriesId)}`;
+  return `${this.legendRectDefaultName()} ${this.legendRectNameForSeries(
+    seriesId
+  )}`;
 };
 
-const legendRectOverlayDefault = function (seriesId) {
+const legendRectOverlayDefault = function () {
   return `${this.chartRootName}-legend-rect-overlay`;
 };
 
@@ -129,11 +149,15 @@ const legendRectOverlaySeries = function (seriesId) {
 };
 
 const legendRectOverlayClassName = function (seriesId) {
-  return `${this.legendRectOverlayDefault()} ${this.legendRectOverlaySeries(seriesId)}`;
+  return `${this.legendRectOverlayDefault()} ${this.legendRectOverlaySeries(
+    seriesId
+  )}`;
 };
 
 const selectLegendOverlaysForSeries = function (seriesId) {
-  return this.__STATE__.components.root.rootSvg.select('.' + this.legendRectOverlaySeries(seriesId));
+  return this.__STATE__.components.root.rootSvg.select(
+    '.' + this.legendRectOverlaySeries(seriesId)
+  );
 };
 
 const axisTextOverlayClassName = function (axisId) {
@@ -141,7 +165,9 @@ const axisTextOverlayClassName = function (axisId) {
 };
 
 const selectAxisTextForAxis = function (axisId) {
-  return this.__STATE__.components.root.rootSvg.select('.' + this.axisTextOverlayClassName(axisId));
+  return this.__STATE__.components.root.rootSvg.select(
+    '.' + this.axisTextOverlayClassName(axisId)
+  );
 };
 
 const selectRootSvg = function _selectRootSvg () {

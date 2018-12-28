@@ -18,7 +18,7 @@ function onLegendOver () {
     self.highlightArea(area, areaProps);
     self.showCurrentValuesForSeries(area.props.seriesId);
   };
-};
+}
 
 function onLegendOut () {
   const self = this;
@@ -43,13 +43,10 @@ function onLegendOut () {
     area.legendLabelLines
       .map(e => d3.select(e))
       .forEach(e => {
-        e.attr('fill', legendProps.labelTextProperties['fill']);
+        e.attr('fill', legendProps.labelTextProperties.fill);
         e.attr('font-weight', 'normal');
       });
   };
-};
+}
 
-export {
-  onLegendOver,
-  onLegendOut
-};
+export { onLegendOver, onLegendOut };

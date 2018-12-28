@@ -3,7 +3,7 @@ import series from '../../fixtures/series.js';
 import axisConfig from '../../../test/fixtures/axisOptions.js';
 import State from '../../../src/state/state.js';
 import {STATE_DEFAULTS_OPTS} from '../../../src/state/state.js';
-import * as _ from 'lodash';
+import omit from 'lodash.omit';
 
 const opts = DEFAULTS_OPTS();
 
@@ -37,7 +37,7 @@ test('__buildArea - props', () => {
   ];
 
   // Don't test the functions
-  const propsToTest = _.omit(
+  const propsToTest = omit(
     state.components.areas.nor_1.props,
     toOmit
   );
@@ -77,7 +77,7 @@ test('__buildArea - state', () => {
   const toOmit = [];
 
   // Don't test the functions
-  const stateToTest = _.omit(
+  const stateToTest = omit(
     state.components.areas.nor_1.state,
     toOmit
   );

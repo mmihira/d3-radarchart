@@ -24,17 +24,20 @@ export const AXIS_QUADS = {
 };
 
 export const browserVendor = (function () {
-  var isOpera = (!!window.opr && !!window.opr.addons) || !!window.opera || navigator.userAgent.indexOf(' OPR/') >= 0;
+  const isOpera =
+    (!!window.opr && !!window.opr.addons) ||
+    !!window.opera ||
+    navigator.userAgent.indexOf(' OPR/') >= 0;
   // Firefox 1.0+
-  var isFirefox = typeof InstallTrigger !== 'undefined';
+  const isFirefox = typeof InstallTrigger !== 'undefined';
   // Internet Explorer 6-11
-  var isIE = false || !!document.documentMode;
+  const isIE = false || !!document.documentMode;
   // Edge 20+
-  var isEdge = !isIE && !!window.StyleMedia;
+  const isEdge = !isIE && !!window.StyleMedia;
   // Chrome 1+
-  var isChrome = !!window.chrome && !!window.chrome.webstore;
+  const isChrome = !!window.chrome && !!window.chrome.webstore;
   // Blink engine detection
-  var isBlink = (isChrome || isOpera) && !!window.CSS;
+  const isBlink = (isChrome || isOpera) && !!window.CSS;
 
   return {
     isOpera: isOpera,

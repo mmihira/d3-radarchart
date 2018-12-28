@@ -1,17 +1,9 @@
-import {scaleLinear, scaleLog} from 'd3';
-import {RADIANS, AXIS_QUADS} from '../../const.js';
-const {
-  QUAD_1,
-  QUAD_2,
-  QUAD_3,
-  QUAD_4
-} = AXIS_QUADS;
+import { scaleLinear, scaleLog } from 'd3';
+import { RADIANS, AXIS_QUADS } from '../../const.js';
+const { QUAD_1, QUAD_2, QUAD_3, QUAD_4 } = AXIS_QUADS;
 
 function __setupZoomLops (params) {
-  const {
-    maxZoom,
-    minZoom
-  } = params.zoomProps.scaleExtent;
+  const { maxZoom, minZoom } = params.zoomProps.scaleExtent;
   const {
     width,
     scaledTitleSize,
@@ -44,7 +36,10 @@ function __setupZoomLops (params) {
 
   const labelLineSpaceLopMin = scaleLinear()
     .domain([minZoom, maxZoom])
-    .range([textLineSpacingPx(width) * 0.5, textLineSpacingPx(width) * 0.3 * 0.5]);
+    .range([
+      textLineSpacingPx(width) * 0.5,
+      textLineSpacingPx(width) * 0.3 * 0.5
+    ]);
 
   return {
     axisTitleSizeLop,
@@ -77,14 +72,18 @@ function __setupSizeScales (params) {
 
   const textLineSpacingPx = scaleLinear()
     .domain([100, 1200])
-    .range([axisScaleProps.minTextLineSpacing, axisScaleProps.maxTextLineSpacing]);
+    .range([
+      axisScaleProps.minTextLineSpacing,
+      axisScaleProps.maxTextLineSpacing
+    ]);
 
   const axisLabelCords = function _axisLabelCords (zoomK) {
     if (!zoomK) {
-      return projectValueOnAxis(axisLabelCordLop(zoomProps.scaleExtent.minZoom));
-    } else {
-      return projectValueOnAxis(axisLabelCordLop(zoomK));
+      return projectValueOnAxis(
+        axisLabelCordLop(zoomProps.scaleExtent.minZoom)
+      );
     }
+    return projectValueOnAxis(axisLabelCordLop(zoomK));
   };
 
   const scaledTickSize = tickScale(width);
@@ -111,7 +110,7 @@ function __setupSizeScales (params) {
   };
 }
 
-const buildAxis = function _buildAxis (params, currentAccessors) {
+const buildAxis = function _buildAxis (params) {
   const {
     axisScaleProps,
     zoomProps,
@@ -132,8 +131,12 @@ const buildAxis = function _buildAxis (params, currentAccessors) {
 
   const x1 = optsLeftChartOffset + innerW / 2;
   const y1 = optsTopChartOffset + innerH / 2;
-  const x2 = optsLeftChartOffset + ((innerW / 2) * (1 - Math.sin(axisIndex * RADIANS / maxAxisNo)));
-  const y2 = optsTopChartOffset + ((innerH / 2) * (1 - Math.cos(axisIndex * RADIANS / maxAxisNo)));
+  const x2 =
+    optsLeftChartOffset +
+    (innerW / 2) * (1 - Math.sin((axisIndex * RADIANS) / maxAxisNo));
+  const y2 =
+    optsTopChartOffset +
+    (innerH / 2) * (1 - Math.cos((axisIndex * RADIANS) / maxAxisNo));
 
   let quad = null;
   if (x2 < x1 && y2 <= y1) {
@@ -150,16 +153,24 @@ const buildAxis = function _buildAxis (params, currentAccessors) {
   const labelY = y2;
 
   // Note the gradients are inversed because of the SVG co-ordinate system.
-  const gradient = Math.abs(x2 - x1) < 0.000000001 ? Infinity : (y2 - y1) / (x2 - x1);
+  const gradient =
+    Math.abs(x2 - x1) < 0.000000001 ? Infinity : (y2 - y1) / (x2 - x1);
   const linearConstant = gradient === Infinity ? 0 : y2 - gradient * x2;
 
   // Axis max value
   const maxValue = useGlobalMax ? globalMaxValue : axisOptions.axisValueMax;
   // Axis min value
-  const minValue = useGlobalMax || isNaN(axisOptions.axisValueMin) ? 0 : axisOptions.axisValueMin;
+  const minValue =
+    useGlobalMax || isNaN(axisOptions.axisValueMin)
+      ? 0
+      : axisOptions.axisValueMin;
   const range = maxValue - minValue;
-  const axisLength = Math.sqrt(Math.pow((x2 - x1), 2) + Math.pow((y2 - y1), 2));
-  const angleFromNorth = (180 / Math.PI) * (1 - axisIndex * RADIANS / maxAxisNo) - (180 / Math.PI) - 90 - (180 / Math.PI * 10 / axisLength / 2);
+  const axisLength = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+  const angleFromNorth =
+    (180 / Math.PI) * (1 - (axisIndex * RADIANS) / maxAxisNo) -
+    180 / Math.PI -
+    90 -
+    ((180 / Math.PI) * 10) / axisLength / 2;
   const axisId = axisOptions.axisId;
   const label = axisOptions.label ? axisOptions.label : axisOptions.axisId;
 
@@ -167,7 +178,7 @@ const buildAxis = function _buildAxis (params, currentAccessors) {
   const words = label.split(' ');
   let lines = [words[0]];
   lines = words.slice(1).reduce((acc, word) => {
-    if ((acc[acc.length - 1].length + word.length) <= textOverflowWidthLimit) {
+    if (acc[acc.length - 1].length + word.length <= textOverflowWidthLimit) {
       acc[acc.length - 1] = acc[acc.length - 1] + ' ' + word;
     } else {
       acc.push(word);
@@ -177,7 +188,10 @@ const buildAxis = function _buildAxis (params, currentAccessors) {
 
   let zoomLines = [words[0]];
   zoomLines = words.slice(1).reduce((acc, word) => {
-    if ((acc[acc.length - 1].length + word.length) <= textOverflowWidthLimitZoomed) {
+    if (
+      acc[acc.length - 1].length + word.length <=
+      textOverflowWidthLimitZoomed
+    ) {
       acc[acc.length - 1] = acc[acc.length - 1] + ' ' + word;
     } else {
       acc.push(word);
@@ -185,8 +199,12 @@ const buildAxis = function _buildAxis (params, currentAccessors) {
     return acc;
   }, zoomLines);
 
-  const projectValueOnAxisXMultTerm = Math.sin(axisIndex * RADIANS / maxAxisNo);
-  const projectValueOnAxisYMultTerm = Math.cos(axisIndex * RADIANS / maxAxisNo);
+  const projectValueOnAxisXMultTerm = Math.sin(
+    (axisIndex * RADIANS) / maxAxisNo
+  );
+  const projectValueOnAxisYMultTerm = Math.cos(
+    (axisIndex * RADIANS) / maxAxisNo
+  );
 
   /**
    * Project a cordinate on the svg onto this axis
@@ -195,14 +213,12 @@ const buildAxis = function _buildAxis (params, currentAccessors) {
    */
   const projectCordToAxis = function (x, y) {
     if (gradient === Infinity) {
-      return {x: x1, y: y};
-    } else {
-      if (gradient < -2 || (gradient >= 0 || gradient < 0.145)) {
-        return {x: x, y: gradient * x + linearConstant};
-      } else {
-        return {x: (y - linearConstant) / gradient, y: y};
-      }
+      return { x: x1, y: y };
     }
+    if (gradient < -2 || (gradient >= 0 || gradient < 0.145)) {
+      return { x: x, y: gradient * x + linearConstant };
+    }
+    return { x: (y - linearConstant) / gradient, y: y };
   };
 
   /**
@@ -212,30 +228,43 @@ const buildAxis = function _buildAxis (params, currentAccessors) {
    */
   const projectValueOnAxis = function (value) {
     return {
-      x: optsLeftChartOffset + (innerW / 2) * (1 - ((parseFloat(value) - minValue) / range) * projectValueOnAxisXMultTerm),
-      y: optsTopChartOffset + (innerH / 2) * (1 - ((parseFloat(value) - minValue) / range) * projectValueOnAxisYMultTerm)
+      x:
+        optsLeftChartOffset +
+        (innerW / 2) *
+          (1 -
+            ((parseFloat(value) - minValue) / range) *
+              projectValueOnAxisXMultTerm),
+      y:
+        optsTopChartOffset +
+        (innerH / 2) *
+          (1 -
+            ((parseFloat(value) - minValue) / range) *
+              projectValueOnAxisYMultTerm)
     };
   };
 
   // Convert a coordinate on the axis to a value
   const cordOnAxisToValue = function (x, y) {
     if (gradient === Infinity) {
-      let len = Math.abs(y2 - y);
-      return minValue + (axisLength - len) * range / axisLength;
+      const len = Math.abs(y2 - y);
+      return minValue + ((axisLength - len) * range) / axisLength;
     } else if (gradient >= 0 && gradient < 0.00000001) {
-      let len = Math.abs(x2 - x);
-      return minValue + (axisLength - len) * range / axisLength;
-    } else {
-      return minValue + (2 * (x - optsLeftChartOffset) / innerW - 1) * (range / projectValueOnAxisXMultTerm) * -1;
+      const len = Math.abs(x2 - x);
+      return minValue + ((axisLength - len) * range) / axisLength;
     }
+    return (
+      minValue +
+        ((2 * (x - optsLeftChartOffset)) / innerW - 1) *
+          (range / projectValueOnAxisXMultTerm) *
+          -1
+    );
   };
 
   const axisLabelRotation = function () {
     if (angleFromNorth > -270.0) {
       return angleFromNorth - 180;
-    } else {
-      return angleFromNorth;
     }
+    return angleFromNorth;
   };
 
   const { maxZoom, minZoom } = zoomProps.scaleExtent;
@@ -254,11 +283,7 @@ const buildAxis = function _buildAxis (params, currentAccessors) {
     zoomProps
   });
 
-  const {
-    scaledTitleSize,
-    scaledTickSize,
-    textLineSpacingPx
-  } = sizeScales;
+  const { scaledTitleSize, scaledTickSize, textLineSpacingPx } = sizeScales;
 
   const zoomLops = __setupZoomLops({
     zoomProps,
@@ -302,6 +327,4 @@ const buildAxis = function _buildAxis (params, currentAccessors) {
   );
 };
 
-export {
-  buildAxis
-};
+export { buildAxis };

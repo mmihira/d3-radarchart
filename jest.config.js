@@ -1,10 +1,9 @@
 module.exports = {
   verbose: true,
   testRegex: '(/test/(unit)/.*|(\\.|/)(test|spec))\\.jsx?$',
-  transform: { "^.+\\.js$": "babel-jest" },
-  moduleDirectories: [
-      "node_modules",
-      "src"
-    ]
+  moduleDirectories: ['node_modules', 'src'],
+  testPathIgnorePatterns: ['/node_modules/'],
+  transform: {
+    '^.+\\.jsx?$': 'babel-jest'
+  }
 };
-

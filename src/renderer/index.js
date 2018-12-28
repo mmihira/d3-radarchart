@@ -5,9 +5,9 @@ import Legend from './Legend.js';
 
 class Renderer {
   constructor (props) {
-    for (let key in props) {
+    Object.keys(props).forEach(key => {
       this[key] = props[key];
-    }
+    });
 
     this.rootElement = document.getElementById(props.rootElementId);
     this.axisRender = new Axis(Object.assign({}, props));
@@ -46,7 +46,8 @@ class Renderer {
       legendOpts
     } = initProperties;
 
-    const rootSvg = d3.select(this.rootElement)
+    const rootSvg = d3
+      .select(this.rootElement)
       .append('svg')
       .style('background', backgroundColor)
       .attr('width', width)
@@ -68,7 +69,10 @@ class Renderer {
       .attr('class', this.selectors.legendGId())
       .attr('height', legendDims.height)
       .attr('width', legendDims.width)
-      .attr('transform', 'translate(0,' + (legendOpts.legendTopOffsetP * height * 2) + ')');
+      .attr(
+        'transform',
+        'translate(0,' + legendOpts.legendTopOffsetP * height * 2 + ')'
+      );
 
     if (this.stateQuery.zoomEnabled()) {
       const zoomProps = this.stateQuery.zoomProps();
@@ -94,6 +98,6 @@ class Renderer {
 
     return this;
   }
-};
+}
 
 export default Renderer;

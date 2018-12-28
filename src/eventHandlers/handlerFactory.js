@@ -1,4 +1,3 @@
-import * as _ from 'lodash';
 import * as areaHandlers from './areaHandlers.js';
 import * as axisHandlers from './axisHandlers.js';
 import * as legendHandlers from './legendHandlers.js';
@@ -13,10 +12,18 @@ class EventHandlerFactory {
     this.selectors = this.state.selectors;
 
     // Bind the mixins
-    _.each(areaHandlers, (val, key) => { this[key] = this[key].bind(this); });
-    _.each(axisHandlers, (val, key) => { this[key] = this[key].bind(this); });
-    _.each(legendHandlers, (val, key) => { this[key] = this[key].bind(this); });
-    _.each(zoomHandlers, (val, key) => { this[key] = this[key].bind(this); });
+    Object.keys(areaHandlers).forEach(key => {
+      this[key] = this[key].bind(this);
+    });
+    Object.keys(axisHandlers).forEach(key => {
+      this[key] = this[key].bind(this);
+    });
+    Object.keys(legendHandlers).forEach(key => {
+      this[key] = this[key].bind(this);
+    });
+    Object.keys(zoomHandlers).forEach(key => {
+      this[key] = this[key].bind(this);
+    });
   }
 }
 

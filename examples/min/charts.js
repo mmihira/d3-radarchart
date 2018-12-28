@@ -1,13 +1,28 @@
 function createOptions (toMerge) {
-  let axisConfig = [
-    {label: 'Conscientiousness', axisId: "con_1", axisValueMax: 4, axisValueMin: 2},
-    {label: 'Neuroticism', axisId: "neu_2", axisValueMax: 1, axisValueMin: 0},
-    {label: 'Test spacing space space', axisId: "spac_3", axisValueMax: 1, axisValueMin: 0},
-    {label: 'Opennes', axisId: "open_2", axisValueMax: 1, axisValueMin: 0},
-    {label: 'Extraversion', axisId: "extra_3", axisValueMax: 1, axisValueMin: 0}
+  const axisConfig = [
+    {
+      label: 'Conscientiousness',
+      axisId: 'con_1',
+      axisValueMax: 4,
+      axisValueMin: 2
+    },
+    { label: 'Neuroticism', axisId: 'neu_2', axisValueMax: 1, axisValueMin: 0 },
+    {
+      label: 'Test spacing space space',
+      axisId: 'spac_3',
+      axisValueMax: 1,
+      axisValueMin: 0
+    },
+    { label: 'Opennes', axisId: 'open_2', axisValueMax: 1, axisValueMin: 0 },
+    {
+      label: 'Extraversion',
+      axisId: 'extra_3',
+      axisValueMax: 1,
+      axisValueMin: 0
+    }
   ];
 
-  let data = [
+  const data = [
     {
       label: 'Normie',
       seriesId: 'nor_1',
@@ -16,11 +31,11 @@ function createOptions (toMerge) {
       circleHighlight: false,
       fill: 'royalblue',
       data: [
-        {axis: "con_1", value: 3.8},
-        {axis: "neu_2", value: 0.1},
-        {axis: "spac_3", value: 0.7},
-        {axis: "open_2", value: 0.6},
-        {axis: "extra_3", value: 0.5}
+        { axis: 'con_1', value: 3.8 },
+        { axis: 'neu_2', value: 0.1 },
+        { axis: 'spac_3', value: 0.7 },
+        { axis: 'open_2', value: 0.6 },
+        { axis: 'extra_3', value: 0.5 }
       ]
     },
     {
@@ -30,22 +45,22 @@ function createOptions (toMerge) {
       showCircle: false,
       circleHighlight: false,
       data: [
-        {axis: "con_1", value: 2.5},
-        {axis: "neu_2", value: 0.7},
-        {axis: "spac_3", value: 0.2},
-        {axis: "open_2", value: 0.3},
-        {axis: "extra_3", value: 0.2}
+        { axis: 'con_1', value: 2.5 },
+        { axis: 'neu_2', value: 0.7 },
+        { axis: 'spac_3', value: 0.2 },
+        { axis: 'open_2', value: 0.3 },
+        { axis: 'extra_3', value: 0.2 }
       ]
-    },
+    }
   ];
 
-  let options = {
+  const options = {
     enableZoom: false,
     chartRootName: 'test1',
     data: data,
     dims: {
       width: 550,
-      height: 500,
+      height: 500
     },
     showLegend: false,
     rootElementId: 'chart',
@@ -53,7 +68,7 @@ function createOptions (toMerge) {
       levelsNo: 3
     },
     legend: {
-      title: "Big 5"
+      title: 'Big 5'
     },
     axis: {
       config: axisConfig,
@@ -62,15 +77,15 @@ function createOptions (toMerge) {
   };
 
   return _.merge(options, toMerge);
-};
+}
 
-let defOptions = createOptions({});
-let radarChart = new RadarChart(defOptions);
+const defOptions = createOptions({});
+const radarChart = new d3RadarChart.RadarChart(defOptions);
 radarChart.render();
 
 function updateChart () {
   radarChart.reRenderWithNewOptions(defOptions);
-};
+}
 
 function updateOptions (options) {
   _.merge(defOptions, options);
@@ -84,11 +99,11 @@ function toggleEnableZoom (element) {
     updateOptions({ enableZoom: false });
     updateChart();
   }
-};
+}
 
 function toggleHighlight (element) {
   if (!element.checked) {
-    let data = [
+    const data = [
       {
         label: 'Normie',
         seriesId: 'nor_1',
@@ -97,11 +112,11 @@ function toggleHighlight (element) {
         circleHighlight: false,
         fill: 'royalblue',
         data: [
-          {axis: "con_1", value: 3.8},
-          {axis: "neu_2", value: 0.1},
-          {axis: "spac_3", value: 0.7},
-          {axis: "open_2", value: 0.6},
-          {axis: "extra_3", value: 0.5}
+          { axis: 'con_1', value: 3.8 },
+          { axis: 'neu_2', value: 0.1 },
+          { axis: 'spac_3', value: 0.7 },
+          { axis: 'open_2', value: 0.6 },
+          { axis: 'extra_3', value: 0.5 }
         ]
       },
       {
@@ -111,18 +126,18 @@ function toggleHighlight (element) {
         showCircle: false,
         circleHighlight: true,
         data: [
-          {axis: "con_1", value: 2.5},
-          {axis: "neu_2", value: 0.7},
-          {axis: "spac_3", value: 0.2},
-          {axis: "open_2", value: 0.3},
-          {axis: "extra_3", value: 0.2}
+          { axis: 'con_1', value: 2.5 },
+          { axis: 'neu_2', value: 0.7 },
+          { axis: 'spac_3', value: 0.2 },
+          { axis: 'open_2', value: 0.3 },
+          { axis: 'extra_3', value: 0.2 }
         ]
-      },
+      }
     ];
     updateOptions({ data: data });
     updateChart();
   } else {
-    let data = [
+    const data = [
       {
         label: 'Normie',
         seriesId: 'nor_1',
@@ -131,11 +146,11 @@ function toggleHighlight (element) {
         circleHighlight: true,
         fill: 'royalblue',
         data: [
-          {axis: "con_1", value: 3.8},
-          {axis: "neu_2", value: 0.1},
-          {axis: "spac_3", value: 0.7},
-          {axis: "open_2", value: 0.6},
-          {axis: "extra_3", value: 0.5}
+          { axis: 'con_1', value: 3.8 },
+          { axis: 'neu_2', value: 0.1 },
+          { axis: 'spac_3', value: 0.7 },
+          { axis: 'open_2', value: 0.6 },
+          { axis: 'extra_3', value: 0.5 }
         ]
       },
       {
@@ -145,28 +160,28 @@ function toggleHighlight (element) {
         showCircle: true,
         circleHighlight: true,
         data: [
-          {axis: "con_1", value: 2.5},
-          {axis: "neu_2", value: 0.7},
-          {axis: "spac_3", value: 0.2},
-          {axis: "open_2", value: 0.3},
-          {axis: "extra_3", value: 0.2}
+          { axis: 'con_1', value: 2.5 },
+          { axis: 'neu_2', value: 0.7 },
+          { axis: 'spac_3', value: 0.2 },
+          { axis: 'open_2', value: 0.3 },
+          { axis: 'extra_3', value: 0.2 }
         ]
-      },
+      }
     ];
     updateOptions({ data: data });
     updateChart();
   }
-};
+}
 
 function toggleWheelAdjust (element) {
   if (element.checked) {
-    updateOptions({ axis: { wheelLabelAreaId: 'pep_1' }});
+    updateOptions({ axis: { wheelLabelAreaId: 'pep_1' } });
     updateChart();
   } else {
-    updateOptions({ axis: { wheelLabelAreaId: null }});
+    updateOptions({ axis: { wheelLabelAreaId: null } });
     updateChart();
   }
-};
+}
 
 function toggleLegend (element) {
   if (element.checked) {
@@ -176,11 +191,11 @@ function toggleLegend (element) {
     updateOptions({ showLegend: false });
     updateChart();
   }
-};
+}
 
 function toggleCircleDrag (element) {
   if (element.checked) {
-    let data = [
+    const data = [
       {
         label: 'Normie',
         seriesId: 'nor_1',
@@ -189,11 +204,11 @@ function toggleCircleDrag (element) {
         circleHighlight: true,
         fill: 'royalblue',
         data: [
-          {axis: "con_1", value: 3.8},
-          {axis: "neu_2", value: 0.1},
-          {axis: "spac_3", value: 0.7},
-          {axis: "open_2", value: 0.6},
-          {axis: "extra_3", value: 0.5}
+          { axis: 'con_1', value: 3.8 },
+          { axis: 'neu_2', value: 0.1 },
+          { axis: 'spac_3', value: 0.7 },
+          { axis: 'open_2', value: 0.6 },
+          { axis: 'extra_3', value: 0.5 }
         ]
       },
       {
@@ -203,18 +218,18 @@ function toggleCircleDrag (element) {
         showCircle: true,
         circleHighlight: true,
         data: [
-          {axis: "con_1", value: 2.5},
-          {axis: "neu_2", value: 0.7},
-          {axis: "spac_3", value: 0.2},
-          {axis: "open_2", value: 0.3},
-          {axis: "extra_3", value: 0.2}
+          { axis: 'con_1', value: 2.5 },
+          { axis: 'neu_2', value: 0.7 },
+          { axis: 'spac_3', value: 0.2 },
+          { axis: 'open_2', value: 0.3 },
+          { axis: 'extra_3', value: 0.2 }
         ]
-      },
+      }
     ];
     updateOptions({ data: data });
     updateChart();
   } else {
-    let data = [
+    const data = [
       {
         label: 'Normie',
         seriesId: 'nor_1',
@@ -223,11 +238,11 @@ function toggleCircleDrag (element) {
         circleHighlight: false,
         fill: 'royalblue',
         data: [
-          {axis: "con_1", value: 3.8},
-          {axis: "neu_2", value: 0.1},
-          {axis: "spac_3", value: 0.7},
-          {axis: "open_2", value: 0.6},
-          {axis: "extra_3", value: 0.5}
+          { axis: 'con_1', value: 3.8 },
+          { axis: 'neu_2', value: 0.1 },
+          { axis: 'spac_3', value: 0.7 },
+          { axis: 'open_2', value: 0.6 },
+          { axis: 'extra_3', value: 0.5 }
         ]
       },
       {
@@ -237,15 +252,15 @@ function toggleCircleDrag (element) {
         showCircle: false,
         circleHighlight: false,
         data: [
-          {axis: "con_1", value: 2.5},
-          {axis: "neu_2", value: 0.7},
-          {axis: "spac_3", value: 0.2},
-          {axis: "open_2", value: 0.3},
-          {axis: "extra_3", value: 0.2}
+          { axis: 'con_1', value: 2.5 },
+          { axis: 'neu_2', value: 0.7 },
+          { axis: 'spac_3', value: 0.2 },
+          { axis: 'open_2', value: 0.3 },
+          { axis: 'extra_3', value: 0.2 }
         ]
-      },
+      }
     ];
     updateOptions({ data: data });
     updateChart();
   }
-};
+}

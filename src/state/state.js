@@ -1,6 +1,7 @@
 import {scaleLinear, scaleOrdinal, schemeAccent} from 'd3';
 import {buildAxis, buildArea} from './builders/index.js';
-import * as _ from 'lodash';
+import merge from 'lodash.merge';
+import pick from 'lodash.pick';
 import {setters} from './setters/index.js';
 import * as renderPropsGetters from './renderPropsGetters/index.js';
 import * as stateQuery from './stateQuery/index.js';
@@ -151,7 +152,7 @@ const DEFAULTS_OPTS = function () {
  */
 class State {
   constructor (options) {
-    this.__STATE__ = _.merge(
+    this.__STATE__ = merge(
       {opts: DEFAULTS_OPTS()},
       {opts: options},
       {
@@ -170,10 +171,10 @@ class State {
     );
 
     // Bind the mixins
-    _.each(setters, (val, key) => { this[key] = this[key].bind(this); });
-    _.each(renderPropsGetters, (val, key) => { this[key] = this[key].bind(this); });
-    _.each(stateQuery, (val, key) => { this[key] = this[key].bind(this); });
-    _.each(selectors, (val, key) => { this[key] = this[key].bind(this); });
+    Object.keys(setters).forEach(key => { this[key] = this[key].bind(this); });
+    Object.keys(renderPropsGetters).forEach(key => { this[key] = this[key].bind(this); });
+    Object.keys(stateQuery).forEach(key => { this[key] = this[key].bind(this); });
+    Object.keys(selectors).forEach(key => { this[key] = this[key].bind(this); });
 
     this.__construct();
   }
@@ -187,21 +188,21 @@ class State {
   }
 
   get stateSetters () {
-    return _.keys(setters).reduce((acc, key) => {
+    return Object.keys(setters).reduce((acc, key) => {
       acc[key] = this[key];
       return acc;
     }, {});
   }
 
   get stateQuery () {
-    return _.keys(stateQuery).reduce((acc, key) => {
+    return Object.keys(stateQuery).reduce((acc, key) => {
       acc[key] = this[key];
       return acc;
     }, {});
   }
 
   get selectors () {
-    return _.keys(selectors).reduce((acc, key) => {
+    return Object.keys(selectors).reduce((acc, key) => {
       acc[key] = this[key];
       return acc;
     }, {});
@@ -220,7 +221,7 @@ class State {
   }
 
   get renderProps () {
-    return _.keys(renderPropsGetters).reduce((acc, key) => {
+    return Object.keys(renderPropsGetters).reduce((acc, key) => {
       acc[key] = this[key];
       return acc;
     }, {});
@@ -250,10 +251,10 @@ class State {
       'iconHeightP'
     ];
 
-    this.__STATE__.calculatedDims = _.merge(
+    this.__STATE__.calculatedDims = merge(
       {},
       this.__STATE__.opts.dims,
-      {legendDims: _.pick(this.__STATE__.opts.legend, legendDimsToKeep)}
+      {legendDims: pick(this.__STATE__.opts.legend, legendDimsToKeep)}
     );
 
     const optDims = this.__STATE__.calculatedDims;
@@ -309,7 +310,7 @@ class State {
       return buildAxis(params);
     });
 
-    this.__STATE__.components.axis = _.reduce(axisParameters, (acc, axisParams) => {
+    this.__STATE__.components.axis =  axisParameters.reduce((acc, axisParams) => {
       acc[axisParams.axisId] = {
         props: axisParams,
         state: {},
@@ -338,7 +339,7 @@ class State {
       return buildArea(params);
     });
 
-    this.__STATE__.components.areas = _.reduce(areaParameters, (acc, areaParams) => {
+    this.__STATE__.components.areas = areaParameters.reduce((acc, areaParams) => {
       acc[areaParams.props.seriesId] = {
         props: areaParams.props,
         state: areaParams.state,
@@ -373,18 +374,18 @@ class State {
 
   axisById (axisId) {
     return this.__STATE__.components.axis[axisId];
-  };
+  }
 
   seriesById (seriesId) {
     return this.__STATE__.components.areas[seriesId];
-  };
+  }
 
   getAxisDatums () {
-    return _.values(this.__STATE__.components.axis).map(e => e.props);
+    return Object.values(this.__STATE__.components.axis).map(e => e.props);
   }
 
   getAreaDatums () {
-    return _.values(this.__STATE__.components.areas).map(e => {
+    return Object.values(this.__STATE__.components.areas).map(e => {
       return {
         props: e.props,
         state: e.state

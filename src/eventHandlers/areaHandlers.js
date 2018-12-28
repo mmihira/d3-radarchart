@@ -1,5 +1,5 @@
 import * as d3 from 'd3';
-import * as _ from 'lodash';
+import isFunction from 'lodash.isfunction';
 import { AXIS_QUADS, AREA_STATE, AREA_EVENT, browserVendor } from '../const.js';
 import Area from '../renderer/Area.js';
 const { QUAD_1, QUAD_2 } = AXIS_QUADS;
@@ -17,9 +17,13 @@ function highlightArea (areaDatum, areaProps) {
     .selectPolygonForSeries(areaDatum.props.seriesId)
     .transition(200)
     .style('fill-opacity', areaProps.areaHighlightProps.highlightedAreaOpacity)
-    .style('stroke-opacity', areaProps.areaHighlightProps.highlightedStrokeOpacity);
+    .style(
+      'stroke-opacity',
+      areaProps.areaHighlightProps.highlightedStrokeOpacity
+    );
 
-  areaDatum.state.currentAreaOpacity = areaProps.areaHighlightProps.highlightedAreaOpacity;
+  areaDatum.state.currentAreaOpacity =
+    areaProps.areaHighlightProps.highlightedAreaOpacity;
 }
 
 function highlightAreaRemove (areaDatum, areaProps) {
@@ -31,7 +35,8 @@ function highlightAreaRemove (areaDatum, areaProps) {
 
   this.hideVertexLabelForArea(areaDatum, areaProps);
 
-  areaDatum.state.currentAreaOpacity = areaProps.areaHighlightProps.defaultAreaOpacity;
+  areaDatum.state.currentAreaOpacity =
+    areaProps.areaHighlightProps.defaultAreaOpacity;
 }
 
 function showVertexLabelsForArea (areaDatum, areaProps) {
@@ -49,7 +54,7 @@ function hideVertexLabelForArea (areaDatum, areaProps) {
 function draggingActions (areaDatum, pointDatum, context, areaProps) {
   const axis = this.state.axisById(pointDatum.axisId).props;
 
-  let {x: mouseX, y: mouseY} = d3.event;
+  let { x: mouseX, y: mouseY } = d3.event;
 
   /**
    * Firefox doesn't include ancestor transformations in calculating
@@ -64,14 +69,16 @@ function draggingActions (areaDatum, pointDatum, context, areaProps) {
     eventPoint.x = d3.event.sourceEvent.clientX;
     eventPoint.y = d3.event.sourceEvent.clientY;
 
-    eventPoint = eventPoint.matrixTransform(areaDatum.state.draggingParams.tFMatrix);
+    eventPoint = eventPoint.matrixTransform(
+      areaDatum.state.draggingParams.tFMatrix
+    );
 
     mouseX = eventPoint.x;
     mouseY = eventPoint.y;
   }
 
-  var newX = axis.projectCordToAxis(mouseX, mouseY).x;
-  var newY = axis.projectCordToAxis(mouseX, mouseY).y;
+  const newX = axis.projectCordToAxis(mouseX, mouseY).x;
+  const newY = axis.projectCordToAxis(mouseX, mouseY).y;
 
   if (axis.quad === QUAD_1 || axis.quad === QUAD_2) {
     if (newY < axis.y2 || newY > axis.y1) return;
@@ -81,7 +88,7 @@ function draggingActions (areaDatum, pointDatum, context, areaProps) {
 
   areaDatum.state.state = AREA_STATE.DRAGGING;
 
-  var newValue = axis.cordOnAxisToValue(newX, newY);
+  const newValue = axis.cordOnAxisToValue(newX, newY);
 
   pointDatum.value = newValue;
   pointDatum.cords = axis.projectValueOnAxis(newValue);
@@ -96,40 +103,35 @@ function draggingActions (areaDatum, pointDatum, context, areaProps) {
 
   this.reRenderArea(areaDatum);
 
-  if (_.isFunction(areaProps.onValueChange)) {
-    areaProps.onValueChange(
-      Object.assign(
-        {},
-        pointDatum
-      )
-    );
+  if (isFunction(areaProps.onValueChange)) {
+    areaProps.onValueChange(Object.assign({}, pointDatum));
   }
 }
 
 function reRenderArea (areaDatum) {
-  const areaRenderProps = Object.assign(
-    {},
-    this.state.renderConstructProps(),
-    {eventHandlerFactory: this}
-  );
+  const areaRenderProps = Object.assign({}, this.state.renderConstructProps(), {
+    eventHandlerFactory: this
+  });
   const areaRenderer = new Area(areaRenderProps);
 
   areaRenderer.removeAreaForSeries(areaDatum.props.seriesId);
   areaRenderer.render(this.state.areaRenderProps(), [areaDatum]);
-};
+}
 
 function reRenderAllAreas () {
   const areaDatums = this.state.getAreaDatums();
   areaDatums.forEach(datum => this.reRenderArea(datum));
-};
+}
 
 /**
  * @param eventType {String}
  * @param seriesId {String}
  * @param context {Object}
- * @param params {Object}
  */
-const createAreaEventHandler = function _createHandler (eventType, seriesId, params) {
+const createAreaEventHandler = function _createHandler (
+  eventType,
+  seriesId
+) {
   const self = this;
   return function (d) {
     const area = self.state.areaForAreaId(seriesId);
@@ -138,8 +140,10 @@ const createAreaEventHandler = function _createHandler (eventType, seriesId, par
 
     switch (eventType) {
       case AREA_EVENT.CIRCLE_ENTER:
-        if (currentState !== AREA_STATE.DRAGGING &&
-            currentState !== AREA_STATE.CIRCLE_LEAVE_WHILE_DRAGGING) {
+        if (
+          currentState !== AREA_STATE.DRAGGING &&
+          currentState !== AREA_STATE.CIRCLE_LEAVE_WHILE_DRAGGING
+        ) {
           area.state.state = AREA_STATE.CIRCLE_HOVER;
           self.showAxisTickLabels(d.axisId);
 
@@ -149,15 +153,21 @@ const createAreaEventHandler = function _createHandler (eventType, seriesId, par
 
           d3.select(d.circleRef)
             .transition(100)
-            .attr('r', areaProps.circleProps.defaultRadius * areaProps.circleProps.circleOverlayRadiusMult);
+            .attr(
+              'r',
+              areaProps.circleProps.defaultRadius *
+                areaProps.circleProps.circleOverlayRadiusMult
+            );
 
           self.showCurrentValueForSeriesAndAxis(area.props.seriesId, d.axisId);
         }
         break;
       case AREA_EVENT.CIRCLE_LEAVE:
-        if (currentState === AREA_STATE.CIRCLE_HOVER || currentState === AREA_STATE.DRAGGING_END) {
-          d3.select(this)
-            .style('fill-opacity', areaProps.defaultCircleOpacity);
+        if (
+          currentState === AREA_STATE.CIRCLE_HOVER ||
+          currentState === AREA_STATE.DRAGGING_END
+        ) {
+          d3.select(this).style('fill-opacity', areaProps.defaultCircleOpacity);
 
           self.highlightAreaRemove(area, areaProps);
           self.hideAxisTickLabels(d.axisId);
@@ -177,7 +187,7 @@ const createAreaEventHandler = function _createHandler (eventType, seriesId, par
         self.showAxisTickLabels(d.axisId);
         if (browserVendor.isFirefox) {
           const ctm = this.getCTM();
-          let svgEl = self.selectors.drawingContext().nodes()[0].parentNode;
+          const svgEl = self.selectors.drawingContext().nodes()[0].parentNode;
           let transformationMatrix = svgEl.createSVGMatrix();
 
           transformationMatrix.e = svgEl.parentNode.getBoundingClientRect().x;
@@ -194,7 +204,11 @@ const createAreaEventHandler = function _createHandler (eventType, seriesId, par
           self.highlightArea(area, areaProps);
           d3.select(d.circlRef)
             .transition(100)
-            .attr('r', areaProps.circleProps.defaultRadius * areaProps.circleProps.circleOverlayRadiusMult);
+            .attr(
+              'r',
+              areaProps.circleProps.defaultRadius *
+                areaProps.circleProps.circleOverlayRadiusMult
+            );
         }
 
         d.dragActive = true;
@@ -211,13 +225,23 @@ const createAreaEventHandler = function _createHandler (eventType, seriesId, par
 
         d.dragActive = false;
 
-        let {clientX, clientY} = d3.event.sourceEvent;
-        const currentPoint = self.state.stateQuery.areaPoint(d.seriesId, d.axisId);
-        const {x: circleX, y: circleY, width: circleWidth, height: circleHeight} = currentPoint.circleRef.getBoundingClientRect();
-        if (circleX > (clientX + circleWidth) ||
-             circleX < (clientX - circleWidth) ||
-             circleY < (clientY - circleHeight) ||
-             circleY > (clientY + circleHeight)) {
+        const { clientX, clientY } = d3.event.sourceEvent;
+        const currentPoint = self.state.stateQuery.areaPoint(
+          d.seriesId,
+          d.axisId
+        );
+        const {
+          x: circleX,
+          y: circleY,
+          width: circleWidth,
+          height: circleHeight
+        } = currentPoint.circleRef.getBoundingClientRect();
+        if (
+          circleX > clientX + circleWidth ||
+          circleX < clientX - circleWidth ||
+          circleY < clientY - circleHeight ||
+          circleY > clientY + circleHeight
+        ) {
           self.hideVertexLabelForArea(area, areaProps);
           self.hideAllAxisValues(area.props.seriesId);
           self.selectors
@@ -227,7 +251,7 @@ const createAreaEventHandler = function _createHandler (eventType, seriesId, par
           self.hideAxisTickLabels(d.axisId);
         }
 
-        if (_.isFunction(areaProps.onValueFinishChange)) {
+        if (isFunction(areaProps.onValueFinishChange)) {
           areaProps.onValueFinishChange(area.props.seriesId);
         }
         break;
@@ -236,7 +260,10 @@ const createAreaEventHandler = function _createHandler (eventType, seriesId, par
 
         const axisDatum = d;
 
-        const currentValue = self.state.stateQuery.currentValueFor(area.props.seriesId, axisDatum.axisId);
+        const currentValue = self.state.stateQuery.currentValueFor(
+          area.props.seriesId,
+          axisDatum.axisId
+        );
 
         let newValue;
         if (d3.event.deltaY <= 0) {
@@ -253,29 +280,30 @@ const createAreaEventHandler = function _createHandler (eventType, seriesId, par
           newValue = axisDatum.minValue;
         }
 
-        const _currentPoint = self.state.stateQuery.areaPoint(area.props.seriesId, axisDatum.axisId);
+        const _currentPoint = self.state.stateQuery.areaPoint(
+          area.props.seriesId,
+          axisDatum.axisId
+        );
         _currentPoint.value = newValue;
         _currentPoint.cords = axisDatum.projectValueOnAxis(newValue);
         area.state.svgStringRep = area.state.points.reduce((acc, p) => {
           return acc + p.cords.x + ',' + p.cords.y + ' ';
         }, '');
 
-        self.showCurrentValueForSeriesAndAxis(area.props.seriesId, axisDatum.axisId);
+        self.showCurrentValueForSeriesAndAxis(
+          area.props.seriesId,
+          axisDatum.axisId
+        );
 
         self.reRenderArea(area);
 
-        if (_.isFunction(areaProps.onValueChange)) {
-          areaProps.onValueChange(
-            Object.assign(
-              {},
-              _currentPoint
-            )
-          );
+        if (isFunction(areaProps.onValueChange)) {
+          areaProps.onValueChange(Object.assign({}, _currentPoint));
         }
         break;
       default:
         break;
-    };
+    }
   };
 };
 

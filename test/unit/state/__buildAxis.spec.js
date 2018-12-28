@@ -2,7 +2,7 @@ import DEFAULTS_OPTS from '../../fixtures/opts.js';
 import axisConfig from '../../../test/fixtures/axisOptions.js';
 import State from '../../../src/state/state.js';
 import {STATE_DEFAULTS_OPTS} from '../../../src/state/state.js';
-import * as _ from 'lodash';
+import omit from 'lodash.omit';
 
 const opts = DEFAULTS_OPTS();
 
@@ -53,7 +53,7 @@ test('__buildAxis', () => {
   ];
 
   // Don't test the functions
-  const propsToTest = _.omit(
+  const propsToTest = omit(
     state.components.axis.con_1.props,
     toOmit
   );
