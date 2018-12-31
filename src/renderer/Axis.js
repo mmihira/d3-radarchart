@@ -1,4 +1,4 @@
-import * as d3 from 'd3';
+import * as d3 from '../d3Wrapper/index';
 import { AREA_EVENT } from '../const.js';
 
 class Axis {

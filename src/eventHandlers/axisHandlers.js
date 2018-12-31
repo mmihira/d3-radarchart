@@ -1,4 +1,4 @@
-import * as d3 from 'd3';
+import * as d3 from '../d3Wrapper/index';
 
 function showCurrentValuesForSeries (seriesId) {
   const valuesForSeries = this.state

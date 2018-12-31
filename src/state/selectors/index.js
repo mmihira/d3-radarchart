@@ -1,4 +1,4 @@
-import * as d3 from 'd3';
+import * as d3 from '../../d3Wrapper/index';
 
 const polygonDefaultName = function () {
   return `${this.chartRootName}-polygon`;

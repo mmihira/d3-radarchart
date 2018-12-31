@@ -1,5 +1,5 @@
+import * as d3 from '../d3Wrapper/index';
 import { browserVendor } from '../const.js';
-import { event } from 'd3';
 
 function zoomHandler (zoom) {
   const self = this;
@@ -9,7 +9,7 @@ function zoomHandler (zoom) {
     const zoomProps = self.state.stateQuery.zoomProps();
     // d3 zoom on firefox zooms gradient is too much so constraint and
     // reset every time on zoom.
-    const k = event.transform.k;
+    const k = d3.event.transform.k;
     if (browserVendor.isFirefox) {
       const minZoom =
         k > zoomProps.scaleExtent.minZoom
@@ -22,7 +22,7 @@ function zoomHandler (zoom) {
       zoom.scaleExtent([minZoom, maxZoom]);
     }
 
-    self.state.selectors.drawingContext().attr('transform', event.transform);
+    self.state.selectors.drawingContext().attr('transform', d3.event.transform);
     self.state.stateSetters.updateSizesOnZoomForAllAreas(k);
     self.state.stateQuery.axisIds().forEach(axisId => {
       self.onZoomForAxis(k, axisId);
@@ -30,7 +30,7 @@ function zoomHandler (zoom) {
 
     self.reRenderAllAreas();
 
-    if (event.transform.k === 1) {
+    if (d3.event.transform.k === 1) {
       self.state.selectors
         .selectRootG()
         .attr('transform', 'translate(' + paddingW + ',' + paddingH + ')');

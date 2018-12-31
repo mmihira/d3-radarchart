@@ -50,6 +50,7 @@ const renderConstructProps = function () {
     stateQuery: this.stateQuery,
     selectors: this.selectors,
     rootElementId: this.__STATE__.opts.rootElementId,
+    rootElement: this.__STATE__.opts.rootElement,
     rootElPropsFn: this.rootEls,
     legendRenderProps: this.renderProps.legendRenderProps,
     areaRenderProps: this.renderProps.areaRenderProps

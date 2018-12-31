@@ -1,4 +1,4 @@
-import { scaleLog } from 'd3';
+import * as d3 from '../../d3Wrapper/index';
 import { AREA_STATE } from '../../const.js';
 
 const buildArea = function _buildArea (params) {
@@ -35,17 +35,17 @@ const buildArea = function _buildArea (params) {
   const maxZoom = zoomProps.scaleExtent.maxZoom;
 
   const base = 8;
-  const areaLineLop = scaleLog()
+  const areaLineLop = d3.scaleLog()
     .base(base)
     .domain([1, maxZoom])
     .range([lineProps.strokeWidth, lineProps.maxZoomStroke]);
 
-  const circleRadiusLop = scaleLog()
+  const circleRadiusLop = d3.scaleLog()
     .base(base)
     .domain([1, maxZoom])
     .range([circleProps.defaultRadius, circleProps.maxZoomRadius]);
 
-  const fontLop = scaleLog()
+  const fontLop = d3.scaleLog()
     .domain([1, maxZoom])
     .range([labelProps.fontSize, labelProps.maxFontSize]);
 

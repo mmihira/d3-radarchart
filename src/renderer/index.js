@@ -1,4 +1,4 @@
-import * as d3 from 'd3';
+import * as d3 from '../d3Wrapper/index';
 import Axis from './Axis.js';
 import Area from './Area.js';
 import Legend from './Legend.js';
@@ -9,7 +9,7 @@ class Renderer {
       this[key] = props[key];
     });
 
-    this.rootElement = document.getElementById(props.rootElementId);
+    this.rootElement = props.rootElement || document.getElementById(props.rootElementId);
     this.axisRender = new Axis(Object.assign({}, props));
     this.areaRender = new Area(Object.assign({}, props));
     this.legendRender = new Legend(Object.assign({}, props));

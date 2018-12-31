@@ -1,4 +1,4 @@
-import { scaleLinear, scaleLog } from 'd3';
+import * as d3 from '../../d3Wrapper/index';
 import { RADIANS, AXIS_QUADS } from '../../const.js';
 const { QUAD_1, QUAD_2, QUAD_3, QUAD_4 } = AXIS_QUADS;
 
@@ -12,29 +12,29 @@ function __setupZoomLops (params) {
     textLineSpacingPx
   } = params;
 
-  const axisTitleSizeLop = scaleLog()
+  const axisTitleSizeLop = d3.scaleLog()
     .base(5)
     .domain([minZoom, maxZoom])
     .range([scaledTitleSize, scaledTitleSize * 0.1]);
 
-  const axisTitleSizeLopMin = scaleLog()
+  const axisTitleSizeLopMin = d3.scaleLog()
     .base(5)
     .domain([minZoom, maxZoom])
     .range([3, 2]);
 
-  const tickFontLop = scaleLog()
+  const tickFontLop = d3.scaleLog()
     .domain([minZoom, maxZoom])
     .range([scaledTickSize, maxZoomFont]);
 
-  const axisLabelFactorLop = scaleLog()
+  const axisLabelFactorLop = d3.scaleLog()
     .domain([minZoom, maxZoom])
     .range([0.2, 0.1]);
 
-  const labelLineSpacingLop = scaleLinear()
+  const labelLineSpacingLop = d3.scaleLinear()
     .domain([minZoom, maxZoom])
     .range([textLineSpacingPx(width), textLineSpacingPx(width) * 0.1]);
 
-  const labelLineSpaceLopMin = scaleLinear()
+  const labelLineSpaceLopMin = d3.scaleLinear()
     .domain([minZoom, maxZoom])
     .range([
       textLineSpacingPx(width) * 0.5,
@@ -62,15 +62,15 @@ function __setupSizeScales (params) {
     zoomProps
   } = params;
 
-  const tickScale = scaleLinear()
+  const tickScale = d3.scaleLinear()
     .domain([100, 1200])
     .range([5, 20]);
 
-  const axisTitleScale = scaleLinear()
+  const axisTitleScale = d3.scaleLinear()
     .domain([100, 1200])
     .range([axisScaleProps.minTitleSize, axisScaleProps.maxTitleSize]);
 
-  const textLineSpacingPx = scaleLinear()
+  const textLineSpacingPx = d3.scaleLinear()
     .domain([100, 1200])
     .range([
       axisScaleProps.minTextLineSpacing,
@@ -268,7 +268,7 @@ const buildAxis = function _buildAxis (params) {
   };
 
   const { maxZoom, minZoom } = zoomProps.scaleExtent;
-  const axisLabelCordLop = scaleLog()
+  const axisLabelCordLop = d3.scaleLog()
     .base(20)
     .domain([minZoom, maxZoom])
     .range([maxValue, minValue]);

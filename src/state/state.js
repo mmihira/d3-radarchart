@@ -1,4 +1,4 @@
-import {scaleLinear, scaleOrdinal, schemeAccent} from 'd3';
+import * as d3 from '../d3Wrapper/index';
 import {buildAxis, buildArea} from './builders/index.js';
 import merge from 'lodash.merge';
 import pick from 'lodash.pick';
@@ -65,11 +65,9 @@ const DEFAULTS_OPTS = function () {
       config: [],
       useGlobalMax: false,
       maxValue: 0.6,
-      leftOffsetPLabel: 0.85,
       rotateTextWithAxis: true,
       textOverflowWidthLimit: 10,
       textOverflowWidthLimitZoomed: 50,
-      textLineSpacingPx: 10,
       tickScale: null,
       axisTitleScale: null,
       axisScaleProps: {
@@ -128,8 +126,8 @@ const DEFAULTS_OPTS = function () {
         circleOverlayRadiusMult: 1.5
       },
       useColorScale: true,
-      areaColorScale: scaleOrdinal(schemeAccent),
-      lineColorScale: scaleOrdinal(schemeAccent),
+      areaColorScale: d3.scaleOrdinal(d3.schemeAccent),
+      lineColorScale: d3.scaleOrdinal(d3.schemeAccent),
       onValueChange: null,
       onValueFinishChange: null,
       textOverflowWidthLimit: 10,
@@ -356,18 +354,18 @@ class State {
     const { titleProperties, labelTextProperties } = legendOpts;
 
     if (legendOpts.scaleTextWithSize && !legendOpts.titleScale) {
-      legendOpts.titleScale = scaleLinear()
+      legendOpts.titleScale = d3.scaleLinear()
         .domain([100, 1200])
         .range([titleProperties.fontScaleMin, titleProperties.fontScaleMax]);
     }
 
     if (legendOpts.scaleTextWithSize && !legendOpts.labelScale) {
-      legendOpts.labelScale = scaleLinear()
+      legendOpts.labelScale = d3.scaleLinear()
         .domain([100, 1200])
         .range([labelTextProperties.fontScaleMin, labelTextProperties.fontScaleMax]);
     }
 
-    legendOpts.labelTextLineSpacing = scaleLinear()
+    legendOpts.labelTextLineSpacing = d3.scaleLinear()
       .domain([100, 1200])
       .range(this.areaProps().textLineSpacingRangeLegend);
   }

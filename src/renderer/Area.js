@@ -1,4 +1,4 @@
-import { format, drag } from 'd3';
+import * as d3 from '../d3Wrapper/index';
 import { AREA_EVENT } from '../const.js';
 
 class Area {
@@ -20,7 +20,7 @@ class Area {
       defaultCircleOpacity
     } = this.areaRenderProps();
 
-    const Format = format('.2');
+    const Format = d3.format('.2');
     const {
       setAreaCircleRef,
       setAreaCircleOverlayRef,
@@ -127,7 +127,7 @@ class Area {
 
           if (d.props.series.dragEnabled) {
             circleOverlays.call(
-              drag()
+              d3.drag()
                 .subject(function () {
                   return this;
                 })
