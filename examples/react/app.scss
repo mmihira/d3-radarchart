@@ -1,0 +1,46 @@
+.chartRootClass {
+  svg {
+    border: 1px solid red;
+  }
+}
+
+.container {
+  display: flex;
+  flex-direction: row;
+  .left {
+    display: flex;
+    flex: 0 1 40%;
+    flex-direction: column;
+    padding: 5px;
+    border-radius: 0 0 2px 2px;
+    border: 1px solid silver;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.10), 0 1px 3px rgba(0,0,0,0.13);
+    margin-right: 5px;
+
+    .prop-container {
+      display: flex;
+      flex-direction: row;
+      width: 100%;
+      margin-bottom: 8px;
+      margin-top: 8px;
+
+      .description {
+        flex: 0 0 50%;
+      }
+      .current-val {
+        flex: 0 0 10%;
+      }
+      .slider-parent {
+        flex: 0 0 40%;
+      }
+    }
+  }
+  .right {
+    flex: 0 1 60%;
+    height: 800px;
+    max-height: 800px;
+    border-radius: 0 0 2px 2px;
+    border: 1px solid silver;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.10), 0 1px 3px rgba(0,0,0,0.13);
+  }
+}
