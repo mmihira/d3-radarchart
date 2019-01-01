@@ -58,7 +58,7 @@ https://unpkg.com/d3-radarchart@2.0.0/dist/index.min.js
 ``` javascript
   import React from 'react';
   import ReactDOM from 'react-dom';
-  import { ReactRadarChart } from '../../src/index.js';
+  import { ReactRadarChart } from 'd3-radarchart';
 
   const axisConfig = [
     {label: 'Conscientiousness', axisId: "con_1", axisValueMax: 4, axisValueMin: 2},
@@ -121,6 +121,8 @@ https://unpkg.com/d3-radarchart@2.0.0/dist/index.min.js
 
 ```
 ## Options
+
+Try the demo to see how some options change the chart in real-time.
 
 #### `enableZoom: Bool; default = true`
 
