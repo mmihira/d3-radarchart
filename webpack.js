@@ -52,10 +52,10 @@ module.exports = {
           failOnError: false
         }
       }
-    }),
-    new BundleAnalyzerPlugin({
-      analyzerMode: 'static'
     })
+    // new BundleAnalyzerPlugin({
+    //   analyzerMode: 'static'
+    // })
   ],
   node: {
     fs: 'empty',

@@ -1,6 +1,6 @@
 # d3-RadarChart
 
-RadarChart using d3 for React.
+RadarChart using d3. React component also included.
 
 Features
  - Zoomable
@@ -17,6 +17,7 @@ Features
 * [Install](#install)
 * [Usage](#usage)
 * [Options](#options)
+* [Contribute](#contribute)
 * [Related](#related)
 * [Changelog](#changelog)
 * [License](#license)
@@ -24,11 +25,12 @@ Features
 
 ## Screenshot
 
-![sdfsfd](https://media.giphy.com/media/3M7zBuWxqTEP0go1bg/giphy.gif)
+![screenshot](https://media.giphy.com/media/3M7zBuWxqTEP0go1bg/giphy.gif)
 
 ## Live Demo
 
-Test the demo https://mmihira.github.io/d3-radarchart
+Test the demo https://mmihira.github.io/d3-radarchart<br>
+Run the demo ``` yarn run demo ```. Open localhost:1234 in browser
 
 ## Install
 
@@ -47,7 +49,7 @@ yarn add d3-radarchart
 - CDN
 
 For example :
-https://unpkg.com/d3-radarchart@1.0.1/dist/bundle.js
+https://unpkg.com/d3-radarchart@2.0.0/dist/index.min.js
 
 ## Usage
 

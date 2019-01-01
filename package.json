@@ -1,6 +1,6 @@
 {
   "name": "d3-radarchart",
-  "version": "1.0.1",
+  "version": "2.0.0",
   "description": "D3 Radar chart",
   "main": "src/index.js",
   "author": "Mihira Wanninayake",
@@ -16,11 +16,12 @@
   "license": "MIT",
   "scripts": {
     "test": "jest",
-    "build": "rimraf dist && NODE_ENV=production webpack --config ./webpack.js --progress --profile --colors --mode production"
+    "build": "rimraf dist && NODE_ENV=production webpack --config ./webpack.js --progress --profile --colors --mode production",
+    "demo": "parcel --out-dir demo/dist examples/react/index.html"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mmihira/d3-RadarChart"
+    "url": "git+https://github.com/mmihira/d3-radarchart"
   },
   "keywords": [
     "d3",
@@ -32,10 +33,7 @@
     "visualization",
     "visualisation"
   ],
-  "homepage": "https://github.com/mmihira/d3-RadarChart#readme",
-  "bugs": {
-    "url": "https://github.com/alangrafu/d3-RadarChart/issues"
-  },
+  "homepage": "https://github.com/mmihira/d3-radarchart#readme",
   "devDependencies": {
     "@babel/cli": "^7.1.2",
     "@babel/core": "^7.1.2",
