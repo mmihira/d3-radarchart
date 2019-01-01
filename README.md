@@ -25,7 +25,7 @@ Features
 
 ## Screenshot
 
-![screenshot](https://media.giphy.com/media/3M7zBuWxqTEP0go1bg/giphy.gif)
+![screenshot](https://media.giphy.com/media/uACQODMkpkg8jdapuy/giphy.gif)
 
 ## Live Demo
 
