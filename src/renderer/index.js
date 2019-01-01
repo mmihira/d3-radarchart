@@ -1,4 +1,4 @@
-import * as d3 from '../d3Wrapper/index';
+import * as d3 from 'd3';
 import Axis from './Axis.js';
 import Area from './Area.js';
 import Legend from './Legend.js';

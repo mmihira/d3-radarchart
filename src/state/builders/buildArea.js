@@ -1,4 +1,4 @@
-import * as d3 from '../../d3Wrapper/index';
+import * as d3 from 'd3';
 import { AREA_STATE } from '../../const.js';
 
 const buildArea = function _buildArea (params) {

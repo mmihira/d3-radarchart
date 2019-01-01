@@ -1,4 +1,4 @@
-import * as d3 from '../../d3Wrapper/index';
+import * as d3 from 'd3';
 import { RADIANS, AXIS_QUADS } from '../../const.js';
 const { QUAD_1, QUAD_2, QUAD_3, QUAD_4 } = AXIS_QUADS;
 

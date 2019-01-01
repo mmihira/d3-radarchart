@@ -1,6 +1,6 @@
 # d3-RadarChart
 
-RadarChart using d3
+RadarChart using d3 for React.
 
 Features
  - Zoomable
@@ -24,7 +24,7 @@ Features
 
 ## Screenshot
 
-![sdfsfd](https://media.giphy.com/media/uACQODMkpkg8jdapuy/giphy.gif)
+![sdfsfd](https://media.giphy.com/media/3M7zBuWxqTEP0go1bg/giphy.gif)
 
 ## Live Demo
 
@@ -54,62 +54,69 @@ https://unpkg.com/d3-radarchart@1.0.1/dist/bundle.js
 ### Minimum configuration
 
 ``` javascript
-var axisConfig = [
-  {label: 'Conscientiousness', axisId: "con_1", axisValueMax: 4, axisValueMin: 2},
-  {label: 'Neuroticism', axisId: "neu_2", axisValueMax: 1, axisValueMin: 0},
-  {label: 'Test spacign space space', axisId: "spac_3", axisValueMax: 1, axisValueMin: 0},
-  {label: 'Opennes', axisId: "open_2", axisValueMax: 1, axisValueMin: 0},
-  {label: 'Extraversion', axisId: "extra_3", axisValueMax: 1, axisValueMin: 0}
-];
+  import React from 'react';
+  import ReactDOM from 'react-dom';
+  import { ReactRadarChart } from '../../src/index.js';
 
-var data = [
-  {
-    label: 'Normie',
-    seriesId: 'nor_1',
-    dragEnabled: true,
-    showCircle: true,
-    circleHighlight: false,
-    fill: 'royalblue',
-    data: [
-      {axis: "con_1", value: 3.8},
-      {axis: "neu_2", value: 0.1},
-      {axis: "spac_3", value: 0.7},
-      {axis: "open_2", value: 0.6},
-      {axis: "extra_3", value: 0.5}
-    ]
-  },
-  {
-    label: 'Pepe',
-    seriesId: 'pep_1',
-    dragEnabled: true,
-    showCircle: false,
-    circleHighlight: true,
-    data: [
-      {axis: "con_1", value: 2.5},
-      {axis: "neu_2", value: 0.7},
-      {axis: "spac_3", value: 0.2},
-      {axis: "open_2", value: 0.3},
-      {axis: "extra_3", value: 0.2}
-    ]
-  },
-]
+  const axisConfig = [
+    {label: 'Conscientiousness', axisId: "con_1", axisValueMax: 4, axisValueMin: 2},
+    {label: 'Neuroticism', axisId: "neu_2", axisValueMax: 1, axisValueMin: 0},
+    {label: 'Test spacign space space', axisId: "spac_3", axisValueMax: 1, axisValueMin: 0},
+    {label: 'Opennes', axisId: "open_2", axisValueMax: 1, axisValueMin: 0},
+    {label: 'Extraversion', axisId: "extra_3", axisValueMax: 1, axisValueMin: 0}
+  ];
 
-var options = {
-  chartRootName: 'example',
-  data: data,
-  dims: {
-    width: 550,
-    height: 500,
-  },
-  showLegend: true,
-  rootElementId: 'chart',
-  axis: {
-    config: axisConfig,
-  }
-}
+  const data = [
+    {
+      label: 'Normie',
+      seriesId: 'nor_1',
+      dragEnabled: true,
+      showCircle: true,
+      circleHighlight: true,
+      fill: 'royalblue',
+      data: [
+        {axis: "con_1", value: 3.8},
+        {axis: "neu_2", value: 0.1},
+        {axis: "spac_3", value: 0.7},
+        {axis: "open_2", value: 0.6},
+        {axis: "extra_3", value: 0.5}
+      ]
+    },
+    {
+      label: 'Pepe',
+      seriesId: 'pep_1',
+      dragEnabled: true,
+      showCircle: false,
+      circleHighlight: true,
+      data: [
+        {axis: "con_1", value: 2.5},
+        {axis: "neu_2", value: 0.7},
+        {axis: "spac_3", value: 0.2},
+        {axis: "open_2", value: 0.3},
+        {axis: "extra_3", value: 0.2}
+      ]
+    },
+  ]
 
-const radarChart = new RadarChart(options);
-radarChart.render();
+  const options = {
+    chartRootName: 'example',
+    data,
+    dims: {
+      width: 550,
+      height: 500,
+    },
+    showLegend: true,
+    rootElementId: 'chart',
+    axisConfig
+  };
+
+  const rootNode = document.querySelector('#root');
+  rootNode && ReactDOM.render(
+    <ReactRadarChart
+      rootElementProps={{ className: 'chartRootClass' }}
+      {...options} />,
+    rootNode);
+
 ```
 ## Options
 

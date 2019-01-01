@@ -1,7 +1,9 @@
+const path = require('path');
+
 module.exports = {
   verbose: true,
   testRegex: '(/test/(unit)/.*|(\\.|/)(test|spec))\\.jsx?$',
-  moduleDirectories: ['node_modules', 'src'],
+  modulePaths: [path.resolve('./src')],
   testPathIgnorePatterns: ['/node_modules/'],
   transform: {
     '^.+\\.jsx?$': 'babel-jest'

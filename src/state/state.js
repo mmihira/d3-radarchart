@@ -1,4 +1,4 @@
-import * as d3 from '../d3Wrapper/index';
+import * as d3 from 'd3';
 import {buildAxis, buildArea} from './builders/index.js';
 import merge from 'lodash.merge';
 import pick from 'lodash.pick';
@@ -257,7 +257,7 @@ class State {
 
     const optDims = this.__STATE__.calculatedDims;
     optDims.paddingW = optDims.width * optDims.translateXp / 2;
-    optDims.paddingH = optDims.paddingW;
+    optDims.paddingH = optDims.height * optDims.translateYp / 2;
     optDims.legendW = optDims.width * optDims.legendSpaceP;
     optDims.chartContainerW = optDims.width - optDims.paddingW - optDims.legendW;
     optDims.chartContainerH = optDims.height - (optDims.paddingH * 2);

@@ -1,6 +1,7 @@
 import React from 'react';
 import { ReactRadarChart } from '../../src/index.js';
-import createProps from './data.js';
+import createProps from './createProps.js';
+import createData from './createData.js';
 import Slider from 'rc-slider';
 import 'rc-slider/assets/index.css';
 import './app.scss';
@@ -13,6 +14,10 @@ class App extends React.Component {
       width: 550,
       height: 500,
       showLegend: false,
+      circleHighlight: false,
+      showCircle: false,
+      dragEnabled: false,
+      enableZoom: false,
       options: {
         dims: {
           translateXp: 0.05,
@@ -34,10 +39,7 @@ class App extends React.Component {
         },
         axis: {
           textOverflowWidthLimit: 10,
-          rotateTextWithAxis: true,
-        },
-        area: {
-          areaHighlight: false
+          rotateTextWithAxis: true
         }
       }
     };
@@ -146,10 +148,26 @@ class App extends React.Component {
   }
 
   render () {
-    const options = createProps(this.state);
+    const options = createProps({
+      toMerge: this.state,
+      ...createData({
+        showCircle: this.state.showCircle,
+        circleHighlight: this.state.circleHighlight,
+        dragEnabled: this.state.dragEnabled
+      })
+    });
     return (
       <div className="container">
         <div className="left">
+          {this.propContainerCheckBox({
+            name: 'enableZoom',
+            checked: this.state.enableZoom,
+            onChange: () => {
+              this.setState({
+                enableZoom: !this.state.enableZoom
+              });
+            }
+          })}
           {this.propContainerSlider({
             acc: () => this.state.width,
             onChange: val => this.setState({ width: val }),
@@ -242,8 +260,8 @@ class App extends React.Component {
             key: 'legendTopOffsetP',
             name: 'legend.legendTopOffsetP',
             step: 0.001,
-            min: 0,
-            max: 5
+            min: 0.0,
+            max: 0.150
           })}
           {this.propContainerLegend({
             key: 'textYOffset',
@@ -309,16 +327,29 @@ class App extends React.Component {
             max: 20
           })}
           {this.propContainerCheckBox({
-            name: 'area.areaHighlight',
-            checked: this.state.options.area.areaHighlight,
+            name: 'data[*].circleHighlight (blue)',
+            checked: this.state.circleHighlight,
             onChange: () => {
               this.setState({
-                options: merge(this.state.options, {
-                  area: merge(this.state.options.area, {
-                    areaHighlight: !this.state.options.area
-                      .areaHighlight
-                  })
-                })
+                circleHighlight: !this.state.circleHighlight
+              });
+            }
+          })}
+          {this.propContainerCheckBox({
+            name: 'data[*].showCircle (blue)',
+            checked: this.state.showCircle,
+            onChange: () => {
+              this.setState({
+                showCircle: !this.state.showCircle
+              });
+            }
+          })}
+          {this.propContainerCheckBox({
+            name: 'data[*].dragEnabled (blue)',
+            checked: this.state.dragEnabled,
+            onChange: () => {
+              this.setState({
+                dragEnabled: !this.state.dragEnabled
               });
             }
           })}

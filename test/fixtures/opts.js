@@ -95,7 +95,6 @@ const DEFAULTS_OPTS = function () {
       onWheelAxis: null
     },
     area: {
-      areaHighlight: false,
       areaHighlightProps: {
         defaultAreaOpacity: 0.0,
         highlightedAreaOpacity: 0.7,

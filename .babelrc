@@ -5,9 +5,12 @@
       {
         "modules": false,
         "targets": {
-          "browsers": "ie >= 11"
+          "browsers": "chrome >= 58"
         }
       }
+    ],
+    [
+      "@babel/preset-react"
     ]
   ],
   "env": {

@@ -1,4 +1,4 @@
-import * as d3 from '../d3Wrapper/index';
+import * as d3 from 'd3';
 
 function onLegendOver () {
   const self = this;

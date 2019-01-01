@@ -2,6 +2,8 @@
 const path = require('path');
 const webpack = require('webpack');
 const TerserPlugin = require('terser-webpack-plugin');
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer')
+  .BundleAnalyzerPlugin;
 
 module.exports = {
   entry: ['@babel/polyfill', path.join(__dirname, 'src/index.js')],
@@ -50,6 +52,9 @@ module.exports = {
           failOnError: false
         }
       }
+    }),
+    new BundleAnalyzerPlugin({
+      analyzerMode: 'static'
     })
   ],
   node: {

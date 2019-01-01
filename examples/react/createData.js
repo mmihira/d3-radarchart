@@ -1,6 +1,4 @@
-import merge from 'lodash.merge';
-
-function createProps (toMerge = {}) {
+function createData ({showCircle = false, circleHighlight = false, dragEnabled = false}) {
   const axisConfig = [
     {
       label: 'Conscientiousness',
@@ -28,9 +26,9 @@ function createProps (toMerge = {}) {
     {
       label: 'Normie',
       seriesId: 'nor_1',
-      dragEnabled: false,
-      showCircle: false,
-      circleHighlight: false,
+      dragEnabled,
+      showCircle,
+      circleHighlight,
       fill: 'royalblue',
       data: [
         { axis: 'con_1', value: 3.8 },
@@ -56,29 +54,7 @@ function createProps (toMerge = {}) {
     }
   ];
 
-  const props = {
-    chartRootName: 'test1',
-    width: 550,
-    height: 500,
-    showLegend: false,
-    enableZoom: false,
-    rootElementId: 'chart',
-    data: data,
-    axisConfig: axisConfig,
-    options: {
-      levels: {
-        levelsNo: 3
-      },
-      legend: {
-        title: 'Big 5'
-      },
-      axis: {
-        onAxisLabelOver: null
-      },
-    }
-  };
-
-  return merge({}, props, toMerge);
+  return { axisConfig, data };
 }
 
-export default createProps;
+export default createData;

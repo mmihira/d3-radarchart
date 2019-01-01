@@ -9,7 +9,9 @@
     "lodash.isfunction": "^3.0.9",
     "lodash.merge": "^4.6.1",
     "lodash.omit": "^4.5.0",
-    "lodash.pick": "^4.4.0"
+    "lodash.pick": "^4.4.0",
+    "react": "^16.0.0",
+    "react-dom": "^16.7.0"
   },
   "license": "MIT",
   "scripts": {
@@ -22,6 +24,8 @@
   },
   "keywords": [
     "d3",
+    "react",
+    "umd",
     "radar",
     "radar chart",
     "radar-chart",
@@ -39,16 +43,23 @@
     "@babel/plugin-proposal-export-namespace-from": "^7.0.0",
     "@babel/polyfill": "^7.0.0",
     "@babel/preset-env": "^7.1.0",
+    "@babel/preset-react": "^7.0.0",
     "babel-core": "^7.0.0-bridge.0",
     "babel-eslint": "^8.2.6",
     "babel-jest": "23.6.0",
     "babel-loader": "^8.0.4",
+    "enzyme": "^3.8.0",
+    "enzyme-adapter-react-16": "^1.7.1",
     "eslint": "^4.17.0",
     "eslint-loader": "^1.7.0",
     "eslint-plugin-react": "^5.0.1",
     "jest": "^23.6.0",
+    "parcel-bundler": "^1.11.0",
+    "rc-slider": "^8.6.4",
     "rimraf": "^2.5.2",
+    "sass": "^1.15.2",
     "webpack": "^4.21.0",
+    "webpack-bundle-analyzer": "^2.13.1",
     "webpack-cli": "^3.1.2"
   }
 }

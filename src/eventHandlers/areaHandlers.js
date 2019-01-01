@@ -1,4 +1,4 @@
-import * as d3 from '../d3Wrapper/index';
+import * as d3 from 'd3';
 import isFunction from 'lodash.isfunction';
 import { AXIS_QUADS, AREA_STATE, AREA_EVENT, browserVendor } from '../const.js';
 import Area from '../renderer/Area.js';

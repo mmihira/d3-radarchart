@@ -1,4 +1,4 @@
-import * as d3 from '../d3Wrapper/index';
+import * as d3 from 'd3';
 import { browserVendor } from '../const.js';
 
 function zoomHandler (zoom) {

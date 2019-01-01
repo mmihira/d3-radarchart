@@ -4,7 +4,7 @@ test('__calculateDimensions', () => {
   const options = {
     dims: {
       width: 550,
-      height: 500,
+      height: 500
     }
   };
 
@@ -14,22 +14,22 @@ test('__calculateDimensions', () => {
     }
   }
 
-  let target = new MockedState(options)
-  let state = target.__STATE__;
+  const target = new MockedState(options);
+  const state = target.__STATE__;
 
   expect(state.calculatedDims).toEqual({
-    chartContainerH: 472.5,
+    chartContainerH: 475,
     chartContainerW: 481.25,
     height: 500,
-    innerH: 378,
-    innerPadding: 47.25,
+    innerH: 380,
+    innerPadding: 47.5,
     innerPaddingP: 0.1,
-    innerW: 386.75,
+    innerW: 386.25,
     legendSpaceP: 0.1,
     legendW: 55,
-    optsLeftChartOffset: 47.25,
-    optsTopChartOffset: 47.25,
-    paddingH: 13.75,
+    optsLeftChartOffset: 47.5,
+    optsTopChartOffset: 47.5,
+    paddingH: 12.5,
     paddingW: 13.75,
     translateXp: 0.05,
     translateYp: 0.05,

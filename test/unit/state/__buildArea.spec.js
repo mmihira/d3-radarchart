@@ -2,7 +2,6 @@ import DEFAULTS_OPTS from '../../fixtures/opts.js';
 import series from '../../fixtures/series.js';
 import axisConfig from '../../../test/fixtures/axisOptions.js';
 import State from '../../../src/state/state.js';
-import {STATE_DEFAULTS_OPTS} from '../../../src/state/state.js';
 import omit from 'lodash.omit';
 
 const opts = DEFAULTS_OPTS();
@@ -12,10 +11,10 @@ test('__buildArea - props', () => {
     data: series,
     dims: {
       width: 550,
-      height: 500,
+      height: 500
     },
     axis: {
-      config: axisConfig,
+      config: axisConfig
     }
   };
 
@@ -28,26 +27,19 @@ test('__buildArea - props', () => {
     }
   }
 
-  let target = new MockedState(options)
-  let state = target.__STATE__;
-  const toOmit = [
-    'areaLineLop',
-    'circleRadiusLop',
-    'fontLop'
-  ];
+  const target = new MockedState(options);
+  const state = target.__STATE__;
+  const toOmit = ['areaLineLop', 'circleRadiusLop', 'fontLop'];
 
   // Don't test the functions
-  const propsToTest = omit(
-    state.components.areas.nor_1.props,
-    toOmit
-  );
+  const propsToTest = omit(state.components.areas.nor_1.props, toOmit);
 
   expect(propsToTest).toEqual({
     fillColor: 'royalblue',
     seriesId: 'nor_1',
     series: series.find(e => e.seriesId === 'nor_1'),
     seriesInx: 0,
-    legendLabelLines: [ 'Normie' ]
+    legendLabelLines: ['Normie']
   });
 });
 
@@ -56,10 +48,10 @@ test('__buildArea - state', () => {
     data: series,
     dims: {
       width: 550,
-      height: 500,
+      height: 500
     },
     axis: {
-      config: axisConfig,
+      config: axisConfig
     }
   };
 
@@ -72,53 +64,44 @@ test('__buildArea - state', () => {
     }
   }
 
-  let target = new MockedState(options)
-  let state = target.__STATE__;
+  const target = new MockedState(options);
+  const state = target.__STATE__;
   const toOmit = [];
 
   // Don't test the functions
-  const stateToTest = omit(
-    state.components.areas.nor_1.state,
-    toOmit
-  );
+  const stateToTest = omit(state.components.areas.nor_1.state, toOmit);
 
   // Point Axis id order
-  expect(
-    stateToTest.points.map(e => e.axisId)
-  ).toEqual(
+  expect(stateToTest.points.map(e => e.axisId)).toEqual(
     axisConfig.map(e => e.axisId)
   );
 
   // Point cords
-  expect(
-    stateToTest.points.map(e => e.cords)
-  ).toEqual([
+  expect(stateToTest.points.map(e => e.cords)).toEqual([
     {
       x: 240.625,
-      y: 66.15000000000002
+      y: 66.50000000000001
     },
     {
-      x: 222.23394461614248,
-      y: 230.40957880631348
+      x: 222.25772102904986,
+      y: 231.62867710687598,
     },
     {
-      x: 161.06091878656008,
-      y: 343.28294835580556
+      x: 161.16378120571125,
+      y: 345.099260251868,
     },
     {
-      x: 308.8227838972342,
-      y: 327.992527162119
+      x: 308.73461610939034,
+      y: 329.727937358744,
     },
     {
-      x: 332.58027691928766,
-      y: 207.0478940315675
+      x: 332.4613948547508,
+      y: 208.14338553438
     }
   ]);
 
   // Point values
-  expect(
-    stateToTest.points.map(e => e.value)
-  ).toEqual([
+  expect(stateToTest.points.map(e => e.value)).toEqual([
     3.8,
     0.1,
     0.7,
@@ -129,17 +112,23 @@ test('__buildArea - state', () => {
   // areaLineLop
   const areaLineLop = state.components.areas.nor_1.props.areaLineLop;
   expect(areaLineLop(1)).toEqual(opts.area.lineProps.strokeWidth);
-  expect(areaLineLop(opts.zoomProps.scaleExtent.maxZoom)).toEqual(opts.area.lineProps.maxZoomStroke);
+  expect(areaLineLop(opts.zoomProps.scaleExtent.maxZoom)).toEqual(
+    opts.area.lineProps.maxZoomStroke
+  );
 
   // circleRadiusLop
   const circleRadiusLop = state.components.areas.nor_1.props.circleRadiusLop;
   expect(circleRadiusLop(1)).toEqual(opts.area.circleProps.defaultRadius);
-  expect(circleRadiusLop(opts.zoomProps.scaleExtent.maxZoom)).toEqual(opts.area.circleProps.maxZoomRadius);
+  expect(circleRadiusLop(opts.zoomProps.scaleExtent.maxZoom)).toEqual(
+    opts.area.circleProps.maxZoomRadius
+  );
 
   // fontLop
   const fontLop = state.components.areas.nor_1.props.fontLop;
   expect(fontLop(1)).toEqual(opts.area.labelProps.fontSize);
-  expect(fontLop(opts.zoomProps.scaleExtent.maxZoom)).toEqual(opts.area.labelProps.maxFontSize);
+  expect(fontLop(opts.zoomProps.scaleExtent.maxZoom)).toEqual(
+    opts.area.labelProps.maxFontSize
+  );
 
   const areaDatums = target.getAreaDatums();
   expect(areaDatums.length).toEqual(series.length);
