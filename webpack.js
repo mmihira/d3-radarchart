@@ -7,6 +7,12 @@ const BundleAnalyzerPlugin = require('webpack-bundle-analyzer')
 
 module.exports = {
   entry: ['@babel/polyfill', path.join(__dirname, 'src/index.js')],
+  externals: { react: {
+    root: 'React',
+    commonjs2: 'react',
+    commonjs: 'react',
+    amd: 'react'
+  }},
   mode: 'production',
   output: {
     path: path.join(__dirname, '/dist/'),
@@ -52,10 +58,10 @@ module.exports = {
           failOnError: false
         }
       }
+    }),
+    new BundleAnalyzerPlugin({
+      analyzerMode: 'static'
     })
-    // new BundleAnalyzerPlugin({
-    //   analyzerMode: 'static'
-    // })
   ],
   node: {
     fs: 'empty',

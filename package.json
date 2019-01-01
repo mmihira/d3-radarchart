@@ -1,8 +1,8 @@
 {
   "name": "d3-radarchart",
-  "version": "2.0.3",
+  "version": "2.1.0",
   "description": "D3 Radar chart",
-  "main": "src/index.js",
+  "main": "dist/index.min.js",
   "author": "Mihira Wanninayake",
   "dependencies": {
     "d3": "^5.5.0",
@@ -10,8 +10,8 @@
     "lodash.merge": "^4.6.1",
     "lodash.omit": "^4.5.0",
     "lodash.pick": "^4.4.0",
-    "react": "^16.0.0",
-    "react-dom": "^16.7.0"
+    "prop-types": "^15.6.2",
+    "react": "^16.0.0"
   },
   "license": "MIT",
   "scripts": {
@@ -54,6 +54,7 @@
     "jest": "^23.6.0",
     "parcel-bundler": "^1.11.0",
     "rc-slider": "^8.6.4",
+    "react-dom": "^16.7.0",
     "rimraf": "^2.5.2",
     "sass": "^1.15.2",
     "webpack": "^4.21.0",
