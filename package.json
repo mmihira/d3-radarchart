@@ -1,6 +1,6 @@
 {
   "name": "d3-radarchart",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "D3 Radar chart",
   "main": "dist/index.min.js",
   "author": "Mihira Wanninayake",
