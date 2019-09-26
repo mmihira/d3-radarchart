@@ -25,7 +25,7 @@ Features
 
 ## Screenshot
 
-![screenshot](https://media.giphy.com/media/uACQODMkpkg8jdapuy/giphy.gif)
+![screenshot](https://raw.githubusercontent.com/mmihira/d3-radarchart/readmeAssets/RadarChartDemo.gif)
 
 ## Live Demo
 
